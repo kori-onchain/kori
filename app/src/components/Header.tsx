@@ -4,15 +4,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   Text,
-  Platform,
-  Image,
 } from 'react-native';
-import Feather from '@expo/vector-icons/Feather';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
-import { COLORS } from '../constants/colors';
+import { colors, fonts, radii } from '../theme/tokens';
+import { KoraLogo } from './ds/KoraLogo';
+import { AccountSwitch } from './ds/AccountSwitch';
+import {
+  ChevronRightIcon,
+  CopyIcon,
+  KoraGlyph,
+  SolanaIcon,
+} from './ds/icons';
+
+type IdentityKind = 'userId' | 'wallet';
 
 interface HeaderProps {
   onLogout?: () => void;
@@ -23,25 +27,26 @@ interface HeaderProps {
   onAddAccount?: () => void;
   onProfilePress?: () => void;
   onScanPress?: () => void;
+  /** Currently selected identity (User ID / Wallet) — drives the wallet line in BalanceHero. */
+  identity?: IdentityKind;
+  onSelectIdentity?: (id: IdentityKind) => void;
+  userHandle?: string;
+  walletHashFull?: string;
+  walletHashShort?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onLogout,
   userName = 'Pedro Henrique',
-  username = 'opedrooz',
   accountType = 'PF',
   onSwitchAccount,
-  onAddAccount,
   onProfilePress,
-  onScanPress,
+  identity = 'wallet',
+  onSelectIdentity,
+  userHandle = '@opedrooz',
+  walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a',
+  walletHashShort = '7nxB...4X1a',
 }) => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<'userId' | 'wallet'>('userId');
-
-  const userId = username;
-  const walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a';
-  const walletHashMin = `${walletHashFull.substring(0, 4)}...${walletHashFull.substring(walletHashFull.length - 4)}`;
 
   const baseName = userName
     .replace(' PJ', '')
@@ -53,432 +58,256 @@ export const Header: React.FC<HeaderProps> = ({
   const personalFirstName = baseName.split(' ')[0];
   const businessShortName = `${personalFirstName} Store`;
 
-  const handleCopy = async (text: string) => {
-    await Clipboard.setStringAsync(text);
-    setIsWalletDropdownOpen(false);
+  const initials = userName
+    ? userName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+    : 'PH';
+
+  const togglePopover = () => {
+    onProfilePress?.();
+    setIsProfileDropdownOpen((v) => !v);
   };
 
-  const handleSelect = (item: 'userId' | 'wallet') => {
-    setSelectedItem(item);
-    setIsWalletDropdownOpen(false);
+  const copy = (text: string) => {
+    Clipboard.setStringAsync(text);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.topRow}>
-        <View style={styles.profileWrapper}>
-          <View style={styles.profileRowContainer}>
-            <TouchableOpacity
-              style={styles.profileBtn}
-              onPress={() => {
-                onProfilePress?.();
-                setIsProfileDropdownOpen(false);
-                setIsWalletDropdownOpen(false);
-              }}
-              activeOpacity={0.8}
-            >
-              {accountType === 'PF' ? (
-                <LinearGradient
-                  colors={['#7C3AED', '#4F46E5', '#2563EB']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.profileGradient}
-                >
-                  <Text style={styles.profileTextGradient}>
-                    {userName
-                      ? userName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-                      : 'PH'}
-                  </Text>
-                </LinearGradient>
-              ) : (
-                <Text style={styles.profileText}>
-                  {userName
-                    ? userName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
-                    : 'PH'}
-                </Text>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.profileChevronBtn}
-              onPress={() => {
-                setIsProfileDropdownOpen(!isProfileDropdownOpen);
-                setIsWalletDropdownOpen(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Feather
-                name={isProfileDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                size={14}
-                color={COLORS.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {isProfileDropdownOpen && (
-            <View style={styles.profileDropdownMenu}>
-              <TouchableOpacity
-                style={[styles.accountOption, accountType === 'PF' && styles.accountOptionActive]}
-                onPress={() => {
-                  if (accountType !== 'PF') onSwitchAccount?.('PF');
-                  setIsProfileDropdownOpen(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.accountIconCircle}>
-                  <Ionicons
-                    name="person-outline"
-                    size={12}
-                    color={accountType === 'PF' ? COLORS.text : COLORS.textSecondary}
-                  />
-                </View>
-                <Text
-                  style={[styles.accountOptionText, accountType === 'PF' && styles.accountOptionTextActive]}
-                  numberOfLines={1}
-                >
-                  {personalFirstName}
-                </Text>
-                {accountType === 'PF' && <Feather name="check" size={12} color={COLORS.primary} />}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.accountOption, accountType === 'PJ' && styles.accountOptionActive]}
-                onPress={() => {
-                  if (accountType !== 'PJ') onSwitchAccount?.('PJ');
-                  setIsProfileDropdownOpen(false);
-                }}
-                activeOpacity={0.8}
-              >
-                <View style={styles.accountIconCircle}>
-                  <Ionicons
-                    name="business-outline"
-                    size={12}
-                    color={accountType === 'PJ' ? COLORS.text : COLORS.textSecondary}
-                  />
-                </View>
-                <Text
-                  style={[styles.accountOptionText, accountType === 'PJ' && styles.accountOptionTextActive]}
-                  numberOfLines={1}
-                >
-                  {businessShortName}
-                </Text>
-                {accountType === 'PJ' && <Feather name="check" size={12} color={COLORS.primary} />}
-              </TouchableOpacity>
-            </View>
-          )}
+        <View style={styles.left}>
+          <KoraLogo size={22} color={colors.ink} />
         </View>
 
-        <View style={styles.centerContainer}>
+        <View style={styles.right}>
+          <AccountSwitch
+            initials={initials}
+            expanded={isProfileDropdownOpen}
+            onPress={togglePopover}
+          />
+        </View>
+      </View>
+
+      {isProfileDropdownOpen && (
+        <View style={styles.dropdown}>
+          <Text style={styles.sectionLabel}>CONTA</Text>
+
           <TouchableOpacity
-            style={styles.dropdownBtn}
+            style={[
+              styles.row,
+              accountType === 'PF' && styles.rowActive,
+            ]}
             onPress={() => {
-              setIsWalletDropdownOpen(!isWalletDropdownOpen);
+              if (accountType !== 'PF') onSwitchAccount?.('PF');
               setIsProfileDropdownOpen(false);
             }}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            {selectedItem === 'userId' ? (
-              <Feather name="at-sign" size={16} color={COLORS.textSecondary} style={styles.walletIcon} />
-            ) : (
-              <Ionicons name="wallet-outline" size={16} color={COLORS.textSecondary} style={styles.walletIcon} />
-            )}
-            <Text style={styles.dropdownText}>
-              {selectedItem === 'userId' ? userId : walletHashMin}
+            <View style={styles.rowIcon} />
+            <Text
+              style={[
+                styles.rowText,
+                accountType === 'PF' && styles.rowTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              {personalFirstName}
             </Text>
-            <Feather
-              name={isWalletDropdownOpen ? 'chevron-up' : 'chevron-down'}
-              size={14}
-              color={COLORS.textSecondary}
-              style={styles.chevronIcon}
-            />
+            {accountType === 'PF' && (
+              <ChevronRightIcon size={12} color={colors.orange} />
+            )}
           </TouchableOpacity>
 
-          {isWalletDropdownOpen && (
-            <View style={styles.dropdownMenu}>
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => handleSelect('userId')}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.dropdownLabel}>User ID</Text>
-                  {selectedItem === 'userId' && <Feather name="check" size={14} color={COLORS.primary} />}
-                </View>
-                <View style={styles.row}>
-                  <View style={styles.iconContainer}>
-                    <View style={styles.koraLogo}>
-                      <Text style={styles.koraLogoText}>K</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.dropdownValue}>@{userId}</Text>
-                  <TouchableOpacity onPress={() => handleCopy(userId)} style={styles.copyBtn}>
-                    <Feather name="copy" size={16} color={COLORS.textSecondary} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.walletExplanation}>
-                  Esta carteira está associada à sua identidade pública. Seu nome de usuário ficará visível a ambas as partes ao enviar ou receber valores.
-                </Text>
-              </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.row,
+              accountType === 'PJ' && styles.rowActive,
+            ]}
+            onPress={() => {
+              if (accountType !== 'PJ') onSwitchAccount?.('PJ');
+              setIsProfileDropdownOpen(false);
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.rowIcon} />
+            <Text
+              style={[
+                styles.rowText,
+                accountType === 'PJ' && styles.rowTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              {businessShortName}
+            </Text>
+            {accountType === 'PJ' && (
+              <ChevronRightIcon size={12} color={colors.orange} />
+            )}
+          </TouchableOpacity>
 
-              <View style={styles.divider} />
+          <View style={styles.divider} />
+          <Text style={styles.sectionLabel}>IDENTIDADE</Text>
 
-              <TouchableOpacity style={styles.dropdownItem} onPress={() => handleSelect('wallet')}>
-                <View style={styles.itemHeader}>
-                  <Text style={styles.dropdownLabel}>Wallet</Text>
-                  {selectedItem === 'wallet' && <Feather name="check" size={14} color={COLORS.primary} />}
-                </View>
-                <View style={styles.row}>
-                  <View style={styles.iconContainer}>
-                    <Image
-                      source={{ uri: 'https://cryptologos.cc/logos/solana-sol-logo.png' }}
-                      style={styles.solanaLogo}
-                    />
-                  </View>
-                  <Text style={styles.dropdownValueFull} numberOfLines={1} ellipsizeMode="middle">
-                    {walletHashFull}
-                  </Text>
-                  <TouchableOpacity onPress={() => handleCopy(walletHashFull)} style={styles.copyBtn}>
-                    <Feather name="copy" size={16} color={COLORS.textSecondary} />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.walletExplanation}>
-                  Esta carteira utiliza um endereço criptográfico descentralizado. Garante anonimato absoluto, sem revelar dados de identidade em nenhuma transação.
-                </Text>
-              </TouchableOpacity>
+          {/* USER ID */}
+          <TouchableOpacity
+            style={[
+              styles.row,
+              identity === 'userId' && styles.rowActive,
+            ]}
+            onPress={() => onSelectIdentity?.('userId')}
+            activeOpacity={0.85}
+          >
+            <View style={styles.rowIcon}>
+              <KoraGlyph size={14} color={colors.ink} />
             </View>
-          )}
-        </View>
+            <View style={styles.identityText}>
+              <Text style={styles.identityLabel}>USER ID</Text>
+              <Text style={styles.identityValue} numberOfLines={1}>
+                {userHandle}
+              </Text>
+            </View>
+            <TouchableOpacity
+              hitSlop={8}
+              onPress={() => copy(userHandle)}
+              style={styles.copyBtn}
+              activeOpacity={0.7}
+            >
+              <CopyIcon size={14} color={colors.inkDim} strokeWidth={1.6} />
+            </TouchableOpacity>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.scannerBtn} onPress={onScanPress} activeOpacity={0.7}>
-          <MaterialCommunityIcons name="qrcode-scan" size={20} color={COLORS.text} />
-        </TouchableOpacity>
-      </View>
+          {/* WALLET (Solana) */}
+          <TouchableOpacity
+            style={[
+              styles.row,
+              identity === 'wallet' && styles.rowActive,
+            ]}
+            onPress={() => onSelectIdentity?.('wallet')}
+            activeOpacity={0.85}
+          >
+            <View style={styles.rowIcon}>
+              <SolanaIcon width={14} height={11} color={colors.ink} />
+            </View>
+            <View style={styles.identityText}>
+              <Text style={styles.identityLabel}>WALLET</Text>
+              <Text style={styles.identityValue} numberOfLines={1}>
+                {walletHashShort}
+              </Text>
+            </View>
+            <TouchableOpacity
+              hitSlop={8}
+              onPress={() => copy(walletHashFull)}
+              style={styles.copyBtn}
+              activeOpacity={0.7}
+            >
+              <CopyIcon size={14} color={colors.inkDim} strokeWidth={1.6} />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 4,
     zIndex: 100,
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-    height: 40,
-    zIndex: 100,
-  },
-  profileWrapper: {
-    position: 'absolute',
-    left: 0,
-    zIndex: 200,
-  },
-  profileBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    overflow: 'hidden',
-  },
-  profileGradient: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileTextGradient: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  profileText: {
-    color: COLORS.text,
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  scannerBtn: {
-    position: 'absolute',
-    right: 0,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  centerContainer: {
-    alignItems: 'center',
-    position: 'relative',
-    zIndex: 10,
-  },
-  dropdownBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  walletIcon: {
-    marginRight: 6,
-  },
-  dropdownText: {
-    color: COLORS.text,
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  chevronIcon: {
-    marginLeft: 6,
-  },
-  dropdownMenu: {
-    position: 'absolute',
-    top: 45,
-    backgroundColor: COLORS.surface,
-    width: 320,
-    left: '50%',
-    marginLeft: -160,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-    zIndex: 100,
-  },
-  dropdownItem: {
-    paddingVertical: 4,
-  },
-  walletExplanation: {
-    color: COLORS.textSecondary,
-    fontSize: 10.5,
-    lineHeight: 14,
-    marginTop: 6,
-    marginLeft: 40,
-    opacity: 0.85,
-  },
-  itemHeader: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    height: 40,
+    zIndex: 100,
   },
-  dropdownLabel: {
-    color: COLORS.textSecondary,
-    fontSize: 11,
+  left: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  dropdown: {
+    position: 'absolute',
+    top: 48,
+    right: 0,
+    backgroundColor: colors.bg2,
+    width: 270,
+    borderRadius: radii.card,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: colors.line,
+    elevation: 8,
+    zIndex: 300,
+  },
+  sectionLabel: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    fontWeight: '600',
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    marginBottom: 2,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    marginBottom: 2,
+    gap: 8,
   },
-  iconContainer: {
-    marginRight: 12,
-    justifyContent: 'center',
+  rowActive: {
+    backgroundColor: colors.bgElev,
+  },
+  rowIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.bgElev,
+    borderWidth: 1,
+    borderColor: colors.line,
     alignItems: 'center',
-    width: 28,
-  },
-  koraLogo: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    backgroundColor: '#8A2BE2',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  koraLogoText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  solanaLogo: {
-    width: 28,
-    height: 28,
-    resizeMode: 'contain',
-  },
-  dropdownValue: {
+  rowText: {
     flex: 1,
-    color: COLORS.text,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  dropdownValueFull: {
-    flex: 1,
-    color: COLORS.text,
+    color: colors.inkDim,
+    fontFamily: fonts.sans.medium,
     fontSize: 13,
-    fontWeight: '500',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
-  copyBtn: {
-    padding: 8,
-    marginLeft: 4,
+  rowTextActive: {
+    color: colors.ink,
+    fontFamily: fonts.sans.semibold,
   },
+
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
-    marginVertical: 12,
+    backgroundColor: colors.line,
+    marginVertical: 8,
   },
-  profileDropdownMenu: {
-    position: 'absolute',
-    top: 48,
-    left: 0,
-    backgroundColor: COLORS.surface,
-    width: 210,
-    borderRadius: 14,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-    zIndex: 300,
-  },
-  accountIconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 4,
-  },
-  accountOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    gap: 8,
-    marginBottom: 4,
-  },
-  accountOptionActive: {
-    backgroundColor: '#111111',
-  },
-  accountOptionText: {
+
+  identityText: {
     flex: 1,
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    fontWeight: '500',
   },
-  accountOptionTextActive: {
-    color: COLORS.text,
-    fontWeight: '600',
+  identityLabel: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 1.0,
   },
-  profileRowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
+  identityValue: {
+    color: colors.ink,
+    fontFamily: fonts.mono.medium,
+    fontSize: 12,
+    marginTop: 1,
+    letterSpacing: 0.3,
   },
-  profileChevronBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
+  copyBtn: {
+    padding: 6,
   },
 });

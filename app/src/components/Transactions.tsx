@@ -1,13 +1,35 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { COLORS } from '../constants/colors';
+import { colors, fonts, radii } from '../theme/tokens';
 import { MOCK_CARDS } from '../data/cards';
-import { MOCK_TRANSACTIONS } from '../data/transactions';
-import { Transaction } from '../data/transactions';
+import { MOCK_TRANSACTIONS, Transaction } from '../data/transactions';
 import { Card } from '../data/cards';
+import { SoftCard } from './ds/SoftCard';
+import { ArrowRightIcon, CardIcon, InvestIcon } from './ds/icons';
+import Svg, { Path } from 'react-native-svg';
 
-// Miniatura do cartão usada como badge
+const PREVIEW_COUNT = 4;
+
+const EyeOffIcon: React.FC<{ size?: number; color?: string }> = ({
+  size = 14,
+  color = colors.inkDim,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M3 3 L21 21 M10.5 6.3 A9 9 0 0 1 21 12 A9 9 0 0 1 17 16.5 M6.5 7.5 A9 9 0 0 0 3 12 A9 9 0 0 0 12 18 C13.6 18 15 17.7 16 17.2"
+      stroke={color}
+      strokeWidth={1.7}
+      strokeLinecap="round"
+    />
+    <Path
+      d="M9.5 9.5 A3 3 0 0 0 14.5 14.5"
+      stroke={color}
+      strokeWidth={1.7}
+      strokeLinecap="round"
+    />
+  </Svg>
+);
+
 const CardBadge: React.FC<{ card: Card }> = ({ card }) => (
   <View style={[styles.cardBadge, { backgroundColor: card.cardBg }]}>
     <View style={styles.badgeChip} />
@@ -19,192 +41,164 @@ const CardBadge: React.FC<{ card: Card }> = ({ card }) => (
     ) : (
       <Text style={[styles.badgeVisa, { color: card.accentColor }]}>VISA</Text>
     )}
-    <View style={styles.badgeGloss} />
   </View>
 );
 
-const TransactionRow: React.FC<{ item: Transaction; isLast: boolean }> = ({ item, isLast }) => {
-  const card = item.cardId ? MOCK_CARDS.find((c) => c.id === item.cardId) : undefined;
-
-  return (
-    <>
-      <TouchableOpacity style={styles.txItem} activeOpacity={0.75}>
-        {/* Avatar / ícone com badge do cartão */}
-        <View style={styles.txIcon}>
-          {item.isAnonymous ? (
-            <View style={styles.avatarWrapper}>
-              <View style={[styles.avatar, { backgroundColor: '#1E1E1E' }]}>
-                <Feather name="eye-off" size={16} color="#8E8E93" />
-              </View>
-            </View>
-          ) : item.isAvatar ? (
-            <View style={styles.avatarWrapper}>
-              <View
-                style={[
-                  styles.avatar,
-                  { backgroundColor: item.amount.startsWith('+') ? '#1B3D2A' : '#2A2040' },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.avatarText,
-                    { color: item.amount.startsWith('+') ? '#34C759' : '#9B8BFF' },
-                  ]}
-                >
-                  {item.initials || 'TR'}
-                </Text>
-              </View>
-              {card && (
-                <View style={styles.cardBadgeContainer}>
-                  <CardBadge card={card} />
-                </View>
-              )}
-            </View>
-          ) : (
-            <View style={styles.avatarWrapper}>
-              <View style={styles.actionIcon}>
-                <Feather name="repeat" size={16} color={COLORS.textSecondary} />
-              </View>
-              {card && (
-                <View style={styles.cardBadgeContainer}>
-                  <CardBadge card={card} />
-                </View>
-              )}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.txDetails}>
-          <Text style={styles.txItemTitle} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.txItemType}>{item.type}</Text>
-        </View>
-
-        <View style={styles.txAmounts}>
-          <Text style={[styles.txAmount, { color: item.amountColor }]}>{item.amount}</Text>
-          <Text style={[styles.txSubAmount, { color: item.subAmountColor }]}>{item.subAmount}</Text>
-        </View>
-      </TouchableOpacity>
-      {!isLast && <View style={styles.rowDivider} />}
-    </>
-  );
+const pickRowIcon = (item: Transaction): React.ReactNode => {
+  if (item.isAnonymous) {
+    return <EyeOffIcon size={14} color={colors.inkDim} />;
+  }
+  if (item.isAvatar && item.initials) {
+    return <Text style={styles.rowInitials}>{item.initials}</Text>;
+  }
+  // fallback "type" icons — simple visual cues
+  if (/yield/i.test(item.title)) {
+    return <InvestIcon size={14} color={colors.ink} strokeWidth={1.7} />;
+  }
+  if (/cart/i.test(item.title) || /padaria|mercado/i.test(item.title)) {
+    return <CardIcon size={14} color={colors.ink} strokeWidth={1.7} />;
+  }
+  return <ArrowRightIcon size={14} color={colors.ink} strokeWidth={1.7} />;
 };
 
 interface TransactionsProps {
   onSeeAll?: () => void;
 }
 
-const PREVIEW_COUNT = 4;
+const Row: React.FC<{ item: Transaction; isLast: boolean }> = ({
+  item,
+  isLast,
+}) => {
+  const card = item.cardId ? MOCK_CARDS.find((c) => c.id === item.cardId) : undefined;
+  const isIncoming = item.amount.trim().startsWith('+');
 
-export const Transactions: React.FC<TransactionsProps> = ({ onSeeAll }) => (
-  <View style={styles.wrapper}>
-    <View style={styles.section}>
-      <View style={styles.txHeader}>
-        <Text style={styles.txTitle}>Transações</Text>
-        <TouchableOpacity style={styles.showAllBtn} onPress={onSeeAll} activeOpacity={0.7}>
-          <Text style={styles.showAllText}>Show All</Text>
-          <Feather name="chevron-right" size={16} color={COLORS.textSecondary} />
+  return (
+    <View style={[styles.row, isLast && styles.rowLast]}>
+      <View style={styles.info}>
+        <View style={styles.iconWrap}>
+          <SoftCard radius={8} padding={0} flat>
+            <View style={styles.iconInner}>{pickRowIcon(item)}</View>
+          </SoftCard>
+          {card && (
+            <View style={styles.cardBadgeContainer}>
+              <CardBadge card={card} />
+            </View>
+          )}
+        </View>
+
+        <View style={styles.text}>
+          <Text style={styles.title} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.sub} numberOfLines={1}>
+            {item.type}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.amounts}>
+        <Text style={[styles.amount, isIncoming && styles.amountIn]}>
+          {item.amount}
+        </Text>
+        <Text style={styles.subAmount}>{item.subAmount}</Text>
+      </View>
+    </View>
+  );
+};
+
+export const Transactions: React.FC<TransactionsProps> = ({ onSeeAll }) => {
+  const items = MOCK_TRANSACTIONS.slice(0, PREVIEW_COUNT);
+
+  return (
+    <View style={styles.wrapper}>
+      <View style={styles.headerRow}>
+        <Text style={styles.sectionTitle}>HOJE · {items.length} MOVS</Text>
+        <TouchableOpacity onPress={onSeeAll} activeOpacity={0.7}>
+          <Text style={styles.seeMoreText}>
+            Ver tudo <Text style={styles.seeMoreArrow}>→</Text>
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.txList}>
-        {MOCK_TRANSACTIONS.slice(0, PREVIEW_COUNT).map((item, i) => (
-          <TransactionRow key={item.id} item={item} isLast={i === PREVIEW_COUNT - 1} />
-        ))}
-      </View>
+      {items.map((item, i) => (
+        <Row key={item.id} item={item} isLast={i === items.length - 1} />
+      ))}
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: '#161616',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#242424',
-    marginTop: 8,
-    marginBottom: 32,
-    overflow: 'hidden',
+    marginBottom: 24,
   },
-  section: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  rowDivider: {
-    height: 1,
-    backgroundColor: '#1F1F1F',
-    marginVertical: 2,
-  },
-  txHeader: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
+    alignItems: 'baseline',
+    marginBottom: 6,
   },
-  txTitle: {
-    color: COLORS.text,
-    fontSize: 17,
-    fontWeight: '700',
+  sectionTitle: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
-  showAllBtn: {
+  seeMoreText: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 0.5,
+  },
+  seeMoreArrow: {
+    color: colors.orange,
+    fontFamily: fonts.mono.semibold,
+    fontSize: 11,
+  },
+
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'space-between',
+    paddingVertical: 11,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
   },
-  showAllText: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    fontWeight: '500',
+  rowLast: {
+    borderBottomWidth: 0,
   },
-  txList: {
-    paddingBottom: 4,
-  },
-  txItem: {
+  info: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
     gap: 12,
+    flex: 1,
   },
-  txIcon: {},
-
-  // wrapper relativo para o badge do cartão
-  avatarWrapper: {
+  iconWrap: {
     position: 'relative',
-    width: 42,
-    height: 42,
+    width: 32,
+    height: 32,
   },
-  avatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    justifyContent: 'center',
+  iconInner: {
+    width: 32,
+    height: 32,
     alignItems: 'center',
-  },
-  avatarText: {
-    fontWeight: '700',
-    fontSize: 13,
-  },
-  actionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    backgroundColor: '#1E1E1E',
     justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderRadius: radii.cardSm,
   },
-
-  // Posicionamento do badge no canto inferior direito
+  rowInitials: {
+    fontFamily: fonts.sans.semibold,
+    color: colors.ink,
+    fontSize: 11,
+    letterSpacing: 0.3,
+  },
   cardBadgeContainer: {
     position: 'absolute',
-    bottom: -4,
-    right: -6,
+    bottom: -3,
+    right: -4,
   },
   cardBadge: {
-    width: 22,
-    height: 14,
+    width: 20,
+    height: 13,
     borderRadius: 3,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
@@ -241,40 +235,39 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: 0.3,
   },
-  badgeGloss: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: '45%',
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderTopLeftRadius: 3,
-    borderTopRightRadius: 3,
-  },
 
-  txDetails: {
+  text: {
     flex: 1,
-    gap: 3,
+    gap: 2,
   },
-  txItemTitle: {
-    color: COLORS.text,
-    fontSize: 14,
-    fontWeight: '600',
+  title: {
+    color: colors.ink,
+    fontFamily: fonts.sans.medium,
+    fontSize: 13,
   },
-  txItemType: {
-    color: COLORS.textSecondary,
-    fontSize: 12,
+  sub: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.regular,
+    fontSize: 10,
+    letterSpacing: 0.3,
   },
-  txAmounts: {
+  amounts: {
     alignItems: 'flex-end',
-    gap: 3,
+    gap: 2,
   },
-  txAmount: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  txSubAmount: {
+  amount: {
+    color: colors.ink,
+    fontFamily: fonts.mono.semibold,
     fontSize: 12,
-    fontWeight: '500',
+    letterSpacing: 0.2,
+  },
+  amountIn: {
+    color: colors.green,
+  },
+  subAmount: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.regular,
+    fontSize: 9,
+    letterSpacing: 0.3,
   },
 });

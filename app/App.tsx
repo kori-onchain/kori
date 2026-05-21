@@ -1,4 +1,17 @@
 import React, { useState } from "react";
+import { View } from "react-native";
+import {
+  useFonts,
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+  Geist_700Bold,
+} from "@expo-google-fonts/geist";
+import {
+  GeistMono_400Regular,
+  GeistMono_500Medium,
+  GeistMono_600SemiBold,
+} from "@expo-google-fonts/geist-mono";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { AuthScreen } from "./src/screens/AuthScreen";
 import { SecuritySetupScreen } from "./src/screens/SecuritySetupScreen";
@@ -13,10 +26,25 @@ interface UserSession {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
+    GeistMono_400Regular,
+    GeistMono_500Medium,
+    GeistMono_600SemiBold,
+  });
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [session, setSession] = useState<UserSession | null>(null);
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
+
+  if (!fontsLoaded) {
+    // Keep the screen black while the Geist family is loading — avoids the
+    // brief Roboto/system flash on cold start.
+    return <View style={{ flex: 1, backgroundColor: "#0a0a0a" }} />;
+  }
 
   const handleSwitchAccount = (newType: "PF" | "PJ") => {
     setSession((prev) => {

@@ -1,8 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { COLORS } from '../constants/colors';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { colors, fonts, radii } from '../theme/tokens';
 import { MOCK_CRYPTO_FAVORITES, MOCK_CRYPTO_PORTFOLIO } from '../data/crypto';
+import { SoftCard } from './ds/SoftCard';
 
 const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
   <View style={styles.sparklineContainer}>
@@ -14,7 +20,7 @@ const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
           {
             height: `${val}%`,
             backgroundColor: color,
-            opacity: 0.4 + (i / points.length) * 0.6,
+            opacity: 0.35 + (i / points.length) * 0.6,
           },
         ]}
       />
@@ -22,12 +28,92 @@ const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
   </View>
 );
 
+const FavoriteCard: React.FC<{
+  item: (typeof MOCK_CRYPTO_FAVORITES)[number];
+}> = ({ item }) => {
+  const tint = item.isPositive ? colors.green : '#ff5d6c';
+  return (
+    <SoftCard radius={radii.cardSm} padding={0}>
+      <View style={styles.favCardInner}>
+        <View style={styles.favHeader}>
+          <View
+            style={[
+              styles.favIcon,
+              { backgroundColor: item.bgColor, borderColor: item.iconColor },
+            ]}
+          >
+            <Text
+              style={[
+                styles.favIconText,
+                { color: item.id === 'xrp' ? colors.ink : item.iconColor },
+              ]}
+            >
+              {item.iconText}
+            </Text>
+          </View>
+          <View style={styles.favMeta}>
+            <Text style={styles.favName} numberOfLines={1}>
+              {item.name}
+            </Text>
+            <Text style={styles.favSymbol}>{item.symbol}</Text>
+          </View>
+        </View>
+
+        <Sparkline points={item.points} color={tint} />
+
+        <View style={styles.favFooter}>
+          <Text style={styles.favBalance}>{item.balance}</Text>
+          <Text style={[styles.favChange, { color: tint }]}>{item.change}</Text>
+        </View>
+      </View>
+    </SoftCard>
+  );
+};
+
+const PortfolioRow: React.FC<{
+  item: (typeof MOCK_CRYPTO_PORTFOLIO)[number];
+  isLast: boolean;
+}> = ({ item, isLast }) => {
+  const tint = item.isPositive ? colors.green : '#ff5d6c';
+  return (
+    <View style={[styles.pfRow, isLast && styles.pfRowLast]}>
+      <View style={styles.pfInfo}>
+        <View style={styles.pfHeader}>
+          <Text style={styles.pfName}>{item.name}</Text>
+          <Text style={[styles.pfChange, { color: tint }]}>{item.change}</Text>
+        </View>
+        <View style={styles.pfAmountRow}>
+          <Text style={styles.pfAmount}>{item.amount}</Text>
+          <Text style={styles.pfSymbol}>{item.symbol}</Text>
+        </View>
+      </View>
+
+      <View style={styles.pfSparkline}>
+        <Sparkline points={item.points} color={tint} />
+      </View>
+
+      <View
+        style={[
+          styles.pfIcon,
+          { backgroundColor: item.bgColor, borderColor: item.iconColor },
+        ]}
+      >
+        <Text style={[styles.pfIconText, { color: item.iconColor }]}>
+          {item.iconText}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
 export const CryptoInvestments = () => (
   <View style={styles.container}>
     <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>Favoritos</Text>
-      <TouchableOpacity style={styles.seeAllButton}>
-        <Text style={styles.seeAllText}>Ver todos</Text>
+      <Text style={styles.sectionTitle}>FAVORITOS</Text>
+      <TouchableOpacity activeOpacity={0.7}>
+        <Text style={styles.seeMore}>
+          Ver todos <Text style={styles.seeMoreArrow}>→</Text>
+        </Text>
       </TouchableOpacity>
     </View>
 
@@ -36,94 +122,28 @@ export const CryptoInvestments = () => (
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.favoritesScroll}
     >
-      {MOCK_CRYPTO_FAVORITES.map((crypto) => (
-        <View key={crypto.id} style={styles.favoriteCard}>
-          <View style={styles.cardHeader}>
-            <View style={[styles.cryptoIconCircle, { backgroundColor: crypto.bgColor, borderColor: crypto.iconColor }]}>
-              <Text style={[styles.cryptoIconText, { color: crypto.id === 'xrp' ? '#FFF' : crypto.iconColor }]}>
-                {crypto.iconText}
-              </Text>
-            </View>
-            <View style={styles.cryptoMeta}>
-              <Text style={styles.cryptoName}>{crypto.name}</Text>
-              <Text style={styles.cryptoSymbol}>{crypto.symbol}</Text>
-            </View>
-          </View>
-
-          <Sparkline points={crypto.points} color={crypto.isPositive ? '#2E7D32' : '#C62828'} />
-
-          <View style={styles.cardFooter}>
-            <Text style={styles.balanceText}>{crypto.balance}</Text>
-            <View style={[styles.badgePill, { backgroundColor: crypto.isPositive ? 'rgba(46, 125, 50, 0.1)' : 'rgba(198, 40, 40, 0.1)' }]}>
-              <Feather
-                name={crypto.isPositive ? 'trending-up' : 'trending-down'}
-                size={12}
-                color={crypto.isPositive ? '#4CAF50' : '#FF5252'}
-                style={styles.pillIcon}
-              />
-              <Text style={[styles.badgeText, { color: crypto.isPositive ? '#4CAF50' : '#FF5252' }]}>
-                {crypto.change}
-              </Text>
-            </View>
-          </View>
+      {MOCK_CRYPTO_FAVORITES.map((c) => (
+        <View key={c.id} style={styles.favCardWrap}>
+          <FavoriteCard item={c} />
         </View>
       ))}
     </ScrollView>
 
-    <View style={[styles.sectionHeader, { marginTop: 12 }]}>
-      <Text style={styles.sectionTitle}>Portfólio</Text>
-      <TouchableOpacity>
-        <Feather name="sliders" size={18} color={COLORS.textSecondary} />
-      </TouchableOpacity>
+    <View style={[styles.sectionHeader, styles.portfolioHeader]}>
+      <Text style={styles.sectionTitle}>PORTFOLIO</Text>
     </View>
 
-    <View style={styles.portfolioContainer}>
-      {MOCK_CRYPTO_PORTFOLIO.map((crypto, idx) => (
-        <View
-          key={crypto.id}
-          style={[
-            styles.portfolioRow,
-            idx === MOCK_CRYPTO_PORTFOLIO.length - 1 && { borderBottomWidth: 0 },
-          ]}
-        >
-          <View style={styles.portfolioInfo}>
-            <View style={styles.portfolioMetaRow}>
-              <Text style={styles.portfolioCryptoName}>{crypto.name}</Text>
-              <View style={styles.portfolioBadge}>
-                <Feather
-                  name={crypto.isPositive ? 'arrow-up-right' : 'arrow-down-left'}
-                  size={11}
-                  color={crypto.isPositive ? '#4CAF50' : '#FF5252'}
-                />
-                <Text style={[styles.portfolioChangeText, { color: crypto.isPositive ? '#4CAF50' : '#FF5252' }]}>
-                  {crypto.change}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.amountContainer}>
-              <Text style={styles.portfolioAmount}>{crypto.amount}</Text>
-              <Text style={styles.portfolioSymbol}>{crypto.symbol}</Text>
-              <Feather
-                name={crypto.isPositive ? 'arrow-up' : 'arrow-down'}
-                size={12}
-                color={crypto.isPositive ? '#4CAF50' : '#FF5252'}
-                style={{ marginLeft: 4 }}
-              />
-            </View>
-          </View>
-
-          <View style={styles.portfolioSparklineContainer}>
-            <Sparkline points={crypto.points} color={crypto.isPositive ? '#2E7D32' : '#C62828'} />
-          </View>
-
-          <View style={[styles.cryptoIconCircle, { backgroundColor: crypto.bgColor, borderColor: crypto.iconColor }]}>
-            <Text style={[styles.cryptoIconText, { color: crypto.iconColor }]}>
-              {crypto.iconText}
-            </Text>
-          </View>
-        </View>
-      ))}
-    </View>
+    <SoftCard radius={radii.card} padding={0}>
+      <View style={styles.pfContainer}>
+        {MOCK_CRYPTO_PORTFOLIO.map((c, i) => (
+          <PortfolioRow
+            key={c.id}
+            item={c}
+            isLast={i === MOCK_CRYPTO_PORTFOLIO.length - 1}
+          />
+        ))}
+      </View>
+    </SoftCard>
   </View>
 );
 
@@ -134,159 +154,169 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    alignItems: 'baseline',
+    marginBottom: 12,
+  },
+  portfolioHeader: {
+    marginTop: 18,
   },
   sectionTitle: {
-    color: '#FFF',
-    fontSize: 20,
-    fontWeight: '900',
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
-  seeAllButton: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+  seeMore: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 0.5,
   },
-  seeAllText: {
-    color: COLORS.textSecondary,
-    fontSize: 13,
-    fontWeight: '600',
+  seeMoreArrow: {
+    color: colors.orange,
+    fontFamily: fonts.mono.semibold,
+    fontSize: 11,
   },
   favoritesScroll: {
     paddingRight: 24,
-    gap: 16,
-    marginBottom: 16,
-  },
-  favoriteCard: {
-    width: 160,
-    backgroundColor: '#161616',
-    borderWidth: 1,
-    borderColor: '#262626',
-    borderRadius: 16,
-    padding: 16,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 10,
   },
-  cryptoIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  favCardWrap: {
+    width: 152,
+  },
+  favCardInner: {
+    padding: 12,
+  },
+  favHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+  },
+  favIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cryptoIconText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  favIconText: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 14,
   },
-  cryptoMeta: {
+  favMeta: {
     flex: 1,
   },
-  cryptoName: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '700',
+  favName: {
+    color: colors.ink,
+    fontFamily: fonts.sans.semibold,
+    fontSize: 12,
   },
-  cryptoSymbol: {
-    color: '#666',
-    fontSize: 10,
-    fontWeight: '700',
+  favSymbol: {
+    color: colors.inkMute,
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 0.3,
+    marginTop: 1,
   },
   sparklineContainer: {
-    height: 32,
+    height: 28,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     width: 70,
-    marginVertical: 14,
+    marginVertical: 12,
   },
   sparklineBar: {
     width: 3,
     borderRadius: 1.5,
   },
-  cardFooter: {
+  favFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'baseline',
   },
-  balanceText: {
-    color: '#FFF',
-    fontSize: 15,
-    fontWeight: '900',
+  favBalance: {
+    color: colors.ink,
+    fontFamily: fonts.sans.bold,
+    fontSize: 14,
+    letterSpacing: -0.2,
   },
-  badgePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-  },
-  pillIcon: {
-    marginRight: 2,
-  },
-  badgeText: {
+  favChange: {
+    fontFamily: fonts.mono.semibold,
     fontSize: 10,
-    fontWeight: '700',
+    letterSpacing: 0.3,
   },
-  portfolioContainer: {
-    backgroundColor: '#161616',
-    borderWidth: 1,
-    borderColor: '#262626',
-    borderRadius: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+
+  pfContainer: {
+    paddingHorizontal: 14,
+    paddingVertical: 4,
   },
-  portfolioRow: {
+  pfRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
+    borderBottomColor: colors.line,
   },
-  portfolioInfo: {
+  pfRowLast: {
+    borderBottomWidth: 0,
+  },
+  pfInfo: {
     flex: 2,
   },
-  portfolioMetaRow: {
+  pfHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
-    gap: 6,
+    gap: 8,
+    marginBottom: 3,
   },
-  portfolioCryptoName: {
-    color: '#8E8E93',
-    fontSize: 12,
-    fontWeight: '600',
+  pfName: {
+    color: colors.inkDim,
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
-  portfolioBadge: {
+  pfChange: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
+    letterSpacing: 0.3,
+  },
+  pfAmountRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
+    gap: 5,
   },
-  portfolioChangeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    marginLeft: 2,
+  pfAmount: {
+    color: colors.ink,
+    fontFamily: fonts.sans.bold,
+    fontSize: 15,
+    letterSpacing: -0.2,
   },
-  amountContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  pfSymbol: {
+    color: colors.inkDim,
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 0.3,
   },
-  portfolioAmount: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '900',
-    marginRight: 4,
-  },
-  portfolioSymbol: {
-    color: '#FFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  portfolioSparklineContainer: {
+  pfSparkline: {
     flex: 1.2,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pfIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pfIconText: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 13,
   },
 });

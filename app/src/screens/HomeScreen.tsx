@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { colors } from '../theme/tokens';
 import { Header } from '../components/Header';
 import { Balance } from '../components/Balance';
 import { CryptoInvestments } from '../components/CryptoInvestments';
-import { RecentContacts } from '../components/RecentContacts';
+import { NftHoldings } from '../components/NftHoldings';
 import { ContactsModal } from '../components/ContactsModal';
 import { AddContactModal } from '../components/AddContactModal';
 import { TransactionsModal } from '../components/TransactionsModal';
-import { PromoBanner } from '../components/PromoBanner';
 import { Transactions } from '../components/Transactions';
 import { BottomMenu } from '../components/BottomMenu';
 import { CardsPanel } from '../components/CardsPanel';
@@ -42,6 +41,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [activeTab, setActiveTab] = useState('inicio');
   const [sendIntent, setSendIntent] = useState<Partial<PaymentIntent>>({});
   const [sendInitialScreen, setSendInitialScreen] = useState<PaymentScreen>('scan');
+  const [identity, setIdentity] = useState<'userId' | 'wallet'>('wallet');
+
+  const walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a';
+  const walletHashShort = '7nxB...4X1a';
+  const userHandle = username ? `@${username}` : '@opedrooz';
 
   const handleContactPress = (contact: any) => {
     setSendIntent({
@@ -59,6 +63,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     open('sendPayment');
   };
 
+  const handleScanPress = () => {
+    setSendIntent({}); // Reset intent para abrir no modo scanner puro
+    setSendInitialScreen('scan');
+    open('sendPayment');
+  };
+
   const headerProps = {
     onLogout,
     userName,
@@ -67,16 +77,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     onSwitchAccount,
     onAddAccount,
     onProfilePress: () => open('profile'),
-    onScanPress: () => {
-      setSendIntent({}); // Reset intent para abrir no modo scanner puro
-      setSendInitialScreen('scan');
-      open('sendPayment');
-    },
+    onScanPress: handleScanPress,
+    identity,
+    onSelectIdentity: setIdentity,
+    userHandle,
+    walletHashFull,
+    walletHashShort,
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={true} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={true} />
 
       {activeTab === 'cartao' ? (
         <View style={styles.panelWrapper}>
@@ -96,24 +107,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       ) : (
         <ScrollView contentContainerStyle={styles.container}>
           <Header {...headerProps} />
-          <Balance onSendPress={() => {
-            setSendIntent({});
-            setSendInitialScreen('manual');
-            open('sendPayment');
-          }} />
-          <PromoBanner />
-          <RecentContacts
-            contacts={contacts.slice(0, 6)}
-            onSeeAll={() => open('contacts')}
-            onInvite={() => open('addContact')}
-            onContactPress={handleContactPress}
+          <Balance
+            identity={identity}
+            userHandle={userHandle}
+            walletHashFull={walletHashFull}
+            walletHashShort={walletHashShort}
+            onSendPress={() => {
+              setSendIntent({});
+              setSendInitialScreen('manual');
+              open('sendPayment');
+            }}
           />
+          <NftHoldings onSeeAll={() => open('contacts')} />
           <Transactions onSeeAll={() => open('transactions')} />
           <CryptoInvestments />
         </ScrollView>
       )}
 
-      <BottomMenu activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomMenu
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onScanPress={handleScanPress}
+      />
 
       <ContactsModal
         visible={modals.contacts}
@@ -157,15 +172,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.bg,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   container: {
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
   },
   panelWrapper: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingHorizontal: 20,
+    paddingTop: 12,
   },
 });
