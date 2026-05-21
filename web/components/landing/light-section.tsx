@@ -32,8 +32,8 @@ export function LightSection() {
       <div className="product-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://placehold.co/720x460/ececff/9a9a9e?text=Kora+Product+Hero"
-          alt="Kora product hero"
+          src="https://mkt-static.crypto.com/cdc_producthero_onchain_brl_1_1x.webp"
+          alt="Onchain BRL product hero"
         />
       </div>
     </section>
