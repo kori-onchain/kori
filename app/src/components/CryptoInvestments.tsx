@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Image,
   View,
   Text,
   StyleSheet,
@@ -10,6 +11,96 @@ import { fonts, radii } from '../theme/tokens';
 import { useTheme } from '../theme/ThemeProvider';
 import { MOCK_CRYPTO_FAVORITES, MOCK_CRYPTO_PORTFOLIO } from '../data/crypto';
 import { SoftCard } from './ds/SoftCard';
+
+type MarketFavorite = (typeof MOCK_CRYPTO_FAVORITES)[number] & {
+  image?: string;
+};
+
+type CoinGeckoMarket = {
+  id: string;
+  image?: string;
+  current_price?: number;
+  price_change_percentage_24h?: number | null;
+  sparkline_in_7d?: {
+    price?: number[];
+  };
+};
+
+const MARKET_IDS = MOCK_CRYPTO_FAVORITES.map((coin) => coin.coingeckoId).join(',');
+const MARKET_URL =
+  `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${MARKET_IDS}` +
+  '&order=market_cap_desc&sparkline=true&price_change_percentage=24h';
+
+const formatUsd = (value?: number) => {
+  if (typeof value !== 'number') return null;
+  if (value < 0.01) return `$${value.toFixed(6)}`;
+  return value.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: value >= 100 ? 0 : 2,
+  });
+};
+
+const normalizeSparkline = (prices?: number[]) => {
+  if (!prices?.length) return null;
+
+  const sample = prices.filter((_, index) => index % Math.ceil(prices.length / 12) === 0).slice(-12);
+  const min = Math.min(...sample);
+  const max = Math.max(...sample);
+  const range = max - min || 1;
+
+  return sample.map((price) => Math.round(24 + ((price - min) / range) * 76));
+};
+
+const useFavoriteMarkets = () => {
+  const [items, setItems] = useState<MarketFavorite[]>(MOCK_CRYPTO_FAVORITES);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch(MARKET_URL)
+      .then((response) => {
+        if (!response.ok) throw new Error('market request failed');
+        return response.json() as Promise<CoinGeckoMarket[]>;
+      })
+      .then((markets) => {
+        if (!active) return;
+        const byId = new Map(markets.map((market) => [market.id, market]));
+
+        setItems(
+          MOCK_CRYPTO_FAVORITES.map((item) => {
+            const market = byId.get(item.coingeckoId);
+            const change = market?.price_change_percentage_24h ?? null;
+            const points = normalizeSparkline(market?.sparkline_in_7d?.price);
+
+            return {
+              ...item,
+              image: market?.image ?? item.image,
+              balance: formatUsd(market?.current_price) ?? item.balance,
+              change:
+                typeof change === 'number'
+                  ? `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`
+                  : item.change,
+              isPositive:
+                typeof change === 'number'
+                  ? change >= 0
+                  : item.isPositive,
+              points: points ?? item.points,
+            };
+          }),
+        );
+      })
+      .catch(() => {
+        if (active) setItems(MOCK_CRYPTO_FAVORITES);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return items;
+};
 
 const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
   <View style={styles.sparklineContainer}>
@@ -22,6 +113,7 @@ const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
             height: `${val}%`,
             backgroundColor: color,
             opacity: 0.35 + (i / points.length) * 0.6,
+            flex: 1,
           },
         ]}
       />
@@ -30,28 +122,32 @@ const Sparkline = ({ points, color }: { points: number[]; color: string }) => (
 );
 
 const FavoriteCard: React.FC<{
-  item: (typeof MOCK_CRYPTO_FAVORITES)[number];
+  item: MarketFavorite;
 }> = ({ item }) => {
   const { t } = useTheme();
   const tint = item.isPositive ? t.green : t.orangeDark;
   return (
-    <SoftCard radius={radii.cardSm} padding={0}>
+    <SoftCard radius={radii.cardSm} padding={0} flat>
       <View style={styles.favCardInner}>
         <View style={styles.favHeader}>
           <View
             style={[
               styles.favIcon,
-              { backgroundColor: item.bgColor, borderColor: item.iconColor },
+              { backgroundColor: t.bgElev, borderColor: t.cardBorder },
             ]}
           >
-            <Text
-              style={[
-                styles.favIconText,
-                { color: item.id === 'xrp' ? t.ink : item.iconColor },
-              ]}
-            >
-              {item.iconText}
-            </Text>
+            {item.image ? (
+              <Image source={{ uri: item.image }} style={styles.favIconImage} />
+            ) : (
+              <Text
+                style={[
+                  styles.favIconText,
+                  { color: item.id === 'xrp' ? t.ink : item.iconColor },
+                ]}
+              >
+                {item.iconText}
+              </Text>
+            )}
           </View>
           <View style={styles.favMeta}>
             <Text style={[styles.favName, { color: t.ink }]} numberOfLines={1}>
@@ -63,13 +159,17 @@ const FavoriteCard: React.FC<{
           </View>
         </View>
 
-        <Sparkline points={item.points} color={tint} />
+        <View style={[styles.sparklineShell, { backgroundColor: t.bgElev }]}>
+          <Sparkline points={item.points} color={tint} />
+        </View>
 
         <View style={styles.favFooter}>
           <Text style={[styles.favBalance, { color: t.ink }]}>
             {item.balance}
           </Text>
-          <Text style={[styles.favChange, { color: tint }]}>{item.change}</Text>
+          <Text style={[styles.favChange, { color: tint, backgroundColor: t.bgElev }]}>
+            {item.change}
+          </Text>
         </View>
       </View>
     </SoftCard>
@@ -123,6 +223,8 @@ const PortfolioRow: React.FC<{
 
 export const CryptoInvestments = () => {
   const { t } = useTheme();
+  const favorites = useFavoriteMarkets();
+  const favoritesCount = useMemo(() => favorites.length, [favorites.length]);
 
   return (
     <View style={styles.container}>
@@ -130,7 +232,7 @@ export const CryptoInvestments = () => {
       <Text style={[styles.sectionTitle, { color: t.inkMute }]}>FAVORITOS</Text>
       <TouchableOpacity activeOpacity={0.7}>
         <Text style={[styles.seeMore, { color: t.inkMute }]}>
-          Ver todos <Text style={[styles.seeMoreArrow, { color: t.orange }]}>→</Text>
+          {favoritesCount} ativos <Text style={[styles.seeMoreArrow, { color: t.orange }]}>→</Text>
         </Text>
       </TouchableOpacity>
     </View>
@@ -140,7 +242,7 @@ export const CryptoInvestments = () => {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.favoritesScroll}
     >
-      {MOCK_CRYPTO_FAVORITES.map((c) => (
+      {favorites.map((c) => (
         <View key={c.id} style={styles.favCardWrap}>
           <FavoriteCard item={c} />
         </View>
@@ -196,13 +298,13 @@ const styles = StyleSheet.create({
   },
   favoritesScroll: {
     paddingRight: 24,
-    gap: 10,
+    gap: 8,
   },
   favCardWrap: {
-    width: 152,
+    width: 138,
   },
   favCardInner: {
-    padding: 12,
+    padding: 10,
   },
   favHeader: {
     flexDirection: 'row',
@@ -210,12 +312,18 @@ const styles = StyleSheet.create({
     gap: 9,
   },
   favIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  favIconImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
   favIconText: {
     fontFamily: fonts.sans.bold,
@@ -235,16 +343,22 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   sparklineContainer: {
-    height: 28,
+    height: 30,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    width: 70,
-    marginVertical: 12,
+    gap: 2,
+    width: '100%',
+  },
+  sparklineShell: {
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 6,
+    marginVertical: 10,
   },
   sparklineBar: {
-    width: 3,
     borderRadius: 1.5,
+    minWidth: 3,
   },
   favFooter: {
     flexDirection: 'row',
@@ -260,6 +374,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono.semibold,
     fontSize: 10,
     letterSpacing: 0.3,
+    borderRadius: 999,
+    overflow: 'hidden',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
 
   pfContainer: {

@@ -65,7 +65,6 @@ export const Header: React.FC<HeaderProps> = ({
     : 'PH';
 
   const togglePopover = () => {
-    onProfilePress?.();
     setIsProfileDropdownOpen((v) => !v);
   };
 
@@ -103,6 +102,28 @@ export const Header: React.FC<HeaderProps> = ({
           ]}
         >
           <Text style={[styles.sectionLabel, { color: t.inkMute }]}>CONTA</Text>
+
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => {
+              setIsProfileDropdownOpen(false);
+              onProfilePress?.();
+            }}
+            activeOpacity={0.8}
+          >
+            <View
+              style={[
+                styles.rowIcon,
+                { backgroundColor: t.bgElev, borderColor: t.line },
+              ]}
+            >
+              <KoraGlyph size={13} color={t.ink} />
+            </View>
+            <Text style={[styles.rowText, { color: t.ink }]} numberOfLines={1}>
+              Ver perfil
+            </Text>
+            <ChevronRightIcon size={12} color={t.inkDim} />
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={[

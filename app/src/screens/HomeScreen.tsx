@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, View, SafeAreaView, ScrollView, Platform, StatusBar, AccessibilityInfo } from 'react-native';
+import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '../theme/ThemeProvider';
 import { Header } from '../components/Header';
 import { Balance } from '../components/Balance';
@@ -43,6 +44,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [sendIntent, setSendIntent] = useState<Partial<PaymentIntent>>({});
   const [sendInitialScreen, setSendInitialScreen] = useState<PaymentScreen>('scan');
   const [identity, setIdentity] = useState<'userId' | 'wallet'>('wallet');
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (mounted) setReduceMotion(enabled);
+    });
+
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion,
+    );
+
+    return () => {
+      mounted = false;
+      subscription.remove();
+    };
+  }, []);
 
   const walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a';
   const walletHashShort = '7nxB...4X1a';
@@ -86,6 +106,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     walletHashShort,
   };
 
+  const fadeUp = useMemo(() => {
+    if (reduceMotion) return undefined;
+    return (delay: number) =>
+      FadeInDown.duration(550)
+        .delay(delay)
+        .easing(Easing.bezier(0.16, 1, 0.3, 1));
+  }, [reduceMotion]);
+
+  const entering = (delay: number) => (fadeUp ? fadeUp(delay) : undefined);
+
   return (
     <View key={scheme} style={[styles.root, { backgroundColor: t.bg }]}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor: t.bg }]}>
@@ -119,21 +149,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             ]}
             endFillColor={t.bg}
           >
-            <Header {...headerProps} />
+            <Animated.View entering={entering(40)}>
+              <Header {...headerProps} />
+            </Animated.View>
             <Balance
               identity={identity}
               userHandle={userHandle}
               walletHashFull={walletHashFull}
               walletHashShort={walletHashShort}
+              balanceEntering={entering(100)}
+              actionsEntering={entering(160)}
               onSendPress={() => {
                 setSendIntent({});
                 setSendInitialScreen('manual');
                 open('sendPayment');
               }}
             />
-            <NftHoldings onSeeAll={() => open('contacts')} />
-            <Transactions onSeeAll={() => open('transactions')} />
-            <CryptoInvestments />
+            <Animated.View entering={entering(220)}>
+              <NftHoldings onSeeAll={() => open('contacts')} />
+            </Animated.View>
+            <Animated.View entering={entering(300)}>
+              <Transactions onSeeAll={() => open('transactions')} />
+            </Animated.View>
+            <Animated.View entering={entering(380)}>
+              <CryptoInvestments />
+            </Animated.View>
           </ScrollView>
         )}
 

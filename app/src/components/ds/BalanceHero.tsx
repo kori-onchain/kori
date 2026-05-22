@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Animated from 'react-native-reanimated';
 import { fonts, radii } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Button } from './Button';
@@ -34,6 +35,8 @@ interface BalanceHeroProps {
   walletKind?: 'sol' | 'kora';
   onCopyWallet?: () => void;
   label?: string;
+  balanceEntering?: any;
+  actionsEntering?: any;
 }
 
 /**
@@ -50,54 +53,58 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
   walletKind = 'sol',
   onCopyWallet,
   label = 'TOTAL BALANCE',
+  balanceEntering,
+  actionsEntering,
 }) => {
   const { t } = useTheme();
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: t.inkMute }]}>{label}</Text>
+      <Animated.View entering={balanceEntering} style={styles.balanceBlock}>
+        <Text style={[styles.label, { color: t.inkMute }]}>{label}</Text>
 
-      <View style={styles.valueRow}>
-        <Text style={[styles.valueInt, { color: t.ink }]}>{integer}</Text>
-        <Text style={[styles.valueDec, { color: t.inkMute }]}>{decimals}</Text>
-      </View>
-
-      {chips && chips.length > 0 && (
-        <View style={styles.chipsRow}>
-          {chips.map((c) => (
-            <SoftCard key={c.label} radius={radii.pill} padding={0}>
-              <View style={styles.chip}>
-                <Text style={[styles.chipLabel, { color: t.inkDim }]}>
-                  {c.label}
-                </Text>
-                <Text style={[styles.chipValue, { color: t.ink }]}>
-                  {c.value}
-                </Text>
-              </View>
-            </SoftCard>
-          ))}
+        <View style={styles.valueRow}>
+          <Text style={[styles.valueInt, { color: t.ink }]}>{integer}</Text>
+          <Text style={[styles.valueDec, { color: t.inkMute }]}>{decimals}</Text>
         </View>
-      )}
 
-      {walletHash && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={onCopyWallet}
-          style={styles.walletLine}
-        >
-          {walletKind === 'sol' ? (
-            <SolanaIcon width={13} height={10} color={t.inkDim} />
-          ) : (
-            <KoraGlyph size={11} color={t.inkDim} />
-          )}
-          <Text style={[styles.walletText, { color: t.inkMute }]}>
-            {walletHash}
-          </Text>
-          <CopyIcon size={11} color={t.inkFaint} strokeWidth={1.6} />
-        </TouchableOpacity>
-      )}
+        {chips && chips.length > 0 && (
+          <View style={styles.chipsRow}>
+            {chips.map((c) => (
+              <SoftCard key={c.label} radius={radii.pill} padding={0}>
+                <View style={styles.chip}>
+                  <Text style={[styles.chipLabel, { color: t.inkDim }]}>
+                    {c.label}
+                  </Text>
+                  <Text style={[styles.chipValue, { color: t.ink }]}>
+                    {c.value}
+                  </Text>
+                </View>
+              </SoftCard>
+            ))}
+          </View>
+        )}
 
-      <View style={styles.actionsRow}>
+        {walletHash && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onCopyWallet}
+            style={styles.walletLine}
+          >
+            {walletKind === 'sol' ? (
+              <SolanaIcon width={13} height={10} color={t.inkDim} />
+            ) : (
+              <KoraGlyph size={11} color={t.inkDim} />
+            )}
+            <Text style={[styles.walletText, { color: t.inkMute }]}>
+              {walletHash}
+            </Text>
+            <CopyIcon size={11} color={t.inkFaint} strokeWidth={1.6} />
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+
+      <Animated.View entering={actionsEntering} style={styles.actionsRow}>
         <Button
           label="Enviar"
           variant="primary"
@@ -112,7 +119,7 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
           onPress={onReceivePress}
           icon={<ReceiveIcon size={16} color={t.ink} strokeWidth={1.8} />}
         />
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -123,6 +130,9 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingBottom: 4,
     paddingHorizontal: 4,
+  },
+  balanceBlock: {
+    alignItems: 'center',
   },
   label: {
     fontFamily: fonts.mono.medium,

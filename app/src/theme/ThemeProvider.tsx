@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   const [systemScheme, setSystemScheme] = useState<ThemeScheme>(() =>
     resolveScheme(Appearance.getColorScheme()),
   );
-  const [preference, setPreference] = useState<ThemePreference>('system');
+  const [preference, setPreference] = useState<ThemePreference>('dark');
 
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {

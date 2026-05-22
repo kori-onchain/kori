@@ -67,14 +67,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         activeOpacity={0.7}
         onPress={() => onChange(id)}
       >
-        {isActive && (
-          <View
-            style={[
-              styles.indicator,
-              { backgroundColor: t.orange, shadowColor: t.orange },
-            ]}
-          />
-        )}
         <Icon size={21} color={tint} strokeWidth={1.7} />
         <Text style={[styles.label, { color: tint }]}>{label}</Text>
       </TouchableOpacity>
@@ -127,17 +119,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     position: 'relative',
     paddingTop: 4,
-  },
-  indicator: {
-    position: 'absolute',
-    top: -12,
-    width: 26,
-    height: 3,
-    borderRadius: 2,
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 6,
   },
   label: {
     fontFamily: fonts.mono.medium,

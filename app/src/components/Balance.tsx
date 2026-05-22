@@ -12,6 +12,8 @@ interface BalanceProps {
   userHandle?: string;
   walletHashFull?: string;
   walletHashShort?: string;
+  balanceEntering?: any;
+  actionsEntering?: any;
 }
 
 export const Balance: React.FC<BalanceProps> = ({
@@ -20,6 +22,8 @@ export const Balance: React.FC<BalanceProps> = ({
   userHandle = '@opedrooz',
   walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a',
   walletHashShort = '7nxB...4X1a',
+  balanceEntering,
+  actionsEntering,
 }) => {
   const [receiveVisible, setReceiveVisible] = useState(false);
 
@@ -37,6 +41,8 @@ export const Balance: React.FC<BalanceProps> = ({
         onCopyWallet={() => Clipboard.setStringAsync(copyValue)}
         onSendPress={onSendPress}
         onReceivePress={() => setReceiveVisible(true)}
+        balanceEntering={balanceEntering}
+        actionsEntering={actionsEntering}
       />
 
       <ReceiveDrawer
