@@ -93,7 +93,7 @@
 
 .section {
   position: relative;
-  padding: clamp(80px, 9vw, 128px) clamp(24px, 4vw, 64px);
+  padding: clamp(48px, 6vw, 88px) clamp(24px, 4vw, 64px);
   border-bottom: 1px solid var(--line);
 }
 
@@ -115,16 +115,7 @@
 .corner.bl { left: 0;  bottom: 0; transform: translate(-50%, 50%); }
 .corner.br { right: 0; bottom: 0; transform: translate(50%, 50%); }
 
-.sec-label {
-  position: absolute;
-  top: 24px;
-  left: clamp(24px, 4vw, 64px);
-  font-family: var(--kora-mono);
-  font-size: 10px;
-  color: var(--ink-mute);
-  letter-spacing: 0.2em;
-  z-index: 4;
-}
+.sec-label { display: none; }
 
 /* =========================================
    NAV
@@ -976,7 +967,7 @@
   background: linear-gradient(180deg, #f6f6f1 0%, #ececff 100%);
   color: #0a0a0a;
   text-align: center;
-  padding: clamp(80px, 10vw, 130px) clamp(24px, 4vw, 64px);
+  padding: clamp(48px, 6vw, 88px) clamp(24px, 4vw, 64px) 0;
   position: relative;
   overflow: hidden;
 }
@@ -1074,7 +1065,7 @@
   max-width: 720px;
   margin: 0 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
 }
 .product-hero::before {
@@ -1089,7 +1080,7 @@
   filter: blur(40px);
   z-index: 0;
 }
-.product-hero img { position: relative; z-index: 1; max-width: 100%; height: auto; border-radius: 16px; display: block; }
+.product-hero img { position: relative; z-index: 1; max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
 /* =========================================
    YIELD MAP

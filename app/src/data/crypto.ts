@@ -15,12 +15,16 @@ export interface CryptoFavorite {
 
 export interface CryptoPortfolioItem {
   id: string;
+  coingeckoId: string;
   name: string;
   symbol: string;
+  quantity: number;
   amount: string;
+  value: string;
   change: string;
   isPositive: boolean;
   points: number[];
+  image: string;
   iconText: string;
   iconColor: string;
   bgColor: string;
@@ -116,38 +120,50 @@ export const MOCK_CRYPTO_FAVORITES: CryptoFavorite[] = [
 export const MOCK_CRYPTO_PORTFOLIO: CryptoPortfolioItem[] = [
   {
     id: 'eth_port',
+    coingeckoId: 'ethereum',
     name: 'Ethereum',
-    symbol: 'ETC',
-    amount: '08.04786',
+    symbol: 'ETH',
+    quantity: 0.804786,
+    amount: '0.804786 ETH',
+    value: '$2,960.00',
     change: '+2.50%',
     isPositive: true,
     points: [40, 50, 45, 60, 55, 70, 65, 75, 72, 85, 80, 95],
+    image: 'https://assets.coingecko.com/coins/images/279/large/ethereum.png',
     iconText: 'Ξ',
     iconColor: '#627EEA',
     bgColor: 'rgba(98, 126, 234, 0.1)',
   },
   {
     id: 'btc_port',
+    coingeckoId: 'bitcoin',
     name: 'Bitcoin',
     symbol: 'BTC',
-    amount: '02.04426',
+    quantity: 0.0204426,
+    amount: '0.020443 BTC',
+    value: '$2,135.00',
     change: '-1.30%',
     isPositive: false,
     points: [80, 75, 70, 72, 65, 68, 55, 58, 50, 52, 45, 40],
+    image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
     iconText: '₿',
     iconColor: '#F7931A',
     bgColor: 'rgba(247, 147, 26, 0.1)',
   },
   {
-    id: 'ltc_port',
-    name: 'Litecoin',
-    symbol: 'LTC',
-    amount: '06.05020',
+    id: 'sol_port',
+    coingeckoId: 'solana',
+    name: 'Solana',
+    symbol: 'SOL',
+    quantity: 16.0502,
+    amount: '16.0502 SOL',
+    value: '$2,890.00',
     change: '+3.60%',
     isPositive: true,
     points: [30, 35, 45, 40, 50, 55, 60, 58, 65, 75, 72, 88],
-    iconText: 'Ł',
-    iconColor: '#BFBFBF',
-    bgColor: 'rgba(191, 191, 191, 0.1)',
+    image: 'https://assets.coingecko.com/coins/images/4128/large/solana.png',
+    iconText: 'S',
+    iconColor: '#9945FF',
+    bgColor: 'rgba(153, 69, 255, 0.12)',
   },
 ];

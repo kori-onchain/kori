@@ -31,10 +31,7 @@ export function LightSection() {
 
       <div className="product-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="https://mkt-static.crypto.com/cdc_producthero_onchain_brl_1_1x.webp"
-          alt="Onchain BRL product hero"
-        />
+        <img src="/preview-home.png" alt="Kora app preview" />
       </div>
     </section>
   )

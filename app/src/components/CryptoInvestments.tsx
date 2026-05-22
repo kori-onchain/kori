@@ -16,6 +16,10 @@ type MarketFavorite = (typeof MOCK_CRYPTO_FAVORITES)[number] & {
   image?: string;
 };
 
+type MarketPortfolioItem = (typeof MOCK_CRYPTO_PORTFOLIO)[number] & {
+  image?: string;
+};
+
 type CoinGeckoMarket = {
   id: string;
   image?: string;
@@ -27,8 +31,12 @@ type CoinGeckoMarket = {
 };
 
 const MARKET_IDS = MOCK_CRYPTO_FAVORITES.map((coin) => coin.coingeckoId).join(',');
+const PORTFOLIO_MARKET_IDS = MOCK_CRYPTO_PORTFOLIO.map((coin) => coin.coingeckoId).join(',');
 const MARKET_URL =
   `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${MARKET_IDS}` +
+  '&order=market_cap_desc&sparkline=true&price_change_percentage=24h';
+const PORTFOLIO_MARKET_URL =
+  `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${PORTFOLIO_MARKET_IDS}` +
   '&order=market_cap_desc&sparkline=true&price_change_percentage=24h';
 
 const formatUsd = (value?: number) => {
@@ -39,6 +47,14 @@ const formatUsd = (value?: number) => {
     currency: 'USD',
     maximumFractionDigits: value >= 100 ? 0 : 2,
   });
+};
+
+const formatCryptoAmount = (quantity: number, symbol: string) => {
+  const digits = quantity >= 1 ? 4 : 6;
+  return `${quantity.toLocaleString('en-US', {
+    maximumFractionDigits: digits,
+    minimumFractionDigits: quantity >= 1 ? 2 : 0,
+  })} ${symbol}`;
 };
 
 const normalizeSparkline = (prices?: number[]) => {
@@ -92,6 +108,61 @@ const useFavoriteMarkets = () => {
       })
       .catch(() => {
         if (active) setItems(MOCK_CRYPTO_FAVORITES);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return items;
+};
+
+const usePortfolioMarkets = () => {
+  const [items, setItems] = useState<MarketPortfolioItem[]>(MOCK_CRYPTO_PORTFOLIO);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch(PORTFOLIO_MARKET_URL)
+      .then((response) => {
+        if (!response.ok) throw new Error('portfolio request failed');
+        return response.json() as Promise<CoinGeckoMarket[]>;
+      })
+      .then((markets) => {
+        if (!active) return;
+        const byId = new Map(markets.map((market) => [market.id, market]));
+
+        setItems(
+          MOCK_CRYPTO_PORTFOLIO.map((item) => {
+            const market = byId.get(item.coingeckoId);
+            const change = market?.price_change_percentage_24h ?? null;
+            const points = normalizeSparkline(market?.sparkline_in_7d?.price);
+            const currentValue =
+              typeof market?.current_price === 'number'
+                ? market.current_price * item.quantity
+                : undefined;
+
+            return {
+              ...item,
+              image: market?.image ?? item.image,
+              amount: formatCryptoAmount(item.quantity, item.symbol),
+              value: formatUsd(currentValue) ?? item.value,
+              change:
+                typeof change === 'number'
+                  ? `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`
+                  : item.change,
+              isPositive:
+                typeof change === 'number'
+                  ? change >= 0
+                  : item.isPositive,
+              points: points ?? item.points,
+            };
+          }),
+        );
+      })
+      .catch(() => {
+        if (active) setItems(MOCK_CRYPTO_PORTFOLIO);
       });
 
     return () => {
@@ -177,7 +248,7 @@ const FavoriteCard: React.FC<{
 };
 
 const PortfolioRow: React.FC<{
-  item: (typeof MOCK_CRYPTO_PORTFOLIO)[number];
+  item: MarketPortfolioItem;
   isLast: boolean;
 }> = ({ item, isLast }) => {
   const { t } = useTheme();
@@ -190,31 +261,45 @@ const PortfolioRow: React.FC<{
         isLast && styles.pfRowLast,
       ]}
     >
+      <View
+        style={[
+          styles.pfIcon,
+          { backgroundColor: t.bgElev, borderColor: t.cardBorder },
+        ]}
+      >
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={styles.pfIconImage} />
+        ) : (
+          <Text style={[styles.pfIconText, { color: item.iconColor }]}>
+            {item.iconText}
+          </Text>
+        )}
+      </View>
+
       <View style={styles.pfInfo}>
         <View style={styles.pfHeader}>
-          <Text style={[styles.pfName, { color: t.inkDim }]}>{item.name}</Text>
-          <Text style={[styles.pfChange, { color: tint }]}>{item.change}</Text>
+          <Text style={[styles.pfName, { color: t.ink }]} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={[styles.pfSymbol, { color: t.inkMute }]}>
+            {item.symbol}
+          </Text>
         </View>
         <View style={styles.pfAmountRow}>
-          <Text style={[styles.pfAmount, { color: t.ink }]}>{item.amount}</Text>
-          <Text style={[styles.pfSymbol, { color: t.inkDim }]}>
-            {item.symbol}
+          <Text style={[styles.pfAmount, { color: t.inkMute }]} numberOfLines={1}>
+            {item.amount}
           </Text>
         </View>
       </View>
 
-      <View style={styles.pfSparkline}>
+      <View style={[styles.pfSparkline, { backgroundColor: t.bgElev }]}>
         <Sparkline points={item.points} color={tint} />
       </View>
 
-      <View
-        style={[
-          styles.pfIcon,
-          { backgroundColor: item.bgColor, borderColor: item.iconColor },
-        ]}
-      >
-        <Text style={[styles.pfIconText, { color: item.iconColor }]}>
-          {item.iconText}
+      <View style={styles.pfValueBlock}>
+        <Text style={[styles.pfValue, { color: t.ink }]}>{item.value}</Text>
+        <Text style={[styles.pfChange, { color: tint, backgroundColor: t.bgElev }]}>
+          {item.change}
         </Text>
       </View>
     </View>
@@ -224,7 +309,16 @@ const PortfolioRow: React.FC<{
 export const CryptoInvestments = () => {
   const { t } = useTheme();
   const favorites = useFavoriteMarkets();
+  const portfolio = usePortfolioMarkets();
   const favoritesCount = useMemo(() => favorites.length, [favorites.length]);
+  const portfolioValue = useMemo(() => {
+    const total = portfolio.reduce((sum, item) => {
+      const numeric = Number(item.value.replace(/[$,]/g, ''));
+      return Number.isFinite(numeric) ? sum + numeric : sum;
+    }, 0);
+
+    return formatUsd(total) ?? '$0.00';
+  }, [portfolio]);
 
   return (
     <View style={styles.container}>
@@ -251,15 +345,18 @@ export const CryptoInvestments = () => {
 
     <View style={[styles.sectionHeader, styles.portfolioHeader]}>
       <Text style={[styles.sectionTitle, { color: t.inkMute }]}>PORTFOLIO</Text>
+      <Text style={[styles.seeMore, { color: t.inkMute }]}>
+        {portfolioValue}
+      </Text>
     </View>
 
     <SoftCard radius={radii.card} padding={0}>
       <View style={styles.pfContainer}>
-        {MOCK_CRYPTO_PORTFOLIO.map((c, i) => (
+        {portfolio.map((c, i) => (
           <PortfolioRow
             key={c.id}
             item={c}
-            isLast={i === MOCK_CRYPTO_PORTFOLIO.length - 1}
+            isLast={i === portfolio.length - 1}
           />
         ))}
       </View>
@@ -381,13 +478,13 @@ const styles = StyleSheet.create({
   },
 
   pfContainer: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 10,
     paddingVertical: 4,
   },
   pfRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 10,
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
@@ -395,55 +492,74 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   pfInfo: {
-    flex: 2,
+    flex: 1.25,
+    minWidth: 0,
   },
   pfHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
     marginBottom: 3,
   },
   pfName: {
-    fontFamily: fonts.mono.medium,
-    fontSize: 10,
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    fontFamily: fonts.sans.semibold,
+    fontSize: 12,
   },
   pfChange: {
     fontFamily: fonts.mono.semibold,
     fontSize: 10,
     letterSpacing: 0.3,
+    borderRadius: 999,
+    overflow: 'hidden',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
   pfAmountRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    gap: 5,
   },
   pfAmount: {
-    fontFamily: fonts.sans.bold,
-    fontSize: 15,
-    letterSpacing: -0.2,
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 0.2,
   },
   pfSymbol: {
     fontFamily: fonts.mono.medium,
-    fontSize: 10,
+    fontSize: 9,
     letterSpacing: 0.3,
   },
   pfSparkline: {
-    flex: 1.2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 76,
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 6,
   },
   pfIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  pfIconImage: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
   pfIconText: {
     fontFamily: fonts.sans.bold,
     fontSize: 13,
+  },
+  pfValueBlock: {
+    minWidth: 72,
+    alignItems: 'flex-end',
+  },
+  pfValue: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 14,
+    letterSpacing: -0.2,
+    marginBottom: 5,
   },
 });
