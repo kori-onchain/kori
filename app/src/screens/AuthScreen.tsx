@@ -1,574 +1,158 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  StatusBar,
-  SafeAreaView,
-  Dimensions,
-  ActivityIndicator,
-} from "react-native";
-import { Feather, Ionicons } from "../icons";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView, StatusBar } from "react-native";
 import { useTheme } from "../theme/ThemeProvider";
-import { fonts, radii } from "../theme/tokens";
-import { KoraGlyph } from "../components/ds/icons";
-
-const { width } = Dimensions.get("window");
+import { INITIAL_AUTH_FORM, RETURNING_USER } from "../features/auth/constants";
+import { AccountTypeStep } from "../features/auth/steps/AccountTypeStep";
+import { DetailsStep } from "../features/auth/steps/DetailsStep";
+import { PinLoginStep } from "../features/auth/steps/PinLoginStep";
+import { WalletStep } from "../features/auth/steps/WalletStep";
+import { WelcomeStep } from "../features/auth/steps/WelcomeStep";
+import { AccountType, AuthForm, AuthStage, AuthUserData } from "../features/auth/types";
+import { cleanUsername, resolveSignupData, validateAuthDetails } from "../features/auth/utils";
 
 interface AuthScreenProps {
-  onAuthSuccess: (
-    userData: { name: string; email: string; accountType: "PF" | "PJ"; username: string },
-    isSignup: boolean
-  ) => void;
+  onAuthSuccess: (userData: AuthUserData, isSignup: boolean) => void;
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
   const { t } = useTheme();
-  // Mode: 'login' | 'signup'
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [loading, setLoading] = useState(false);
-
-  // Common Fields
-  const [email, setEmail] = useState("");
-
-  // Signup Specific Fields
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [accountType, setAccountType] = useState<"PF" | "PJ">("PF");
-
-  // Form error state
+  const [stage, setStage] = useState<AuthStage>("welcome");
+  const [accountType, setAccountType] = useState<AccountType>("PF");
+  const [form, setForm] = useState<AuthForm>(INITIAL_AUTH_FORM);
+  const [focusedField, setFocusedField] = useState<keyof AuthForm | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pin, setPin] = useState<string[]>([]);
+  const [walletStep, setWalletStep] = useState(0);
+  const [loadingWallet, setLoadingWallet] = useState(false);
 
-  // Focus states for input styling
-  const [focusedField, setFocusedField] = useState<string | null>(null);
+  useEffect(() => {
+    if (stage !== "wallet") return;
 
-  const handleModeChange = (newMode: "login" | "signup") => {
-    setMode(newMode);
+    setLoadingWallet(true);
+    setWalletStep(0);
+
+    const timers = [
+      setTimeout(() => setWalletStep(1), 450),
+      setTimeout(() => setWalletStep(2), 950),
+      setTimeout(() => setWalletStep(3), 1450),
+      setTimeout(() => {
+        setLoadingWallet(false);
+        onAuthSuccess(resolveSignupData(form, accountType), true);
+      }, 2100),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, [accountType, form, onAuthSuccess, stage]);
+
+  const startSignup = (emailSeed?: string) => {
+    setForm((prev) => ({ ...prev, email: prev.email || emailSeed || "" }));
     setError(null);
-    setEmail("");
-    setUsername("");
-    setName("");
-    setAccountType("PF");
+    setStage("accountType");
   };
 
-  const handleAuth = async () => {
+  const handleBack = () => {
     setError(null);
 
-    // Validation
-    if (!email) {
-      setError("O e-mail é obrigatório.");
+    if (stage === "pin") {
+      setPin([]);
+      setStage("welcome");
       return;
     }
-    if (!email.includes("@") || !email.includes(".")) {
-      setError("Por favor, insira um e-mail válido.");
+
+    if (stage === "accountType") {
+      setStage("welcome");
       return;
     }
 
-    if (mode === "signup") {
-      if (!username) {
-        setError("O username é obrigatório.");
-        return;
-      }
-      const cleanUsername = username.replace("@", "").trim().toLowerCase();
-      if (cleanUsername.length < 3) {
-        setError("O username deve conter pelo menos 3 caracteres.");
-        return;
-      }
-      if (!name) {
-        setError(accountType === "PF" ? "O nome completo é obrigatório." : "A Razão Social é obrigatória.");
-        return;
-      }
+    if (stage === "details") {
+      setStage("accountType");
+    }
+  };
+
+  const handleChangeField = (field: keyof AuthForm, value: string) => {
+    const nextValue = field.toLowerCase().includes("username") ? cleanUsername(value) : value;
+    setForm((prev) => ({ ...prev, [field]: nextValue }));
+    setError(null);
+  };
+
+  const handleCreateAccount = () => {
+    const validation = validateAuthDetails(form, accountType);
+    if (validation) {
+      setError(validation);
+      return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      
-      let resolvedName = name;
-      let resolvedUsername = username.replace("@", "").trim().toLowerCase();
-      const resolvedAccountType = accountType;
-
-      if (mode === "login") {
-        // Smart fallback: extract name and username from email
-        const emailPart = email.split("@")[0];
-        resolvedUsername = emailPart.toLowerCase().replace(/[^a-zA-Z0-9._-]/g, "");
-        resolvedName = emailPart.charAt(0).toUpperCase() + emailPart.slice(1);
-      }
-
-      onAuthSuccess({
-        name: resolvedName || "Usuário Kora",
-        email: email.trim().toLowerCase(),
-        accountType: resolvedAccountType,
-        username: resolvedUsername || "usuario",
-      }, mode === "signup");
-    }, 1200);
+    setStage("wallet");
   };
 
-  const handleUsernameChange = (text: string) => {
-    const clean = text.replace(/[^a-zA-Z0-9._-]/g, "").toLowerCase();
-    setUsername(clean);
+  const handlePinDigit = (digit: string) => {
+    if (pin.length >= 6) return;
+
+    const next = [...pin, digit];
+    setPin(next);
+
+    if (next.length === 6) {
+      setTimeout(() => onAuthSuccess(RETURNING_USER, false), 250);
+    }
   };
+
+  const activeUsername = accountType === "PF" ? form.username : form.storeUsername;
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
-      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent={true} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header Branding */}
-          <View style={styles.brandContainer}>
-            <View style={[styles.logoSquare, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-              <KoraGlyph size={34} color={t.ink} />
-            </View>
-            <Text style={[styles.brandName, { color: t.ink }]}>KORA</Text>
-            <Text style={[styles.brandSubtitle, { color: t.inkMute }]}>Sua carteira digital inteligente</Text>
-          </View>
+    <SafeAreaView className="flex-1 bg-bg">
+      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent />
 
-          {/* Form Container Card - Clean minimalist style matching COLORS.surface and COLORS.border */}
-          <View style={[styles.formCard, { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: "#000", elevation: t.cardElev }]}>
-            {/* Tab Switched Header */}
-            <View style={[styles.tabContainer, { borderBottomColor: t.line }]}>
-              <TouchableOpacity
-                style={[styles.tabButton, mode === "login" && styles.activeTabButton]}
-                onPress={() => handleModeChange("login")}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.tabText, { color: mode === "login" ? t.ink : t.inkMute }, mode === "login" && styles.activeTabText]}>
-                  Entrar
-                </Text>
-                {mode === "login" && <View style={[styles.activeTabIndicator, { backgroundColor: t.orange }]} />}
-              </TouchableOpacity>
+      {stage === "welcome" ? (
+        <WelcomeStep
+          onSignupWithApple={() => startSignup("kaua@icloud.com")}
+          onSignupWithGoogle={() => startSignup("kaua@gmail.com")}
+          onSignupWithEmail={() => startSignup()}
+          onPinLogin={() => setStage("pin")}
+        />
+      ) : null}
 
-              <TouchableOpacity
-                style={[styles.tabButton, mode === "signup" && styles.activeTabButton]}
-                onPress={() => handleModeChange("signup")}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.tabText, { color: mode === "signup" ? t.ink : t.inkMute }, mode === "signup" && styles.activeTabText]}>
-                  Cadastrar
-                </Text>
-                {mode === "signup" && <View style={[styles.activeTabIndicator, { backgroundColor: t.orange }]} />}
-              </TouchableOpacity>
-            </View>
+      {stage === "pin" ? (
+        <PinLoginStep
+          user={RETURNING_USER}
+          pin={pin}
+          onDigit={handlePinDigit}
+          onDelete={() => setPin((prev) => prev.slice(0, -1))}
+          onBack={handleBack}
+          onSwitchAccount={() => {
+            setPin([]);
+            setStage("welcome");
+          }}
+        />
+      ) : null}
 
-            {/* Error Message */}
-            {error && (
-              <View style={[styles.errorContainer, { backgroundColor: t.bgElev, borderColor: t.orangeDark }]}>
-                <Ionicons name="alert-circle-outline" size={18} color={t.orangeDark} style={styles.errorIcon} />
-                <Text style={[styles.errorText, { color: t.orangeDark }]}>{error}</Text>
-              </View>
-            )}
+      {stage === "accountType" ? (
+        <AccountTypeStep
+          selected={accountType}
+          onSelect={setAccountType}
+          onBack={handleBack}
+          onContinue={() => {
+            setError(null);
+            setStage("details");
+          }}
+        />
+      ) : null}
 
-            {/* Inputs Block */}
-            <View style={styles.inputsBlock}>
-              
-              {/* --- SIGNUP MODE FIELDS --- */}
-              {mode === "signup" && (
-                <>
-                  {/* 1. Account Type Selector (Large Cards) - Ordered First! */}
-                  <View style={styles.inputWrapper}>
-                    <Text style={[styles.inputLabel, { color: t.ink }]}>Tipo de Conta</Text>
-                    <View style={styles.cardsRow}>
-                      
-                      {/* PF Card */}
-                      <TouchableOpacity
-                        style={[
-                          styles.typeCardBlock,
-                          { backgroundColor: t.bg, borderColor: t.line },
-                          accountType === "PF" && { backgroundColor: t.bgElev, borderColor: t.orange },
-                        ]}
-                        onPress={() => setAccountType("PF")}
-                        activeOpacity={0.8}
-                      >
-                        <Ionicons
-                          name="person-outline"
-                          size={22}
-                          color={accountType === "PF" ? t.ink : t.inkMute}
-                        />
-                        <Text style={[styles.cardTitle, { color: accountType === "PF" ? t.ink : t.inkMute }, accountType === "PF" && styles.cardTitleActive]}>
-                          Pessoa Física
-                        </Text>
-                        <Text style={[styles.cardSubtitle, { color: t.inkMute }]}>Para você movimentar</Text>
-                        {accountType === "PF" && (
-                          <View style={[styles.checkBadge, { backgroundColor: t.btnPrimaryBg, borderColor: t.bg2 }]}>
-                            <Feather name="check" size={10} color={t.btnPrimaryFg} />
-                          </View>
-                        )}
-                      </TouchableOpacity>
+      {stage === "details" ? (
+        <DetailsStep
+          accountType={accountType}
+          form={form}
+          focusedField={focusedField}
+          error={error}
+          onBack={handleBack}
+          onFocusField={setFocusedField}
+          onChangeField={handleChangeField}
+          onContinue={handleCreateAccount}
+        />
+      ) : null}
 
-                      {/* PJ Card */}
-                      <TouchableOpacity
-                        style={[
-                          styles.typeCardBlock,
-                          { backgroundColor: t.bg, borderColor: t.line },
-                          accountType === "PJ" && { backgroundColor: t.bgElev, borderColor: t.orange },
-                        ]}
-                        onPress={() => setAccountType("PJ")}
-                        activeOpacity={0.8}
-                      >
-                        <Ionicons
-                          name="business-outline"
-                          size={22}
-                          color={accountType === "PJ" ? t.ink : t.inkMute}
-                        />
-                        <Text style={[styles.cardTitle, { color: accountType === "PJ" ? t.ink : t.inkMute }, accountType === "PJ" && styles.cardTitleActive]}>
-                          Pessoa Jurídica
-                        </Text>
-                        <Text style={[styles.cardSubtitle, { color: t.inkMute }]}>Para sua empresa</Text>
-                        {accountType === "PJ" && (
-                          <View style={[styles.checkBadge, { backgroundColor: t.btnPrimaryBg, borderColor: t.bg2 }]}>
-                            <Feather name="check" size={10} color={t.btnPrimaryFg} />
-                          </View>
-                        )}
-                      </TouchableOpacity>
-
-                    </View>
-                  </View>
-
-                  {/* 2. Username - Placed ABOVE Name/Razão Social and Email! */}
-                  <View style={styles.inputWrapper}>
-                    <Text style={[styles.inputLabel, { color: t.ink }]}>Username</Text>
-                    <View
-                      style={[
-                        styles.inputContainer,
-                        { backgroundColor: t.bg, borderColor: t.line },
-                        focusedField === "username" && { borderColor: t.orange, backgroundColor: t.bgElev },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.usernamePrefix,
-                          { color: focusedField === "username" ? t.ink : t.inkMute },
-                        ]}
-                      >
-                        @
-                      </Text>
-                    <TextInput
-                        style={[styles.textInput, { color: t.ink }]}
-                        placeholder="opedrooz"
-                        placeholderTextColor={t.inkMute}
-                        value={username}
-                        onChangeText={handleUsernameChange}
-                        onFocus={() => setFocusedField("username")}
-                        onBlur={() => setFocusedField(null)}
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                      />
-                    </View>
-                  </View>
-
-                  {/* 3. Full Name / Corporate Name */}
-                  <View style={styles.inputWrapper}>
-                    <Text style={[styles.inputLabel, { color: t.ink }]}>
-                      {accountType === "PF" ? "Nome Completo" : "Razão Social"}
-                    </Text>
-                    <View
-                      style={[
-                        styles.inputContainer,
-                        { backgroundColor: t.bg, borderColor: t.line },
-                        focusedField === "name" && { borderColor: t.orange, backgroundColor: t.bgElev },
-                      ]}
-                    >
-                      <Feather
-                        name={accountType === "PF" ? "user" : "briefcase"}
-                        size={18}
-                        color={focusedField === "name" ? t.ink : t.inkMute}
-                        style={styles.inputIcon}
-                      />
-                      <TextInput
-                        style={[styles.textInput, { color: t.ink }]}
-                        placeholder={accountType === "PF" ? "Ex: Pedro Henrique" : "Ex: Kora Ltda"}
-                        placeholderTextColor={t.inkMute}
-                        value={name}
-                        onChangeText={setName}
-                        onFocus={() => setFocusedField("name")}
-                        onBlur={() => setFocusedField(null)}
-                        autoCapitalize={accountType === "PF" ? "words" : "characters"}
-                      />
-                    </View>
-                  </View>
-                </>
-              )}
-
-              {/* 4. E-mail (Common to both modes; at the bottom of Signup) */}
-              <View style={styles.inputWrapper}>
-                <Text style={[styles.inputLabel, { color: t.ink }]}>E-mail</Text>
-                <View
-                  style={[
-                    styles.inputContainer,
-                    { backgroundColor: t.bg, borderColor: t.line },
-                    focusedField === "email" && { borderColor: t.orange, backgroundColor: t.bgElev },
-                  ]}
-                >
-                  <Feather name="mail" size={18} color={focusedField === "email" ? t.ink : t.inkMute} style={styles.inputIcon} />
-                  <TextInput
-                    style={[styles.textInput, { color: t.ink }]}
-                    placeholder="Ex: seuemail@kora.com"
-                    placeholderTextColor={t.inkMute}
-                    value={email}
-                    onChangeText={setEmail}
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => setFocusedField(null)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
-              </View>
-
-            </View>
-
-            {/* Premium Minimal Solid Button */}
-            <TouchableOpacity
-              style={[styles.submitButton, { backgroundColor: t.btnPrimaryBg }]}
-              onPress={handleAuth}
-              disabled={loading}
-              activeOpacity={0.9}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color={t.btnPrimaryFg} />
-              ) : (
-                <Text style={[styles.submitButtonText, { color: t.btnPrimaryFg }]}>
-                  {mode === "login" ? "Entrar na Carteira" : "Criar Minha Conta"}
-                </Text>
-              )}
-            </TouchableOpacity>
-
-            {/* Switch Mode Helper Link */}
-            <TouchableOpacity
-              style={styles.switchModeLink}
-              onPress={() => handleModeChange(mode === "login" ? "signup" : "login")}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.switchModeSubText, { color: t.inkMute }]}>
-                {mode === "login" ? "Novo por aqui? " : "Já tem uma conta? "}
-                <Text style={[styles.switchModeHighlight, { color: t.ink }]}>
-                  {mode === "login" ? "Crie uma conta" : "Faça Login"}
-                </Text>
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Footer security tag */}
-          <View style={styles.footer}>
-            <Feather name="shield" size={12} color={t.inkMute} style={{ marginRight: 4 }} />
-            <Text style={[styles.footerText, { color: t.inkMute }]}>Conexão criptografada segura</Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      {stage === "wallet" ? (
+        <WalletStep username={activeUsername} walletStep={walletStep} loading={loadingWallet} />
+      ) : null}
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === "android" ? 40 : 20,
-    paddingBottom: 40,
-    justifyContent: "center",
-  },
-  brandContainer: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  logoSquare: {
-    width: 60,
-    height: 60,
-    borderRadius: 16,
-    borderWidth: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: "bold",
-  },
-  brandName: {
-    fontFamily: fonts.sans.bold,
-    fontSize: 24,
-    fontWeight: "bold",
-    letterSpacing: 2,
-  },
-  brandSubtitle: {
-    fontFamily: fonts.sans.regular,
-    fontSize: 13,
-    marginTop: 4,
-    textAlign: "center",
-  },
-  formCard: {
-    borderRadius: 20,
-    padding: 24,
-    borderWidth: 1,
-  },
-  tabContainer: {
-    flexDirection: "row",
-    marginBottom: 24,
-    borderBottomWidth: 1,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    position: "relative",
-  },
-  activeTabButton: {
-    backgroundColor: "transparent",
-  },
-  tabText: {
-    fontSize: 15,
-    fontWeight: "600",
-  },
-  activeTabText: {
-    fontWeight: "700",
-  },
-  activeTabIndicator: {
-    position: "absolute",
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: 2,
-    borderRadius: 2,
-  },
-  errorContainer: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255, 59, 48, 0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 59, 48, 0.15)",
-    borderRadius: 12,
-    padding: 12,
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  errorIcon: {
-    marginRight: 8,
-  },
-  errorText: {
-    fontSize: 13,
-    fontWeight: "500",
-    flex: 1,
-  },
-  inputsBlock: {
-    gap: 16,
-  },
-  inputWrapper: {
-    width: "100%",
-  },
-  inputLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    height: 52,
-  },
-  inputContainerFocused: {
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  usernamePrefix: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginRight: 4,
-  },
-  usernamePrefixActive: {
-  },
-  textInput: {
-    flex: 1,
-    fontSize: 14,
-    height: "100%",
-  },
-  cardsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginTop: 2,
-  },
-  typeCardBlock: {
-    flex: 1,
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    position: "relative",
-    minHeight: 110,
-    justifyContent: "center",
-  },
-  typeCardBlockActive: {
-  },
-  cardTitle: {
-    fontSize: 13,
-    fontWeight: "bold",
-    marginTop: 8,
-  },
-  cardTitleActive: {
-  },
-  cardSubtitle: {
-    fontSize: 10,
-    marginTop: 2,
-    lineHeight: 12,
-  },
-  checkBadge: {
-    position: "absolute",
-    top: 12,
-    right: 12,
-    borderRadius: 10,
-    width: 16,
-    height: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-  },
-  submitButton: {
-    height: 52,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 24,
-  },
-  submitButtonText: {
-    fontSize: 15,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
-  },
-  switchModeLink: {
-    alignItems: "center",
-    marginTop: 16,
-  },
-  switchModeSubText: {
-    fontSize: 13,
-  },
-  switchModeHighlight: {
-    fontWeight: "bold",
-  },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 32,
-  },
-  footerText: {
-    fontSize: 12,
-  },
-});

@@ -127,17 +127,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {activeTab === 'cartao' ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <Header {...headerProps} />
+            <View style={styles.headerLayer}>
+              <Header {...headerProps} />
+            </View>
             <CardsPanel userName={userName} />
           </View>
         ) : activeTab === 'investimentos' ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <Header {...headerProps} />
+            <View style={styles.headerLayer}>
+              <Header {...headerProps} />
+            </View>
             <InvestmentsPanel />
           </View>
         ) : activeTab === 'experiencias' ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <Header {...headerProps} />
+            <View style={styles.headerLayer}>
+              <Header {...headerProps} />
+            </View>
             <ExperiencesPanel />
           </View>
         ) : (
@@ -149,7 +155,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             ]}
             endFillColor={t.bg}
           >
-            <Animated.View entering={entering(40)}>
+            <Animated.View entering={entering(40)} style={styles.headerLayer}>
               <Header {...headerProps} />
             </Animated.View>
             <Balance
@@ -243,5 +249,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 12,
+  },
+  headerLayer: {
+    position: 'relative',
+    zIndex: 1000,
+    elevation: 1000,
   },
 });

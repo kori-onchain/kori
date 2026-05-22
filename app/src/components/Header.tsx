@@ -266,14 +266,17 @@ export const Header: React.FC<HeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 4,
-    zIndex: 100,
+    position: 'relative',
+    zIndex: 1000,
+    elevation: 1000,
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 40,
-    zIndex: 100,
+    zIndex: 1001,
+    elevation: 1001,
   },
   left: {
     flexDirection: 'row',
@@ -293,7 +296,8 @@ const styles = StyleSheet.create({
     borderRadius: radii.card,
     padding: 10,
     borderWidth: 1,
-    zIndex: 300,
+    zIndex: 2000,
+    elevation: 2000,
   },
   sectionLabel: {
     fontFamily: fonts.mono.medium,

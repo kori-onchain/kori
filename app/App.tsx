@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
+import "./global.css";
 import {
   useFonts,
   Geist_400Regular,
