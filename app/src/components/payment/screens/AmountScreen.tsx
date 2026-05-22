@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../../../icons';
 import { PaymentRecipient } from '../../../types/payment';
-import { COLORS } from '../../../constants/colors';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 interface AmountScreenProps {
   recipient: PaymentRecipient;
@@ -27,6 +27,7 @@ const formatDisplay = (raw: string): string => {
 };
 
 export const AmountScreen: React.FC<AmountScreenProps> = ({ recipient, onContinue, onBack, onClose }) => {
+  const { t } = useTheme();
   const [raw, setRaw] = useState('');
 
   const handleKey = (key: string) => {
@@ -47,30 +48,30 @@ export const AmountScreen: React.FC<AmountScreenProps> = ({ recipient, onContinu
     : (recipient.displayName || '').split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: t.line }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
-          <Feather name="arrow-left" size={22} color="#FFF" />
+          <Feather name="arrow-left" size={22} color={t.ink} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quanto enviar?</Text>
+        <Text style={[styles.headerTitle, { color: t.ink }]}>Quanto enviar?</Text>
         <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Feather name="x" size={22} color={COLORS.textSecondary} />
+          <Feather name="x" size={22} color={t.inkMute} />
         </TouchableOpacity>
       </View>
 
       {/* Recipient chip */}
-      <View style={styles.recipientChip}>
-        <View style={[styles.chipAvatar, recipient.isAnonymous && styles.chipAvatarAnon]}>
+      <View style={[styles.recipientChip, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+        <View style={[styles.chipAvatar, { backgroundColor: recipient.isAnonymous ? t.bgElev : t.sol }]}>
           {recipient.isAnonymous
-            ? <Feather name="eye-off" size={16} color="#8E8E93" />
+            ? <Feather name="eye-off" size={16} color={t.inkMute} />
             : <Text style={styles.chipInitials}>{initials}</Text>
           }
         </View>
-        <Text style={styles.chipName} numberOfLines={1}>
+        <Text style={[styles.chipName, { color: t.ink }]} numberOfLines={1}>
           Para: {recipient.displayName}
         </Text>
-        <Text style={styles.chipId} numberOfLines={1}>
+        <Text style={[styles.chipId, { color: t.inkMute }]} numberOfLines={1}>
           {recipient.isAnonymous
             ? `${(recipient.walletAddress ?? '').slice(0, 6)}...${(recipient.walletAddress ?? '').slice(-4)}`
             : recipient.userId}
@@ -79,7 +80,7 @@ export const AmountScreen: React.FC<AmountScreenProps> = ({ recipient, onContinu
 
       {/* Amount display */}
       <View style={styles.amountDisplay}>
-        <Text style={[styles.amountText, isZero && styles.amountTextEmpty]}>
+        <Text style={[styles.amountText, { color: isZero ? t.inkFaint : t.ink }]}>
           {formatDisplay(raw)}
         </Text>
       </View>
@@ -89,13 +90,13 @@ export const AmountScreen: React.FC<AmountScreenProps> = ({ recipient, onContinu
         {KEYS.map((key) => (
           <TouchableOpacity
             key={key}
-            style={[styles.key, key === '⌫' && styles.keyBackspace]}
+            style={[styles.key, { backgroundColor: key === '⌫' ? t.bgElev : t.bg2, borderColor: t.cardBorder }]}
             onPress={() => handleKey(key)}
             activeOpacity={0.65}
           >
             {key === '⌫'
-              ? <Feather name="delete" size={22} color="#FFF" />
-              : <Text style={styles.keyText}>{key}</Text>
+              ? <Feather name="delete" size={22} color={t.ink} />
+              : <Text style={[styles.keyText, { color: t.ink }]}>{key}</Text>
             }
           </TouchableOpacity>
         ))}
@@ -104,7 +105,7 @@ export const AmountScreen: React.FC<AmountScreenProps> = ({ recipient, onContinu
       {/* CTA */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.continueBtn, isZero && styles.continueBtnDisabled]}
+          style={[styles.continueBtn, { backgroundColor: t.orange }, isZero && styles.continueBtnDisabled]}
           onPress={() => onContinue(amount)}
           activeOpacity={0.85}
           disabled={isZero}

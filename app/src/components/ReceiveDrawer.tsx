@@ -13,9 +13,9 @@ import {
   Dimensions,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../icons';
 import QRCode from 'react-native-qrcode-svg';
-import { COLORS } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -47,30 +47,38 @@ const useToast = () => {
 };
 
 const Toast: React.FC<{ message: string | null; opacity: Animated.Value }> = ({ message, opacity }) => {
+  const { t } = useTheme();
   if (!message) return null;
   return (
-    <Animated.View style={[styles.toast, { opacity }]}>
-      <Feather name="check-circle" size={15} color="#4CAF50" style={{ marginRight: 8 }} />
-      <Text style={styles.toastText}>{message}</Text>
+    <Animated.View style={[styles.toast, { opacity, backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+      <Feather name="check-circle" size={15} color={t.green} style={{ marginRight: 8 }} />
+      <Text style={[styles.toastText, { color: t.ink }]}>{message}</Text>
     </Animated.View>
   );
 };
 
-const HandleBar = () => <View style={styles.handleBar} />;
+const HandleBar = () => {
+  const { t } = useTheme();
+  return <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />;
+};
 
-const BackHeader: React.FC<{ title: string; onBack: () => void; onClose: () => void }> = ({ title, onBack, onClose }) => (
-  <View style={styles.header}>
-    <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
-      <Feather name="arrow-left" size={20} color="#FFF" />
-    </TouchableOpacity>
-    <Text style={styles.headerTitle}>{title}</Text>
-    <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-      <Feather name="x" size={20} color={COLORS.textSecondary} />
-    </TouchableOpacity>
-  </View>
-);
+const BackHeader: React.FC<{ title: string; onBack: () => void; onClose: () => void }> = ({ title, onBack, onClose }) => {
+  const { t } = useTheme();
+  return (
+    <View style={[styles.header, { borderBottomColor: t.line }]}>
+      <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
+        <Feather name="arrow-left" size={20} color={t.ink} />
+      </TouchableOpacity>
+      <Text style={[styles.headerTitle, { color: t.ink }]}>{title}</Text>
+      <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
+        <Feather name="x" size={20} color={t.inkMute} />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+  const { t } = useTheme();
   const toast = useToast();
   const deepLink = `${APP_SCHEME}?to=${USER_ID}`;
 
@@ -92,37 +100,37 @@ const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ 
       <Toast message={toast.message} opacity={toast.opacity} />
 
       <View style={styles.body}>
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
           <View style={styles.infoIconRow}>
-            <Feather name="at-sign" size={28} color="#FFF" />
+            <Feather name="at-sign" size={28} color={t.orange} />
           </View>
-          <Text style={styles.infoLabel}>Seu ID de usuário</Text>
-          <Text style={styles.infoValue}>@{USER_ID}</Text>
-          <Text style={styles.infoDesc}>
+          <Text style={[styles.infoLabel, { color: t.inkMute }]}>Seu ID de usuário</Text>
+          <Text style={[styles.infoValue, { color: t.ink }]}>@{USER_ID}</Text>
+          <Text style={[styles.infoDesc, { color: t.inkDim }]}>
             Quem receber esse link poderá te enviar um valor diretamente. Basta clicar, inserir o montante e confirmar.
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleCopy} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: '#1E1E2E' }]}>
-            <Feather name="copy" size={20} color="#9B8BFF" />
+        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
+          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
+            <Feather name="copy" size={20} color={t.sol} />
           </View>
           <View style={styles.actionText}>
-            <Text style={styles.actionTitle}>Copiar ID</Text>
-            <Text style={styles.actionDesc}>Copia @{USER_ID} para a área de transferência</Text>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>Copiar ID</Text>
+            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Copia @{USER_ID} para a área de transferência</Text>
           </View>
-          <Feather name="chevron-right" size={18} color={COLORS.textSecondary} />
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleShare} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: '#1A2E1E' }]}>
-            <Feather name="share-2" size={20} color="#34C759" />
+        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleShare} activeOpacity={0.75}>
+          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
+            <Feather name="share-2" size={20} color={t.green} />
           </View>
           <View style={styles.actionText}>
-            <Text style={styles.actionTitle}>Compartilhar link</Text>
-            <Text style={styles.actionDesc}>Abre direto na transferência para você</Text>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>Compartilhar link</Text>
+            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Abre direto na transferência para você</Text>
           </View>
-          <Feather name="chevron-right" size={18} color={COLORS.textSecondary} />
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
         </TouchableOpacity>
       </View>
     </View>
@@ -130,6 +138,7 @@ const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ 
 };
 
 const ShareWalletScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+  const { t } = useTheme();
   const toast = useToast();
   const shortAddress = `${WALLET_ADDRESS.substring(0, 6)}...${WALLET_ADDRESS.substring(WALLET_ADDRESS.length - 6)}`;
   const deepLink = `${APP_SCHEME}?wallet=${WALLET_ADDRESS}`;
@@ -152,39 +161,39 @@ const ShareWalletScreen: React.FC<{ onBack: () => void; onClose: () => void }> =
       <Toast message={toast.message} opacity={toast.opacity} />
 
       <View style={styles.body}>
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
           <View style={styles.infoIconRow}>
-            <Feather name="shield" size={28} color="#FFF" />
+            <Feather name="shield" size={28} color={t.sol} />
           </View>
-          <Text style={styles.infoLabel}>Endereço da carteira</Text>
-          <Text style={[styles.infoValue, styles.monoText]} numberOfLines={1} ellipsizeMode="middle">
+          <Text style={[styles.infoLabel, { color: t.inkMute }]}>Endereço da carteira</Text>
+          <Text style={[styles.infoValue, styles.monoText, { color: t.ink }]} numberOfLines={1} ellipsizeMode="middle">
             {WALLET_ADDRESS}
           </Text>
-          <Text style={styles.infoDesc}>
+          <Text style={[styles.infoDesc, { color: t.inkDim }]}>
             Endereço criptográfico descentralizado. Garante anonimato total — nenhum dado de identidade é exposto na transação.
           </Text>
         </View>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleCopy} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: '#1A1E2E' }]}>
-            <Feather name="copy" size={20} color="#00C9FF" />
+        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
+          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
+            <Feather name="copy" size={20} color={t.sol} />
           </View>
           <View style={styles.actionText}>
-            <Text style={styles.actionTitle}>Copiar endereço</Text>
-            <Text style={styles.actionDesc}>{shortAddress}</Text>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>Copiar endereço</Text>
+            <Text style={[styles.actionDesc, { color: t.inkMute }]}>{shortAddress}</Text>
           </View>
-          <Feather name="chevron-right" size={18} color={COLORS.textSecondary} />
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleShare} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: '#1A2E1E' }]}>
-            <Feather name="share-2" size={20} color="#34C759" />
+        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleShare} activeOpacity={0.75}>
+          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
+            <Feather name="share-2" size={20} color={t.green} />
           </View>
           <View style={styles.actionText}>
-            <Text style={styles.actionTitle}>Compartilhar link</Text>
-            <Text style={styles.actionDesc}>Abre direto no pagamento para você</Text>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>Compartilhar link</Text>
+            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Abre direto no pagamento para você</Text>
           </View>
-          <Feather name="chevron-right" size={18} color={COLORS.textSecondary} />
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
         </TouchableOpacity>
       </View>
     </View>
@@ -192,6 +201,7 @@ const ShareWalletScreen: React.FC<{ onBack: () => void; onClose: () => void }> =
 };
 
 const PaymentLinkScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+  const { t } = useTheme();
   const toast = useToast();
   const [mode, setMode] = useState<'free' | 'fixed'>('free');
   const [amount, setAmount] = useState('');
@@ -224,32 +234,32 @@ const PaymentLinkScreen: React.FC<{ onBack: () => void; onClose: () => void }> =
       <Toast message={toast.message} opacity={toast.opacity} />
 
       <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionLabel}>TIPO DE COBRANÇA</Text>
-        <View style={styles.segmentRow}>
+        <Text style={[styles.sectionLabel, { color: t.inkMute }]}>TIPO DE COBRANÇA</Text>
+        <View style={[styles.segmentRow, { backgroundColor: t.bgElev }]}>
           <TouchableOpacity
-            style={[styles.segment, mode === 'free' && styles.segmentActive]}
+            style={[styles.segment, mode === 'free' && { backgroundColor: t.btnPrimaryBg }]}
             onPress={() => { setMode('free'); setGenerated(false); }}
             activeOpacity={0.75}
           >
-            <Text style={[styles.segmentText, mode === 'free' && styles.segmentTextActive]}>Valor livre</Text>
+            <Text style={[styles.segmentText, { color: mode === 'free' ? t.btnPrimaryFg : t.inkMute }]}>Valor livre</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.segment, mode === 'fixed' && styles.segmentActive]}
+            style={[styles.segment, mode === 'fixed' && { backgroundColor: t.btnPrimaryBg }]}
             onPress={() => { setMode('fixed'); setGenerated(false); }}
             activeOpacity={0.75}
           >
-            <Text style={[styles.segmentText, mode === 'fixed' && styles.segmentTextActive]}>Valor fixo</Text>
+            <Text style={[styles.segmentText, { color: mode === 'fixed' ? t.btnPrimaryFg : t.inkMute }]}>Valor fixo</Text>
           </TouchableOpacity>
         </View>
 
         {mode === 'fixed' && (
-          <View style={styles.amountRow}>
-            <Text style={styles.currencyPrefix}>R$</Text>
+          <View style={[styles.amountRow, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
+            <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>R$</Text>
             <TextInput
-              style={styles.amountInput}
+              style={[styles.amountInput, { color: t.ink }]}
               keyboardType="decimal-pad"
               placeholder="0,00"
-              placeholderTextColor="#555"
+              placeholderTextColor={t.inkMute}
               value={amount}
               onChangeText={(t) => { setAmount(t); setGenerated(false); }}
             />
@@ -258,25 +268,25 @@ const PaymentLinkScreen: React.FC<{ onBack: () => void; onClose: () => void }> =
 
         {!generated ? (
           <TouchableOpacity
-            style={[styles.primaryBtn, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
+            style={[styles.primaryBtn, { backgroundColor: t.btnPrimaryBg }, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
             onPress={handleGenerate}
             activeOpacity={0.8}
             disabled={mode === 'fixed' && !amount}
           >
-            <Feather name="link" size={16} color="#000" style={{ marginRight: 8 }} />
-            <Text style={styles.primaryBtnText}>Gerar link</Text>
+            <Feather name="link" size={16} color={t.btnPrimaryFg} style={{ marginRight: 8 }} />
+            <Text style={[styles.primaryBtnText, { color: t.btnPrimaryFg }]}>Gerar link</Text>
           </TouchableOpacity>
         ) : (
-          <View style={styles.generatedBox}>
-            <Text style={styles.generatedLabel}>Link gerado</Text>
-            <Text style={styles.generatedLink} numberOfLines={2}>{buildLink()}</Text>
+          <View style={[styles.generatedBox, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
+            <Text style={[styles.generatedLabel, { color: t.inkMute }]}>Link gerado</Text>
+            <Text style={[styles.generatedLink, { color: t.ink }]} numberOfLines={2}>{buildLink()}</Text>
 
             <View style={styles.shareRow}>
-              <TouchableOpacity style={styles.shareBtn} onPress={handleCopy} activeOpacity={0.75}>
-                <Feather name="copy" size={16} color="#FFF" />
-                <Text style={styles.shareBtnText}>Copiar</Text>
+              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
+                <Feather name="copy" size={16} color={t.ink} />
+                <Text style={[styles.shareBtnText, { color: t.ink }]}>Copiar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.shareBtn, styles.shareBtnGreen]} onPress={handleShare} activeOpacity={0.75}>
+              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.green }]} onPress={handleShare} activeOpacity={0.75}>
                 <Feather name="share-2" size={16} color="#000" />
                 <Text style={[styles.shareBtnText, { color: '#000' }]}>Compartilhar</Text>
               </TouchableOpacity>
@@ -289,6 +299,7 @@ const PaymentLinkScreen: React.FC<{ onBack: () => void; onClose: () => void }> =
 };
 
 const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+  const { t } = useTheme();
   const toast = useToast();
   const [mode, setMode] = useState<'free' | 'fixed'>('free');
   const [amount, setAmount] = useState('');
@@ -317,32 +328,32 @@ const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ o
       <Toast message={toast.message} opacity={toast.opacity} />
 
       <ScrollView style={styles.body} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-        <Text style={styles.sectionLabel}>TIPO DE COBRANÇA</Text>
-        <View style={styles.segmentRow}>
+        <Text style={[styles.sectionLabel, { color: t.inkMute }]}>TIPO DE COBRANÇA</Text>
+        <View style={[styles.segmentRow, { backgroundColor: t.bgElev }]}>
           <TouchableOpacity
-            style={[styles.segment, mode === 'free' && styles.segmentActive]}
+            style={[styles.segment, mode === 'free' && { backgroundColor: t.btnPrimaryBg }]}
             onPress={() => { setMode('free'); setGenerated(false); }}
             activeOpacity={0.75}
           >
-            <Text style={[styles.segmentText, mode === 'free' && styles.segmentTextActive]}>Valor livre</Text>
+            <Text style={[styles.segmentText, { color: mode === 'free' ? t.btnPrimaryFg : t.inkMute }]}>Valor livre</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.segment, mode === 'fixed' && styles.segmentActive]}
+            style={[styles.segment, mode === 'fixed' && { backgroundColor: t.btnPrimaryBg }]}
             onPress={() => { setMode('fixed'); setGenerated(false); }}
             activeOpacity={0.75}
           >
-            <Text style={[styles.segmentText, mode === 'fixed' && styles.segmentTextActive]}>Valor fixo</Text>
+            <Text style={[styles.segmentText, { color: mode === 'fixed' ? t.btnPrimaryFg : t.inkMute }]}>Valor fixo</Text>
           </TouchableOpacity>
         </View>
 
         {mode === 'fixed' && (
-          <View style={styles.amountRow}>
-            <Text style={styles.currencyPrefix}>R$</Text>
+          <View style={[styles.amountRow, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
+            <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>R$</Text>
             <TextInput
-              style={styles.amountInput}
+              style={[styles.amountInput, { color: t.ink }]}
               keyboardType="decimal-pad"
               placeholder="0,00"
-              placeholderTextColor="#555"
+              placeholderTextColor={t.inkMute}
               value={amount}
               onChangeText={(t) => { setAmount(t); setGenerated(false); }}
             />
@@ -351,38 +362,38 @@ const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ o
 
         {!generated ? (
           <TouchableOpacity
-            style={[styles.primaryBtn, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
+            style={[styles.primaryBtn, { backgroundColor: t.btnPrimaryBg }, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
             onPress={handleGenerate}
             activeOpacity={0.8}
             disabled={mode === 'fixed' && !amount}
           >
-            <Feather name="grid" size={16} color="#000" style={{ marginRight: 8 }} />
-            <Text style={styles.primaryBtnText}>Gerar QR Code</Text>
+            <Feather name="grid" size={16} color={t.btnPrimaryFg} style={{ marginRight: 8 }} />
+            <Text style={[styles.primaryBtnText, { color: t.btnPrimaryFg }]}>Gerar QR Code</Text>
           </TouchableOpacity>
         ) : (
-          <View style={styles.qrContainer}>
+          <View style={[styles.qrContainer, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
             {mode === 'fixed' && amount && (
-              <Text style={styles.qrAmount}>R$ {amount}</Text>
+              <Text style={[styles.qrAmount, { color: t.ink }]}>R$ {amount}</Text>
             )}
 
             <View style={styles.qrBox}>
               <QRCode
                 value={buildQRValue()}
                 size={200}
-                color="#FFFFFF"
-                backgroundColor="#161616"
+              color={t.ink}
+              backgroundColor={t.bg2}
                 getRef={(ref) => (qrRef.current = ref)}
               />
             </View>
 
-            <Text style={styles.qrCaption}>
+            <Text style={[styles.qrCaption, { color: t.inkMute }]}>
               {mode === 'free'
                 ? 'Quem escanear pode pagar qualquer valor'
                 : `Pagamento de R$ ${amount} ao escanear`}
             </Text>
 
             <View style={styles.shareRow}>
-              <TouchableOpacity style={[styles.shareBtn, styles.shareBtnGreen]} onPress={handleShare} activeOpacity={0.75}>
+              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.green }]} onPress={handleShare} activeOpacity={0.75}>
                 <Feather name="share-2" size={16} color="#000" />
                 <Text style={[styles.shareBtnText, { color: '#000' }]}>Compartilhar</Text>
               </TouchableOpacity>
@@ -395,62 +406,63 @@ const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ o
 };
 
 const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void }> = ({ onSelect, onClose }) => {
+  const { t } = useTheme();
   const options = [
     {
       screen: 'share_id' as Screen,
       icon: 'at-sign' as const,
-      color: '#9B8BFF',
-      bg: '#1E1E2E',
+      color: t.sol,
+      bg: t.bgElev,
       title: 'Compartilhar ID',
       desc: 'Compartilha seu @usuário para receber qualquer valor',
     },
     {
       screen: 'share_wallet' as Screen,
       icon: 'shield' as const,
-      color: '#00C9FF',
-      bg: '#1A1E2E',
+      color: t.sol,
+      bg: t.bgElev,
       title: 'Wallet Address',
       desc: 'Endereço criptográfico com anonimato total',
     },
     {
       screen: 'payment_link' as Screen,
       icon: 'link' as const,
-      color: '#D4AF37',
-      bg: '#1E1C10',
+      color: t.orange,
+      bg: t.bgElev,
       title: 'Link de Pagamento',
       desc: 'Crie um link com valor livre ou fixo',
     },
     {
       screen: 'qrcode' as Screen,
       icon: 'grid' as const,
-      color: '#34C759',
-      bg: '#1A2E1E',
+      color: t.green,
+      bg: t.bgElev,
       title: 'QR Code',
       desc: 'Gere e compartilhe um QR Code de cobrança',
     },
   ];
 
   return (
-    <View style={styles.screenContainer}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Receber</Text>
+    <View style={[styles.screenContainer, { backgroundColor: t.bg2 }]}>
+      <View style={[styles.header, { borderBottomColor: t.line }]}>
+        <Text style={[styles.headerTitle, { color: t.ink }]}>Receber</Text>
         <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Feather name="x" size={20} color={COLORS.textSecondary} />
+          <Feather name="x" size={20} color={t.inkMute} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.body}>
-        <Text style={styles.menuSubtitle}>Escolha como deseja receber:</Text>
+        <Text style={[styles.menuSubtitle, { color: t.inkMute }]}>Escolha como deseja receber:</Text>
         {options.map((opt) => (
-          <TouchableOpacity key={opt.screen} style={styles.menuCard} onPress={() => onSelect(opt.screen)} activeOpacity={0.75}>
+          <TouchableOpacity key={opt.screen} style={[styles.menuCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={() => onSelect(opt.screen)} activeOpacity={0.75}>
             <View style={[styles.menuIcon, { backgroundColor: opt.bg }]}>
               <Feather name={opt.icon} size={22} color={opt.color} />
             </View>
             <View style={styles.menuText}>
-              <Text style={styles.menuTitle}>{opt.title}</Text>
-              <Text style={styles.menuDesc}>{opt.desc}</Text>
+              <Text style={[styles.menuTitle, { color: t.ink }]}>{opt.title}</Text>
+              <Text style={[styles.menuDesc, { color: t.inkMute }]}>{opt.desc}</Text>
             </View>
-            <Feather name="chevron-right" size={18} color="#444" />
+            <Feather name="chevron-right" size={18} color={t.inkMute} />
           </TouchableOpacity>
         ))}
       </View>
@@ -459,6 +471,7 @@ const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void 
 };
 
 export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose }) => {
+  const { t } = useTheme();
   const [screen, setScreen] = useState<Screen>('menu');
 
   const handleClose = () => {
@@ -491,7 +504,7 @@ export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose }
     >
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
-        <View style={styles.drawer}>
+        <View style={[styles.drawer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
           <HandleBar />
           {renderScreen()}
         </View>
@@ -583,7 +596,6 @@ const styles = StyleSheet.create({
   },
 
   menuSubtitle: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: '500',
     marginBottom: 16,
@@ -616,7 +628,6 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   menuDesc: {
-    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: '400',
     lineHeight: 16,
@@ -641,7 +652,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   infoLabel: {
-    color: COLORS.textSecondary,
     fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
@@ -693,12 +703,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   actionDesc: {
-    color: COLORS.textSecondary,
     fontSize: 12,
   },
 
   sectionLabel: {
-    color: COLORS.textSecondary,
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1.2,
@@ -723,7 +731,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A2A2A',
   },
   segmentText: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -741,7 +748,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   currencyPrefix: {
-    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: '700',
     marginRight: 8,
@@ -780,7 +786,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   generatedLabel: {
-    color: COLORS.textSecondary,
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
@@ -842,7 +847,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   qrCaption: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 20,

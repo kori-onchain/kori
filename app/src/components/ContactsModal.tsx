@@ -11,8 +11,8 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import { Feather, FontAwesome } from '@expo/vector-icons';
-import { COLORS } from '../constants/colors';
+import { Feather, FontAwesome } from '../icons';
+import { useTheme } from '../theme/ThemeProvider';
 import { Contact } from '../data/contacts';
 
 interface ContactsModalProps {
@@ -24,6 +24,7 @@ interface ContactsModalProps {
 }
 
 export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts, onClose, onAddPress, onContactPress }) => {
+  const { t } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredContacts = contacts.filter((contact) => {
@@ -33,29 +34,29 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
   });
 
   const renderContactItem = ({ item }: { item: Contact }) => (
-    <TouchableOpacity style={styles.contactRow} activeOpacity={0.7} onPress={() => onContactPress?.(item)}>
-      <View style={[styles.avatar, item.isFavorite && styles.avatarFavorite]}>
-        <Text style={[styles.avatarText, item.isFavorite && styles.avatarTextFavorite]}>
+    <TouchableOpacity style={[styles.contactRow, { borderBottomColor: t.line }]} activeOpacity={0.7} onPress={() => onContactPress?.(item)}>
+      <View style={[styles.avatar, { backgroundColor: t.bg2 }, item.isFavorite && { borderColor: t.orange, backgroundColor: t.bgElev }]}>
+        <Text style={[styles.avatarText, { color: item.isFavorite ? t.orange : t.ink }]}>
           {item.initials}
         </Text>
         {item.isFavorite && (
-          <View style={styles.favoriteBadge}>
-            <FontAwesome name="star" size={9} color="#FFF" />
+          <View style={[styles.favoriteBadge, { backgroundColor: t.orange, borderColor: t.bg }]}>
+            <FontAwesome name="star" size={9} color={t.btnPrimaryFg} />
           </View>
         )}
       </View>
 
       <View style={styles.contactDetails}>
-        <Text style={styles.contactName}>
+        <Text style={[styles.contactName, { color: t.ink }]}>
           {item.name || 'Usuário Sem Nome'}
         </Text>
-        <Text style={styles.contactWalletId}>
+        <Text style={[styles.contactWalletId, { color: t.inkMute }]}>
           {item.walletId}
         </Text>
       </View>
 
-      <TouchableOpacity style={styles.actionBtn} onPress={() => onContactPress?.(item)}>
-        <Feather name="send" size={16} color={COLORS.primary} />
+      <TouchableOpacity style={[styles.actionBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => onContactPress?.(item)}>
+        <Feather name="send" size={16} color={t.orange} />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -67,33 +68,33 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0D0D0D" />
+      <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
+        <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} />
         
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: t.line }]}>
           <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-            <Feather name="arrow-left" size={24} color="#FFF" />
+            <Feather name="arrow-left" size={24} color={t.ink} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Seus Contatos</Text>
+          <Text style={[styles.headerTitle, { color: t.ink }]}>Seus Contatos</Text>
           <TouchableOpacity style={styles.addBtn} onPress={onAddPress} activeOpacity={0.7}>
-            <Feather name="user-plus" size={22} color={COLORS.primary} />
+            <Feather name="user-plus" size={22} color={t.orange} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.searchContainer}>
-          <Feather name="search" size={18} color="#666" />
+        <View style={[styles.searchContainer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <Feather name="search" size={18} color={t.inkMute} />
           <TextInput
             placeholder="Pesquisar por nome ou username..."
-            placeholderTextColor="#666"
+            placeholderTextColor={t.inkMute}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: t.ink }]}
             autoCorrect={false}
             clearButtonMode="while-editing"
           />
           {searchQuery !== '' && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Feather name="x" size={16} color="#666" />
+              <Feather name="x" size={16} color={t.inkMute} />
             </TouchableOpacity>
           )}
         </View>
@@ -105,8 +106,8 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Feather name="users" size={48} color="#262626" style={{ marginBottom: 12 }} />
-              <Text style={styles.emptyText}>Nenhum contato encontrado</Text>
+              <Feather name="users" size={48} color={t.inkFaint} style={{ marginBottom: 12 }} />
+              <Text style={[styles.emptyText, { color: t.inkMute }]}>Nenhum contato encontrado</Text>
             </View>
           }
         />
@@ -118,7 +119,6 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
   },
   header: {
     flexDirection: 'row',
@@ -127,14 +127,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#161616',
     marginTop: Platform.OS === 'android' ? 24 : 0,
   },
   closeBtn: {
     padding: 4,
   },
   headerTitle: {
-    color: '#FFF',
     fontSize: 18,
     fontWeight: '800',
   },
@@ -144,7 +142,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161616',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
@@ -152,11 +149,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#262626',
   },
   searchInput: {
     flex: 1,
-    color: '#FFF',
     marginLeft: 8,
     fontSize: 15,
   },
@@ -170,54 +165,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#161616',
   },
   avatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1A1A1A',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
   },
   avatarFavorite: {
-    borderColor: COLORS.primary,
-    backgroundColor: '#242424',
   },
   avatarText: {
-    color: '#FFF',
     fontSize: 15,
     fontWeight: 'bold',
   },
   avatarTextFavorite: {
-    color: COLORS.primary,
   },
   favoriteBadge: {
     position: 'absolute',
     bottom: -2,
     right: -2,
-    backgroundColor: COLORS.primary,
     width: 16,
     height: 16,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#0D0D0D',
   },
   contactDetails: {
     flex: 1,
     marginLeft: 12,
   },
   contactName: {
-    color: '#FFF',
     fontSize: 15,
     fontWeight: '700',
   },
   contactWalletId: {
-    color: '#8E8E93',
     fontSize: 12,
     fontWeight: '500',
     marginTop: 2,
@@ -226,11 +211,9 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#161616',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#262626',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -238,7 +221,6 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyText: {
-    color: '#666',
     fontSize: 14,
     fontWeight: '600',
   },

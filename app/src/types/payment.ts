@@ -1,6 +1,7 @@
 export type RecipientType = 'id' | 'wallet';
 
 export interface PaymentRecipient {
+  id?: string;
   type: RecipientType;
   /** Nome exibido — "Anônimo" para wallet */
   displayName: string;

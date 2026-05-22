@@ -11,10 +11,10 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
-import { COLORS } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 
 const { width } = Dimensions.get('window');
 
@@ -23,6 +23,7 @@ interface CardsPanelProps {
 }
 
 export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
+  const { t } = useTheme();
   const [cardNumber, setCardNumber] = useState('5421 9843 7261 8294');
   const [expiry] = useState('08/29');
   const [cvv, setCvv] = useState('842');
@@ -81,17 +82,17 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={[styles.container, { backgroundColor: t.bg }]} showsVerticalScrollIndicator={false}>
       {toastMessage && (
-        <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
-          <Text style={styles.toastText}>{toastMessage}</Text>
+        <Animated.View style={[styles.toast, { opacity: toastOpacity, backgroundColor: t.green }]}>
+          <Text style={[styles.toastText, { color: t.bg }]}>{toastMessage}</Text>
         </Animated.View>
       )}
 
       <Animated.View style={[styles.cardContainer, { transform: [{ scale: cardScale }] }]}>
         <View style={styles.card}>
           <LinearGradient
-            colors={['#161616', '#0E362C', '#071F19']}
+            colors={[t.bg2, t.green, t.bg]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFillObject}
@@ -101,7 +102,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
             <View style={styles.cardHeader}>
               <View style={styles.chip} />
               <View style={styles.brandContainer}>
-                <Feather name="shield" size={16} color="#00D09E" style={{ marginRight: 6 }} />
+                <Feather name="shield" size={16} color={t.green} style={{ marginRight: 6 }} />
                 <Text style={styles.brandText}>KORA • VIRTUAL</Text>
               </View>
             </View>
@@ -127,8 +128,8 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
           {isFrozen && (
             <View style={styles.frozenOverlay}>
               <View style={styles.frozenBadge}>
-                <Feather name="lock" size={20} color="#00D09E" style={{ marginRight: 8 }} />
-                <Text style={styles.frozenBadgeText}>CONGELADO</Text>
+                <Feather name="lock" size={20} color={t.green} style={{ marginRight: 8 }} />
+                <Text style={[styles.frozenBadgeText, { color: t.green }]}>CONGELADO</Text>
               </View>
             </View>
           )}
@@ -136,116 +137,116 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
       </Animated.View>
 
       <View style={styles.detailsRow}>
-        <View style={styles.detailCard}>
-          <Text style={styles.detailTitle}>VALIDADE</Text>
-          <Text style={styles.detailValue}>{expiry}</Text>
+        <View style={[styles.detailCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <Text style={[styles.detailTitle, { color: t.inkMute }]}>VALIDADE</Text>
+          <Text style={[styles.detailValue, { color: t.ink }]}>{expiry}</Text>
         </View>
 
-        <View style={styles.detailCard}>
-          <Text style={styles.detailTitle}>CVV</Text>
+        <View style={[styles.detailCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <Text style={[styles.detailTitle, { color: t.inkMute }]}>CVV</Text>
           <View style={styles.cvvContainer}>
-            <Text style={styles.detailValue}>{isCvvVisible ? cvv : '•••'}</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>{isCvvVisible ? cvv : '•••'}</Text>
             <TouchableOpacity style={styles.eyeBtn} onPress={() => setIsCvvVisible(!isCvvVisible)} activeOpacity={0.7}>
-              <Feather name={isCvvVisible ? 'eye-off' : 'eye'} size={18} color="#8E8E93" />
+              <Feather name={isCvvVisible ? 'eye-off' : 'eye'} size={18} color={t.inkMute} />
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.primaryActionBtn} onPress={handleCopyDetails} activeOpacity={0.8}>
-          <Feather name="copy" size={16} color="#0D0D0D" style={{ marginRight: 8 }} />
-          <Text style={styles.primaryActionText}>Copiar dados</Text>
+        <TouchableOpacity style={[styles.primaryActionBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleCopyDetails} activeOpacity={0.8}>
+          <Feather name="copy" size={16} color={t.btnPrimaryFg} style={{ marginRight: 8 }} />
+          <Text style={[styles.primaryActionText, { color: t.btnPrimaryFg }]}>Copiar dados</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.secondaryActionBtn} onPress={handleGenerateNewCard} activeOpacity={0.8}>
-          <Feather name="plus" size={16} color="#FFF" style={{ marginRight: 8 }} />
-          <Text style={styles.secondaryActionText}>Novo virtual</Text>
+        <TouchableOpacity style={[styles.secondaryActionBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleGenerateNewCard} activeOpacity={0.8}>
+          <Feather name="plus" size={16} color={t.ink} style={{ marginRight: 8 }} />
+          <Text style={[styles.secondaryActionText, { color: t.ink }]}>Novo virtual</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionHeader}>CONTROLES</Text>
+      <Text style={[styles.sectionHeader, { color: t.inkMute }]}>CONTROLES</Text>
 
-      <View style={styles.controlsList}>
-        <View style={styles.controlRow}>
+      <View style={[styles.controlsList, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+        <View style={[styles.controlRow, { borderBottomColor: t.line }]}>
           <View style={styles.controlLeft}>
-            <View style={styles.iconBox}>
-              <Feather name="globe" size={20} color="#FFF" />
+            <View style={[styles.iconBox, { backgroundColor: t.bgElev }]}>
+              <Feather name="globe" size={20} color={t.ink} />
             </View>
             <View>
-              <Text style={styles.controlTitle}>Compras online</Text>
+              <Text style={[styles.controlTitle, { color: t.ink }]}>Compras online</Text>
               <View style={styles.statusRow}>
-                <View style={[styles.statusDot, isOnlineActive && styles.statusDotActive]} />
-                <Text style={styles.controlSubtitle}>{isOnlineActive ? 'ativo' : 'inativo'}</Text>
+                <View style={[styles.statusDot, { backgroundColor: isOnlineActive ? t.green : t.inkMute }]} />
+                <Text style={[styles.controlSubtitle, { color: t.inkMute }]}>{isOnlineActive ? 'ativo' : 'inativo'}</Text>
               </View>
             </View>
           </View>
           <Switch
             value={isOnlineActive}
             onValueChange={setIsOnlineActive}
-            trackColor={{ false: '#2C2C2C', true: 'rgba(0, 208, 158, 0.3)' }}
-            thumbColor={isOnlineActive ? '#00D09E' : '#8E8E93'}
-            ios_backgroundColor="#2C2C2C"
+            trackColor={{ false: t.inkFaint, true: t.line2 }}
+            thumbColor={isOnlineActive ? t.green : t.inkMute}
+            ios_backgroundColor={t.inkFaint}
           />
         </View>
 
-        <View style={styles.controlRow}>
+        <View style={[styles.controlRow, { borderBottomColor: t.line }]}>
           <View style={styles.controlLeft}>
-            <View style={styles.iconBox}>
-              <Feather name="pause" size={20} color="#FFF" />
+            <View style={[styles.iconBox, { backgroundColor: t.bgElev }]}>
+              <Feather name="pause" size={20} color={t.ink} />
             </View>
             <View>
-              <Text style={styles.controlTitle}>Bloqueio temporário</Text>
-              <Text style={styles.controlSubtitle}>{isFrozen ? 'cartão bloqueado' : 'tap pra pausar'}</Text>
+              <Text style={[styles.controlTitle, { color: t.ink }]}>Bloqueio temporário</Text>
+              <Text style={[styles.controlSubtitle, { color: t.inkMute }]}>{isFrozen ? 'cartão bloqueado' : 'tap pra pausar'}</Text>
             </View>
           </View>
           <Switch
             value={isFrozen}
             onValueChange={setIsFrozen}
-            trackColor={{ false: '#2C2C2C', true: 'rgba(0, 208, 158, 0.3)' }}
-            thumbColor={isFrozen ? '#00D09E' : '#8E8E93'}
-            ios_backgroundColor="#2C2C2C"
+            trackColor={{ false: t.inkFaint, true: t.line2 }}
+            thumbColor={isFrozen ? t.green : t.inkMute}
+            ios_backgroundColor={t.inkFaint}
           />
         </View>
       </View>
 
       <View style={styles.limitHeaderRow}>
-        <Text style={styles.sectionHeader}>LIMITE MENSAL</Text>
+        <Text style={[styles.sectionHeader, { color: t.inkMute }]}>LIMITE MENSAL</Text>
         <TouchableOpacity onPress={() => setIsEditingLimit(true)} activeOpacity={0.7}>
-          <Text style={styles.editLinkText}>editar ➔</Text>
+          <Text style={[styles.editLinkText, { color: t.orange }]}>editar ➔</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.limitPanel}>
+      <View style={[styles.limitPanel, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
         {isEditingLimit ? (
           <View style={styles.limitEditContainer}>
             <TextInput
-              style={styles.limitInput}
+              style={[styles.limitInput, { backgroundColor: t.bg, borderColor: t.line, color: t.ink }]}
               keyboardType="number-pad"
               value={limitInput}
               onChangeText={setLimitInput}
               placeholder="Digite o limite"
-              placeholderTextColor="#666"
+              placeholderTextColor={t.inkMute}
               autoFocus
             />
             <View style={styles.limitEditActions}>
               <TouchableOpacity style={styles.limitCancelBtn} onPress={() => setIsEditingLimit(false)}>
-                <Text style={styles.limitCancelText}>Cancelar</Text>
+                <Text style={[styles.limitCancelText, { color: t.inkMute }]}>Cancelar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.limitSaveBtn} onPress={handleSaveLimit}>
-                <Text style={styles.limitSaveText}>Salvar</Text>
+              <TouchableOpacity style={[styles.limitSaveBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleSaveLimit}>
+                <Text style={[styles.limitSaveText, { color: t.btnPrimaryFg }]}>Salvar</Text>
               </TouchableOpacity>
             </View>
           </View>
         ) : (
           <View>
             <View style={styles.limitValuesRow}>
-              <Text style={styles.limitUsedText}>
-                Usado <Text style={styles.boldText}>R$ {limitUsed.toLocaleString('pt-BR')}</Text> de R$ {limitTotal.toLocaleString('pt-BR')}
+              <Text style={[styles.limitUsedText, { color: t.inkMute }]}>
+                Usado <Text style={[styles.boldText, { color: t.ink }]}>R$ {limitUsed.toLocaleString('pt-BR')}</Text> de R$ {limitTotal.toLocaleString('pt-BR')}
               </Text>
             </View>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: `${limitPercent * 100}%` }]} />
+            <View style={[styles.progressBarBg, { backgroundColor: t.inkFaint }]}>
+              <View style={[styles.progressBarFill, { width: `${limitPercent * 100}%`, backgroundColor: t.green }]} />
             </View>
           </View>
         )}

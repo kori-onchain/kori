@@ -8,10 +8,10 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../../../icons';
 import { PaymentRecipient } from '../../../types/payment';
 import { MOCK_CONTACTS } from '../../../data/contacts';
-import { COLORS } from '../../../constants/colors';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 const WALLET_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 
@@ -50,6 +50,7 @@ const resolveRecipient = (raw: string): PaymentRecipient | null => {
 };
 
 export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({ onContinue, onBack, onClose }) => {
+  const { t } = useTheme();
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
 
@@ -67,34 +68,34 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({ onContinue
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={[styles.container, { backgroundColor: t.bg }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { borderBottomColor: t.line }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
-          <Feather name="arrow-left" size={22} color="#FFF" />
+          <Feather name="arrow-left" size={22} color={t.ink} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Enviar para</Text>
+        <Text style={[styles.headerTitle, { color: t.ink }]}>Enviar para</Text>
         <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Feather name="x" size={22} color={COLORS.textSecondary} />
+          <Feather name="x" size={22} color={t.inkMute} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.body}>
         {/* Label */}
-        <Text style={styles.label}>ID ou Endereço de carteira</Text>
+        <Text style={[styles.label, { color: t.inkMute }]}>ID ou Endereço de carteira</Text>
 
         {/* Input */}
-        <View style={[styles.inputWrapper, error ? styles.inputWrapperError : null]}>
+        <View style={[styles.inputWrapper, { backgroundColor: t.bg2, borderColor: error ? '#FF3B30' : t.cardBorder }]}>
           <Feather
             name={isWallet ? 'shield' : 'at-sign'}
             size={18}
-            color={isWallet ? '#00C9FF' : '#FF6B00'}
+            color={isWallet ? t.sol : t.orange}
             style={styles.inputIcon}
           />
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: t.ink }]}
             placeholder="@usuario ou endereço da carteira"
-            placeholderTextColor="#555"
+            placeholderTextColor={t.inkMute}
             value={value}
             onChangeText={(t) => { setValue(t); setError(''); }}
             autoCorrect={false}
@@ -103,7 +104,7 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({ onContinue
           />
           {value.length > 0 && (
             <TouchableOpacity onPress={() => setValue('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Feather name="x-circle" size={18} color="#555" />
+              <Feather name="x-circle" size={18} color={t.inkMute} />
             </TouchableOpacity>
           )}
         </View>
@@ -112,23 +113,23 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({ onContinue
 
         {/* Type hint */}
         {!isEmpty && (
-          <View style={styles.typeTag}>
+          <View style={[styles.typeTag, { backgroundColor: t.bg2 }]}>
             <Feather
               name={isWallet ? 'shield' : 'at-sign'}
               size={12}
-              color={isWallet ? '#00C9FF' : '#FF6B00'}
+              color={isWallet ? t.sol : t.orange}
               style={{ marginRight: 6 }}
             />
-            <Text style={[styles.typeTagText, { color: isWallet ? '#00C9FF' : '#FF6B00' }]}>
+            <Text style={[styles.typeTagText, { color: isWallet ? t.sol : t.orange }]}>
               {isWallet ? 'Endereço de carteira (anônimo)' : 'ID de usuário'}
             </Text>
           </View>
         )}
 
         {isWallet && (
-          <View style={styles.anonymousNote}>
-            <Feather name="eye-off" size={14} color="#8E8E93" style={{ marginRight: 8 }} />
-            <Text style={styles.anonymousNoteText}>
+          <View style={[styles.anonymousNote, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+            <Feather name="eye-off" size={14} color={t.inkMute} style={{ marginRight: 8 }} />
+            <Text style={[styles.anonymousNoteText, { color: t.inkMute }]}>
               Transação anônima — nenhum dado de identidade será exposto.
             </Text>
           </View>
@@ -138,7 +139,7 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({ onContinue
       {/* CTA */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.continueBtn, isEmpty && styles.continueBtnDisabled]}
+          style={[styles.continueBtn, { backgroundColor: t.orange }, isEmpty && styles.continueBtnDisabled]}
           onPress={handleContinue}
           activeOpacity={0.85}
           disabled={isEmpty}
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
   headerTitle: { color: '#FFF', fontSize: 16, fontWeight: '800', flex: 1, textAlign: 'center' },
   body: { flex: 1, paddingHorizontal: 24, paddingTop: 28 },
   label: {
-    color: COLORS.textSecondary,
+    color: '#8E8E93',
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 1,

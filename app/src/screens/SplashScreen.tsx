@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../constants/colors";
+import { useTheme } from "../theme/ThemeProvider";
 import { KoraGlyph, KoraWordmark } from "../components/ds/icons";
 
 interface SplashScreenProps {
@@ -24,6 +24,7 @@ const WRAPPER_HEIGHT = GLYPH_SIZE + STACK_GAP + WORDMARK_HEIGHT;
 export const SplashScreen: React.FC<SplashScreenProps> = ({
   onAnimationComplete,
 }) => {
+  const { t } = useTheme();
   const scaleAnim = useRef(new Animated.Value(0.75)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   const shineOpacity = useRef(new Animated.Value(0.15)).current;
@@ -93,10 +94,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor={COLORS.background}
+        barStyle={t.statusBar}
+        backgroundColor={t.bg}
         translucent={true}
       />
 
@@ -163,7 +164,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },

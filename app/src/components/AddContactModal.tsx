@@ -13,8 +13,8 @@ import {
   Share
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-import { Feather } from '@expo/vector-icons';
-import { COLORS } from '../constants/colors';
+import { Feather } from '../icons';
+import { useTheme } from '../theme/ThemeProvider';
 
 interface AddContactModalProps {
   visible: boolean;
@@ -23,6 +23,7 @@ interface AddContactModalProps {
 }
 
 export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClose, onSave }) => {
+  const { t } = useTheme();
   const [activeTab, setActiveTab] = useState<'options' | 'add_id'>('options');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -102,14 +103,14 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClo
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
           style={styles.keyboardContainer}
         >
-          <View style={styles.modalCard}>
-            <View style={styles.handleBar} />
+          <View style={[styles.modalCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+            <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
             
-            <View style={styles.header}>
+            <View style={[styles.header, { borderBottomColor: t.line }]}>
               <TouchableOpacity onPress={handleBack} style={styles.headerBtn}>
-                <Feather name={activeTab === 'add_id' ? 'arrow-left' : 'x'} size={20} color="#FFF" />
+                <Feather name={activeTab === 'add_id' ? 'arrow-left' : 'x'} size={20} color={t.ink} />
               </TouchableOpacity>
-              <Text style={styles.headerTitle}>
+              <Text style={[styles.headerTitle, { color: t.ink }]}>
                 {activeTab === 'add_id' ? 'Adicionar por ID' : 'Convidar ou Adicionar'}
               </Text>
               <View style={{ width: 24 }} />
@@ -117,63 +118,63 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClo
 
             {activeTab === 'options' ? (
               <View style={styles.optionsContainer}>
-                <Text style={styles.subTitle}>Escolha como deseja prosseguir:</Text>
+                <Text style={[styles.subTitle, { color: t.inkMute }]}>Escolha como deseja prosseguir:</Text>
                 
-                <TouchableOpacity style={styles.optionCard} onPress={handleCopyLink} activeOpacity={0.7}>
-                  <View style={styles.iconWrapper}>
-                    <Feather name="share-2" size={22} color={COLORS.primary} />
+                <TouchableOpacity style={[styles.optionCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={handleCopyLink} activeOpacity={0.7}>
+                  <View style={[styles.iconWrapper, { backgroundColor: t.bg }]}>
+                    <Feather name="share-2" size={22} color={t.orange} />
                   </View>
                   <View style={styles.optionText}>
-                    <Text style={styles.optionTitle}>Enviar Link de Convite</Text>
-                    <Text style={styles.optionDesc}>Copia um link exclusivo para compartilhar com um amigo.</Text>
+                    <Text style={[styles.optionTitle, { color: t.ink }]}>Enviar Link de Convite</Text>
+                    <Text style={[styles.optionDesc, { color: t.inkMute }]}>Copia um link exclusivo para compartilhar com um amigo.</Text>
                   </View>
-                  <Feather name="chevron-right" size={16} color="#666" />
+                  <Feather name="chevron-right" size={16} color={t.inkMute} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.optionCard} onPress={() => setActiveTab('add_id')} activeOpacity={0.7}>
-                  <View style={styles.iconWrapper}>
-                    <Feather name="user-plus" size={22} color={COLORS.primary} />
+                <TouchableOpacity style={[styles.optionCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={() => setActiveTab('add_id')} activeOpacity={0.7}>
+                  <View style={[styles.iconWrapper, { backgroundColor: t.bg }]}>
+                    <Feather name="user-plus" size={22} color={t.orange} />
                   </View>
                   <View style={styles.optionText}>
-                    <Text style={styles.optionTitle}>Adicionar pelo ID</Text>
-                    <Text style={styles.optionDesc}>Insira o identificador de usuário para adicioná-lo na hora.</Text>
+                    <Text style={[styles.optionTitle, { color: t.ink }]}>Adicionar pelo ID</Text>
+                    <Text style={[styles.optionDesc, { color: t.inkMute }]}>Insira o identificador de usuário para adicioná-lo na hora.</Text>
                   </View>
-                  <Feather name="chevron-right" size={16} color="#666" />
+                  <Feather name="chevron-right" size={16} color={t.inkMute} />
                 </TouchableOpacity>
               </View>
             ) : (
               <View style={styles.formContainer}>
-                <Text style={styles.subTitle}>Preencha as informações do contato:</Text>
+                <Text style={[styles.subTitle, { color: t.inkMute }]}>Preencha as informações do contato:</Text>
 
-                <Text style={styles.inputLabel}>ID de Usuário *</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather name="at-sign" size={16} color="#666" style={{ marginRight: 8 }} />
+                <Text style={[styles.inputLabel, { color: t.ink }]}>ID de Usuário *</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
+                  <Feather name="at-sign" size={16} color={t.inkMute} style={{ marginRight: 8 }} />
                   <TextInput
                     placeholder="ex: joao_silva"
-                    placeholderTextColor="#666"
+                    placeholderTextColor={t.inkMute}
                     value={username}
                     onChangeText={setUsername}
-                    style={styles.input}
+                    style={[styles.input, { color: t.ink }]}
                     autoCapitalize="none"
                     autoCorrect={false}
                   />
                 </View>
 
-                <Text style={styles.inputLabel}>Nome do Contato (Opcional)</Text>
-                <View style={styles.inputWrapper}>
-                  <Feather name="user" size={16} color="#666" style={{ marginRight: 8 }} />
+                <Text style={[styles.inputLabel, { color: t.ink }]}>Nome do Contato (Opcional)</Text>
+                <View style={[styles.inputWrapper, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
+                  <Feather name="user" size={16} color={t.inkMute} style={{ marginRight: 8 }} />
                   <TextInput
                     placeholder="ex: João Silva"
-                    placeholderTextColor="#666"
+                    placeholderTextColor={t.inkMute}
                     value={name}
                     onChangeText={setName}
-                    style={styles.input}
+                    style={[styles.input, { color: t.ink }]}
                     autoCorrect={false}
                   />
                 </View>
 
-                <TouchableOpacity style={styles.saveBtn} onPress={handleSave} activeOpacity={0.8}>
-                  <Text style={styles.saveBtnText}>Adicionar e Salvar</Text>
+                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleSave} activeOpacity={0.8}>
+                  <Text style={[styles.saveBtnText, { color: t.btnPrimaryFg }]}>Adicionar e Salvar</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -182,8 +183,8 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClo
 
         {toastMessage && (
           <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
-            <Feather name="check-circle" size={16} color="#4CAF50" style={{ marginRight: 8 }} />
-            <Text style={styles.toastText}>{toastMessage}</Text>
+            <Feather name="check-circle" size={16} color={t.green} style={{ marginRight: 8 }} />
+            <Text style={[styles.toastText, { color: t.ink }]}>{toastMessage}</Text>
           </Animated.View>
         )}
       </View>
@@ -211,11 +212,9 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     width: '100%',
-    backgroundColor: '#161616',
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#262626',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     overflow: 'hidden',
@@ -225,7 +224,6 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#333',
     alignSelf: 'center',
     marginTop: 10,
     marginBottom: 6,
@@ -237,18 +235,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
   },
   headerBtn: {
     padding: 4,
   },
   headerTitle: {
-    color: '#FFF',
     fontSize: 16,
     fontWeight: '800',
   },
   subTitle: {
-    color: '#8E8E93',
     fontSize: 13,
     fontWeight: '500',
     paddingHorizontal: 20,
@@ -261,9 +256,7 @@ const styles = StyleSheet.create({
   optionCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E',
     borderWidth: 1,
-    borderColor: '#2C2C2C',
     borderRadius: 14,
     padding: 16,
     marginBottom: 12,
@@ -272,7 +265,6 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 14,
@@ -281,13 +273,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionTitle: {
-    color: '#FFF',
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 4,
   },
   optionDesc: {
-    color: '#666',
     fontSize: 11,
     fontWeight: '500',
     lineHeight: 14,
@@ -296,7 +286,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   inputLabel: {
-    color: '#FFF',
     fontSize: 12,
     fontWeight: '700',
     marginBottom: 8,
@@ -305,9 +294,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E',
     borderWidth: 1,
-    borderColor: '#2C2C2C',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
@@ -315,19 +302,16 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: '#FFF',
     fontSize: 14,
     padding: 0,
   },
   saveBtn: {
-    backgroundColor: '#FFF',
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 10,
   },
   saveBtnText: {
-    color: '#000',
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -346,7 +330,6 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   toastText: {
-    color: '#FFF',
     fontSize: 13,
     fontWeight: '600',
   },

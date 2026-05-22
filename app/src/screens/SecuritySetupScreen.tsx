@@ -10,9 +10,8 @@ import {
   Animated,
   Platform,
 } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { COLORS } from "../constants/colors";
+import { Feather, Ionicons } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
 
 type SecurityMethod = "digital" | "facial" | "pin";
 
@@ -22,6 +21,7 @@ interface SecuritySetupProps {
 }
 
 export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, onComplete }) => {
+  const { t } = useTheme();
   const [selectedMethod, setSelectedMethod] = useState<SecurityMethod>("digital");
   const [setupStep, setSetupStep] = useState<"select" | "simulating" | "pin_input">("select");
   const [loading, setLoading] = useState(false);
@@ -112,19 +112,19 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={true} />
+    <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
+      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent={true} />
       
       {/* --- SELECT METHOD STEP --- */}
       {setupStep === "select" && (
         <View style={styles.stepContainer}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.shieldIconContainer}>
-              <Feather name="shield" size={32} color={COLORS.text} />
+            <View style={[styles.shieldIconContainer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+              <Feather name="shield" size={32} color={t.ink} />
             </View>
-            <Text style={styles.title}>Proteja sua Carteira</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: t.ink }]}>Proteja sua Carteira</Text>
+            <Text style={[styles.subtitle, { color: t.inkMute }]}>
               Olá {userName.split(" ")[0]}, escolha uma das opções abaixo para ativar a proteção no seu app.
             </Text>
           </View>
@@ -136,20 +136,21 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
             <TouchableOpacity
               style={[
                 styles.methodCard,
-                selectedMethod === "digital" && styles.methodCardActive,
+                { backgroundColor: t.bg2, borderColor: t.cardBorder },
+                selectedMethod === "digital" && { backgroundColor: t.bgElev, borderColor: t.orange },
               ]}
               onPress={() => handleSelectMethod("digital")}
               activeOpacity={0.8}
             >
-              <View style={[styles.cardIconBox, selectedMethod === "digital" && styles.cardIconBoxActive]}>
-                <Ionicons name="finger-print-outline" size={24} color={selectedMethod === "digital" ? COLORS.background : COLORS.text} />
+              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "digital" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
+                <Ionicons name="finger-print-outline" size={24} color={selectedMethod === "digital" ? t.btnPrimaryFg : t.ink} />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>Biometria Digital</Text>
-                <Text style={styles.cardDesc}>Utilize sua impressão digital para acessar o app de forma ultra rápida.</Text>
+                <Text style={[styles.cardTitle, { color: t.ink }]}>Biometria Digital</Text>
+                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Utilize sua impressão digital para acessar o app de forma ultra rápida.</Text>
               </View>
-              <View style={[styles.radioOutline, selectedMethod === "digital" && styles.radioActive]}>
-                {selectedMethod === "digital" && <View style={styles.radioDot} />}
+              <View style={[styles.radioOutline, { borderColor: selectedMethod === "digital" ? t.orange : t.line2 }]}>
+                {selectedMethod === "digital" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
               </View>
             </TouchableOpacity>
 
@@ -157,20 +158,21 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
             <TouchableOpacity
               style={[
                 styles.methodCard,
-                selectedMethod === "facial" && styles.methodCardActive,
+                { backgroundColor: t.bg2, borderColor: t.cardBorder },
+                selectedMethod === "facial" && { backgroundColor: t.bgElev, borderColor: t.orange },
               ]}
               onPress={() => handleSelectMethod("facial")}
               activeOpacity={0.8}
             >
-              <View style={[styles.cardIconBox, selectedMethod === "facial" && styles.cardIconBoxActive]}>
-                <Ionicons name="scan-outline" size={24} color={selectedMethod === "facial" ? COLORS.background : COLORS.text} />
+              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "facial" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
+                <Ionicons name="scan-outline" size={24} color={selectedMethod === "facial" ? t.btnPrimaryFg : t.ink} />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>Reconhecimento Facial</Text>
-                <Text style={styles.cardDesc}>Acesse sua conta em segundos apenas olhando para o seu dispositivo.</Text>
+                <Text style={[styles.cardTitle, { color: t.ink }]}>Reconhecimento Facial</Text>
+                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Acesse sua conta em segundos apenas olhando para o seu dispositivo.</Text>
               </View>
-              <View style={[styles.radioOutline, selectedMethod === "facial" && styles.radioActive]}>
-                {selectedMethod === "facial" && <View style={styles.radioDot} />}
+              <View style={[styles.radioOutline, { borderColor: selectedMethod === "facial" ? t.orange : t.line2 }]}>
+                {selectedMethod === "facial" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
               </View>
             </TouchableOpacity>
 
@@ -178,20 +180,21 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
             <TouchableOpacity
               style={[
                 styles.methodCard,
-                selectedMethod === "pin" && styles.methodCardActive,
+                { backgroundColor: t.bg2, borderColor: t.cardBorder },
+                selectedMethod === "pin" && { backgroundColor: t.bgElev, borderColor: t.orange },
               ]}
               onPress={() => handleSelectMethod("pin")}
               activeOpacity={0.8}
             >
-              <View style={[styles.cardIconBox, selectedMethod === "pin" && styles.cardIconBoxActive]}>
-                <Ionicons name="grid-outline" size={24} color={selectedMethod === "pin" ? COLORS.background : COLORS.text} />
+              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "pin" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
+                <Ionicons name="grid-outline" size={24} color={selectedMethod === "pin" ? t.btnPrimaryFg : t.ink} />
               </View>
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>PIN de Segurança</Text>
-                <Text style={styles.cardDesc}>Defina uma senha numérica exclusiva de 5 dígitos para autorizações.</Text>
+                <Text style={[styles.cardTitle, { color: t.ink }]}>PIN de Segurança</Text>
+                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Defina uma senha numérica exclusiva de 5 dígitos para autorizações.</Text>
               </View>
-              <View style={[styles.radioOutline, selectedMethod === "pin" && styles.radioActive]}>
-                {selectedMethod === "pin" && <View style={styles.radioDot} />}
+              <View style={[styles.radioOutline, { borderColor: selectedMethod === "pin" ? t.orange : t.line2 }]}>
+                {selectedMethod === "pin" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
               </View>
             </TouchableOpacity>
 
@@ -199,8 +202,8 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
 
           {/* Navigation Action Buttons */}
           <View style={styles.actionsContainer}>
-            <TouchableOpacity style={styles.primaryButton} onPress={handleNext} activeOpacity={0.9}>
-              <Text style={styles.primaryButtonText}>Configurar Segurança</Text>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: t.btnPrimaryBg }]} onPress={handleNext} activeOpacity={0.9}>
+              <Text style={[styles.primaryButtonText, { color: t.btnPrimaryFg }]}>Configurar Segurança</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -209,27 +212,27 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
       {/* --- SIMULATING DEVICE HARDWARE SCANNING --- */}
       {setupStep === "simulating" && (
         <View style={styles.scanContainer}>
-          <View style={styles.scanBox}>
+          <View style={[styles.scanBox, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
             <Ionicons
               name={selectedMethod === "digital" ? "finger-print-outline" : "scan-outline"}
               size={80}
-              color={COLORS.text}
+              color={t.ink}
             />
             {scanProgress < 1 ? (
-              <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 24 }} />
+              <ActivityIndicator size="large" color={t.orange} style={{ marginTop: 24 }} />
             ) : (
-              <View style={styles.successScanBadge}>
-                <Feather name="check" size={28} color={COLORS.background} />
+              <View style={[styles.successScanBadge, { backgroundColor: t.green, borderColor: t.bg }]}>
+                <Feather name="check" size={28} color={t.bg} />
               </View>
             )}
           </View>
-          <Text style={styles.scanTitle}>
+          <Text style={[styles.scanTitle, { color: t.ink }]}>
             {scanProgress < 1 
               ? `Ativando ${selectedMethod === "digital" ? "Touch ID" : "Face ID"}...`
               : `${selectedMethod === "digital" ? "Biometria" : "Reconhecimento Facial"} Ativado!`
             }
           </Text>
-          <Text style={styles.scanDesc}>
+          <Text style={[styles.scanDesc, { color: t.inkMute }]}>
             {scanProgress < 1 
               ? "Simulando a integração segura com os sensores biométricos do seu smartphone."
               : "Sua carteira Kora está protegida com criptografia nativa de ponta."
@@ -244,12 +247,12 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
           {/* Header */}
           <View style={styles.pinHeader}>
             <TouchableOpacity style={styles.backBtn} onPress={() => setSetupStep("select")}>
-              <Feather name="arrow-left" size={22} color={COLORS.text} />
+              <Feather name="arrow-left" size={22} color={t.ink} />
             </TouchableOpacity>
-            <Text style={styles.pinStepTitle}>
+            <Text style={[styles.pinStepTitle, { color: t.ink }]}>
               {pinStep === "enter" ? "Defina seu PIN" : "Confirme seu PIN"}
             </Text>
-            <Text style={styles.pinStepDesc}>
+            <Text style={[styles.pinStepDesc, { color: t.inkMute }]}>
               {pinStep === "enter" 
                 ? "Crie uma senha numérica de 5 dígitos para acessos e transações."
                 : "Insira novamente a senha numérica para confirmação."
@@ -265,8 +268,9 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
                 <View 
                   key={index} 
                   style={[
-                    styles.pinSlot, 
-                    hasDigit && styles.pinSlotFilled,
+                    styles.pinSlot,
+                    { borderColor: t.line2 },
+                    hasDigit && { backgroundColor: t.ink, borderColor: t.ink },
                     pinError && styles.pinSlotError
                   ]} 
                 />
@@ -275,38 +279,38 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
           </View>
 
           {/* Dynamic Error State */}
-          {pinError && <Text style={styles.pinErrorText}>{pinError}</Text>}
+          {pinError && <Text style={[styles.pinErrorText, { color: t.orangeDark }]}>{pinError}</Text>}
 
           {/* Numerical Numpad Panel */}
           <View style={styles.numpad}>
             <View style={styles.numpadRow}>
               {["1", "2", "3"].map((num) => (
-                <TouchableOpacity key={num} style={styles.numpadKey} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={styles.numpadKeyText}>{num}</Text>
+                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
+                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               {["4", "5", "6"].map((num) => (
-                <TouchableOpacity key={num} style={styles.numpadKey} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={styles.numpadKeyText}>{num}</Text>
+                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
+                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               {["7", "8", "9"].map((num) => (
-                <TouchableOpacity key={num} style={styles.numpadKey} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={styles.numpadKeyText}>{num}</Text>
+                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
+                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               <View style={styles.numpadKeySpacer} />
-              <TouchableOpacity style={styles.numpadKey} onPress={() => handleKeyPress("0")} disabled={loading}>
-                <Text style={styles.numpadKeyText}>0</Text>
+              <TouchableOpacity style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress("0")} disabled={loading}>
+                <Text style={[styles.numpadKeyText, { color: t.ink }]}>0</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.numpadKeyDelete} onPress={handleDelete} disabled={loading}>
-                <Feather name="delete" size={20} color={COLORS.text} />
+                <Feather name="delete" size={20} color={t.ink} />
               </TouchableOpacity>
             </View>
           </View>
@@ -320,7 +324,6 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   stepContainer: {
     flex: 1,
@@ -337,21 +340,17 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 20,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
   },
   title: {
-    color: COLORS.text,
     fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
   },
   subtitle: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     textAlign: "center",
     marginTop: 8,
@@ -364,29 +363,21 @@ const styles = StyleSheet.create({
   methodCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   methodCardActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: "#1D1D1D",
   },
   cardIconBox: {
     width: 46,
     height: 46,
     borderRadius: 12,
-    backgroundColor: "#111111",
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
   },
   cardIconBoxActive: {
-    backgroundColor: COLORS.text,
-    borderColor: COLORS.text,
   },
   cardContent: {
     flex: 1,
@@ -394,12 +385,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   cardTitle: {
-    color: COLORS.text,
     fontSize: 14,
     fontWeight: "bold",
   },
   cardDesc: {
-    color: COLORS.textSecondary,
     fontSize: 11,
     marginTop: 3,
     lineHeight: 14,
@@ -409,31 +398,26 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
   },
   radioActive: {
-    borderColor: COLORS.primary,
   },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: COLORS.text,
   },
   actionsContainer: {
     gap: 12,
   },
   primaryButton: {
     height: 52,
-    backgroundColor: COLORS.text,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
   primaryButtonText: {
-    color: COLORS.background,
     fontSize: 15,
     fontWeight: "bold",
   },
@@ -443,7 +427,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   skipButtonText: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -457,9 +440,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -472,20 +453,16 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.text,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 3,
-    borderColor: COLORS.background,
   },
   scanTitle: {
-    color: COLORS.text,
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
   },
   scanDesc: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     textAlign: "center",
     marginTop: 10,
@@ -510,13 +487,11 @@ const styles = StyleSheet.create({
     padding: 6,
   },
   pinStepTitle: {
-    color: COLORS.text,
     fontSize: 20,
     fontWeight: "bold",
     marginTop: 6,
   },
   pinStepDesc: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     textAlign: "center",
     marginTop: 8,
@@ -534,18 +509,14 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: COLORS.border,
     backgroundColor: "transparent",
   },
   pinSlotFilled: {
-    borderColor: COLORS.text,
-    backgroundColor: COLORS.text,
   },
   pinSlotError: {
     borderColor: "#FF3B30",
   },
   pinErrorText: {
-    color: "#FF3B30",
     fontSize: 12,
     fontWeight: "500",
     textAlign: "center",
@@ -565,14 +536,11 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
   },
   numpadKeyText: {
-    color: COLORS.text,
     fontSize: 20,
     fontWeight: "bold",
   },

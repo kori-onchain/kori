@@ -1,12 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../../../icons';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 interface PayingScreenProps {
   onComplete: () => void;
 }
 
 export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
+  const { t } = useTheme();
   const pulseAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <Animated.View
@@ -56,14 +58,15 @@ export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
               {
                 transform: [{ scale }],
                 opacity,
+                backgroundColor: t.btnPrimaryBg,
               },
             ]}
           />
-          <View style={styles.centerIcon}>
-            <Feather name="send" size={32} color="#FFF" style={{ marginLeft: -4, marginTop: 4 }} />
+          <View style={[styles.centerIcon, { backgroundColor: t.bg2, borderColor: t.btnPrimaryBg }]}>
+            <Feather name="send" size={32} color={t.orange} style={{ marginLeft: -4, marginTop: 4 }} />
           </View>
         </View>
-        <Text style={styles.text}>Processando pagamento...</Text>
+        <Text style={[styles.text, { color: t.ink }]}>Processando pagamento...</Text>
       </View>
     </View>
   );

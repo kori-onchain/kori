@@ -8,9 +8,10 @@ import {
   Easing,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../../../icons';
 import { PaymentRecipient } from '../../../types/payment';
 import { MOCK_CONTACTS } from '../../../data/contacts';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 const APP_SCHEME = 'kora://pay';
 
@@ -63,6 +64,7 @@ const parseSolanaOrKoraQR = (raw: string): { recipient: PaymentRecipient; amount
 };
 
 export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => {
+  const { t } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const scanLine = useState(new Animated.Value(0))[0];
@@ -88,25 +90,25 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
     }
   };
 
-  if (!permission) return <View style={styles.container} />;
+  if (!permission) return <View style={[styles.container, { backgroundColor: t.bg }]} />;
 
   if (!permission.granted) {
     return (
-      <View style={styles.permContainer}>
-        <View style={styles.permCard}>
-          <View style={styles.permIconCircle}>
-            <Feather name="camera" size={32} color="#FFF" />
+      <View style={[styles.permContainer, { backgroundColor: t.bg }]}>
+        <View style={[styles.permCard, { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: '#000', elevation: t.cardElev }]}>
+          <View style={[styles.permIconCircle, { backgroundColor: t.bgElev }]}>
+            <Feather name="camera" size={32} color={t.ink} />
           </View>
-          <Text style={styles.permTitle}>Permissão de câmera</Text>
-          <Text style={styles.permDesc}>
+          <Text style={[styles.permTitle, { color: t.ink }]}>Permissão de câmera</Text>
+          <Text style={[styles.permDesc, { color: t.inkMute }]}>
             Para escanear QR Codes da Kora, precisamos de acesso à sua câmera.
           </Text>
-          <TouchableOpacity style={styles.permBtn} onPress={requestPermission} activeOpacity={0.85}>
+          <TouchableOpacity style={[styles.permBtn, { backgroundColor: t.orange }]} onPress={requestPermission} activeOpacity={0.85}>
             <Text style={styles.permBtnText}>Permitir acesso</Text>
           </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.closeAbsolute} onPress={onClose}>
-          <Feather name="x" size={22} color="#FFF" />
+          <Feather name="x" size={22} color={t.ink} />
         </TouchableOpacity>
       </View>
     );

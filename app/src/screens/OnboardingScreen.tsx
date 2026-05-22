@@ -11,9 +11,9 @@ import {
   Easing,
   Platform,
 } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { COLORS } from "../constants/colors";
+import { Feather, Ionicons } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts } from "../theme/tokens";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +22,7 @@ interface OnboardingScreenProps {
 }
 
 export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
+  const { t } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Transition values for content slide
@@ -194,19 +195,19 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={true} />
+    <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
+      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent={true} />
       
       {/* Top Header Row with brand logo and Skip button */}
       <View style={styles.topRow}>
-        <View style={styles.miniLogo}>
-          <Text style={styles.miniLogoText}>K</Text>
+        <View style={[styles.miniLogo, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <Text style={[styles.miniLogoText, { color: t.ink }]}>K</Text>
         </View>
         
         {activeIndex < 2 && (
-          <TouchableOpacity onPress={handleSkip} activeOpacity={0.7} style={styles.skipBtn}>
-            <Text style={styles.skipBtnText}>Pular</Text>
-            <Feather name="chevron-right" size={14} color={COLORS.textSecondary} />
+          <TouchableOpacity onPress={handleSkip} activeOpacity={0.7} style={[styles.skipBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+            <Text style={[styles.skipBtnText, { color: t.inkMute }]}>Pular</Text>
+            <Feather name="chevron-right" size={14} color={t.inkMute} />
           </TouchableOpacity>
         )}
       </View>
@@ -217,25 +218,25 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         {/* SLIDE 1 VISUAL: Intelligent Balance Graphic Dashboard */}
         {activeIndex === 0 && (
           <View style={styles.slide1Container}>
-            <View style={styles.dashboardCard}>
+            <View style={[styles.dashboardCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
               <View style={styles.cardHeader}>
-                <View style={styles.circleDot} />
-                <View style={styles.barPlaceholder} />
+                <View style={[styles.circleDot, { backgroundColor: t.green }]} />
+                <View style={[styles.barPlaceholder, { backgroundColor: t.inkFaint }]} />
               </View>
-              <Text style={styles.cardBalance}>$2,845.50</Text>
+              <Text style={[styles.cardBalance, { color: t.ink }]}>$2,845.50</Text>
               
               <View style={styles.barChartRow}>
                 <View style={styles.chartCol}>
-                  <Animated.View style={[styles.chartBar, { transform: [{ scaleY: bar1ScaleY }] }]} />
-                  <Text style={styles.chartBarLabel}>SEG</Text>
+                  <Animated.View style={[styles.chartBar, { backgroundColor: t.inkFaint, transform: [{ scaleY: bar1ScaleY }] }]} />
+                  <Text style={[styles.chartBarLabel, { color: t.inkMute }]}>SEG</Text>
                 </View>
                 <View style={styles.chartCol}>
-                  <Animated.View style={[styles.chartBar, styles.chartBarActive, { transform: [{ scaleY: bar2ScaleY }] }]} />
-                  <Text style={styles.chartBarLabel}>TER</Text>
+                  <Animated.View style={[styles.chartBar, { backgroundColor: t.ink }, { transform: [{ scaleY: bar2ScaleY }] }]} />
+                  <Text style={[styles.chartBarLabel, { color: t.inkMute }]}>TER</Text>
                 </View>
                 <View style={styles.chartCol}>
-                  <Animated.View style={[styles.chartBar, { transform: [{ scaleY: bar3ScaleY }] }]} />
-                  <Text style={styles.chartBarLabel}>QUA</Text>
+                  <Animated.View style={[styles.chartBar, { backgroundColor: t.inkFaint, transform: [{ scaleY: bar3ScaleY }] }]} />
+                  <Text style={[styles.chartBarLabel, { color: t.inkMute }]}>QUA</Text>
                 </View>
               </View>
             </View>
@@ -250,7 +251,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             <Animated.View 
               style={[
                 styles.floatingCard, 
-                styles.businessCardColor, 
+                { backgroundColor: t.bg2, borderColor: t.cardBorder },
                 { 
                   transform: [
                     { translateX: card1TranslateX }, 
@@ -261,12 +262,12 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               ]}
             >
               <View style={styles.cardRowBetween}>
-                <Text style={styles.cardBrand}>Business</Text>
-                <Ionicons name="business-outline" size={16} color="rgba(255, 255, 255, 0.8)" />
+                <Text style={[styles.cardBrand, { color: t.ink }]}>Business</Text>
+                <Ionicons name="business-outline" size={16} color={t.inkDim} />
               </View>
               <View style={styles.cardMiddle}>
-                <Text style={styles.cardLimitText}>SALDO ATIVO</Text>
-                <Text style={styles.cardValueText}>$12,450.00</Text>
+                <Text style={[styles.cardLimitText, { color: t.inkMute }]}>SALDO ATIVO</Text>
+                <Text style={[styles.cardValueText, { color: t.ink }]}>$12,450.00</Text>
               </View>
             </Animated.View>
 
@@ -274,7 +275,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             <Animated.View 
               style={[
                 styles.floatingCard, 
-                styles.personalCardColor, 
+                { backgroundColor: t.btnPrimaryBg },
                 { 
                   transform: [
                     { translateX: card2TranslateX }, 
@@ -285,12 +286,12 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
               ]}
             >
               <View style={styles.cardRowBetween}>
-                <Text style={styles.cardBrand}>Personal</Text>
-                <Ionicons name="person-outline" size={16} color="rgba(0, 0, 0, 0.8)" />
+                <Text style={[styles.cardBrand, { color: t.btnPrimaryFg }]}>Personal</Text>
+                <Ionicons name="person-outline" size={16} color={t.btnPrimaryFg} />
               </View>
               <View style={styles.cardMiddle}>
-                <Text style={styles.cardLimitTextDark}>SALDO ATIVO</Text>
-                <Text style={styles.cardValueTextDark}>$4,320.00</Text>
+                <Text style={[styles.cardLimitTextDark, { color: t.btnPrimaryFg }]}>SALDO ATIVO</Text>
+                <Text style={[styles.cardValueTextDark, { color: t.btnPrimaryFg }]}>$4,320.00</Text>
               </View>
             </Animated.View>
 
@@ -324,8 +325,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
             />
 
             {/* Central glowing secure shield button */}
-            <View style={styles.shieldCenterBox}>
-              <Ionicons name="shield-checkmark-outline" size={38} color={COLORS.text} />
+            <View style={[styles.shieldCenterBox, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+              <Ionicons name="shield-checkmark-outline" size={38} color={t.ink} />
             </View>
 
           </View>
@@ -336,8 +337,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
       {/* Slide Text Content & Page Control Indicators */}
       <View style={styles.bottomSection}>
         <View style={styles.textBlock}>
-          <Text style={styles.slideTitle}>{slides[activeIndex].title}</Text>
-          <Text style={styles.slideSubtitle}>{slides[activeIndex].subtitle}</Text>
+          <Text style={[styles.slideTitle, { color: t.ink }]}>{slides[activeIndex].title}</Text>
+          <Text style={[styles.slideSubtitle, { color: t.inkMute }]}>{slides[activeIndex].subtitle}</Text>
         </View>
 
         {/* Slide Indicators: dots/capsules */}
@@ -349,7 +350,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
                 key={index} 
                 style={[
                   styles.indicatorCapsule,
-                  isActive && styles.indicatorCapsuleActive
+                  { backgroundColor: isActive ? t.ink : t.inkFaint, width: isActive ? 24 : 8 }
                 ]} 
               />
             );
@@ -359,15 +360,15 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
         {/* Bottom Primary Button */}
         <Animated.View style={{ width: buttonWidth }}>
           <TouchableOpacity 
-            style={[styles.primaryButton, activeIndex === 2 && styles.primaryButtonComplete]} 
+            style={[styles.primaryButton, { backgroundColor: t.btnPrimaryBg }]}
             onPress={handleNext} 
             activeOpacity={0.9}
           >
-            <Text style={[styles.primaryButtonText, activeIndex === 2 && styles.primaryButtonTextComplete]}>
+            <Text style={[styles.primaryButtonText, { color: t.btnPrimaryFg }]}>
               {activeIndex === 2 ? "Começar Agora" : "Avançar"}
             </Text>
             {activeIndex < 2 && (
-              <Feather name="arrow-right" size={16} color={COLORS.background} style={{ marginLeft: 6 }} />
+              <Feather name="arrow-right" size={16} color={t.btnPrimaryFg} style={{ marginLeft: 6 }} />
             )}
           </TouchableOpacity>
         </Animated.View>
@@ -380,7 +381,6 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: "space-between",
     paddingBottom: Platform.OS === "ios" ? 20 : 30,
   },
@@ -396,14 +396,12 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 9,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
   },
   miniLogoText: {
-    color: COLORS.text,
+    fontFamily: fonts.sans.bold,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -413,12 +411,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 14,
-    backgroundColor: "#161616",
     borderWidth: 0.5,
-    borderColor: COLORS.border,
   },
   skipBtnText: {
-    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: "600",
     marginRight: 2,
@@ -440,9 +435,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 180,
     borderRadius: 20,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     padding: 16,
     justifyContent: "space-between",
     shadowColor: "#000",
@@ -460,16 +453,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#34C759",
   },
   barPlaceholder: {
     width: 50,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#2C2C2C",
   },
   cardBalance: {
-    color: COLORS.text,
     fontSize: 22,
     fontWeight: "bold",
     marginVertical: 12,
@@ -488,14 +478,11 @@ const styles = StyleSheet.create({
     width: 14,
     height: 20,
     borderRadius: 4,
-    backgroundColor: "#2C2C2C",
     transformOrigin: "bottom",
   },
   chartBarActive: {
-    backgroundColor: COLORS.text,
   },
   chartBarLabel: {
-    color: COLORS.textSecondary,
     fontSize: 8,
     fontWeight: "bold",
     marginTop: 6,
@@ -523,13 +510,10 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   businessCardColor: {
-    backgroundColor: "#161616",
     borderWidth: 1,
-    borderColor: "#333",
     zIndex: 1,
   },
   personalCardColor: {
-    backgroundColor: COLORS.text,
     zIndex: 10,
   },
   cardRowBetween: {
@@ -538,7 +522,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardBrand: {
-    color: "rgba(0, 0, 0, 0.85)",
     fontSize: 13,
     fontWeight: "bold",
   },
@@ -546,25 +529,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   cardLimitText: {
-    color: "rgba(255, 255, 255, 0.4)",
     fontSize: 8,
     fontWeight: "bold",
     letterSpacing: 0.5,
   },
   cardLimitTextDark: {
-    color: "rgba(0, 0, 0, 0.4)",
     fontSize: 8,
     fontWeight: "bold",
     letterSpacing: 0.5,
   },
   cardValueText: {
-    color: COLORS.text,
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 2,
   },
   cardValueTextDark: {
-    color: COLORS.background,
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 2,
@@ -591,9 +570,7 @@ const styles = StyleSheet.create({
     width: 82,
     height: 82,
     borderRadius: 28,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
@@ -614,13 +591,11 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   slideTitle: {
-    color: COLORS.text,
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
   },
   slideSubtitle: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     textAlign: "center",
     marginTop: 10,
@@ -637,15 +612,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#222222",
   },
   indicatorCapsuleActive: {
     width: 24,
-    backgroundColor: COLORS.text,
   },
   primaryButton: {
     height: 52,
-    backgroundColor: COLORS.text,
     borderRadius: 12,
     flexDirection: "row",
     justifyContent: "center",
@@ -653,14 +625,11 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   primaryButtonComplete: {
-    backgroundColor: COLORS.text,
   },
   primaryButtonText: {
-    color: COLORS.background,
     fontSize: 15,
     fontWeight: "bold",
   },
   primaryButtonTextComplete: {
-    color: COLORS.background,
   },
 });

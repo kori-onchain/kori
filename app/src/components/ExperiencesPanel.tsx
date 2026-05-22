@@ -9,9 +9,9 @@ import {
   Platform,
   Share
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS } from '../constants/colors';
+import { useTheme } from '../theme/ThemeProvider';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +27,7 @@ interface ExperienceItem {
 }
 
 export const ExperiencesPanel: React.FC = () => {
+  const { t } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState<'tudo' | 'viagem' | 'estilo' | 'beneficio'>('tudo');
   const [userPoints] = useState('24.850');
 
@@ -99,33 +100,34 @@ export const ExperiencesPanel: React.FC = () => {
 
   return (
     <ScrollView 
+      style={{ backgroundColor: t.bg }}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
     >
       {/* Cabeçalho de Pontos/Nível */}
-      <View style={styles.pointsCard}>
+      <View style={[styles.pointsCard, { borderColor: t.cardBorder }]}>
         <LinearGradient
-          colors={['#161616', '#0E362C']}
+          colors={[t.bg2, t.bgElev]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.pointsGradient}
         >
           <View style={styles.pointsRow}>
             <View>
-              <Text style={styles.pointsLabel}>SEUS PONTOS ACUMULADOS</Text>
-              <Text style={styles.pointsValue}>{userPoints} <Text style={styles.pointsUnit}>PTS</Text></Text>
+              <Text style={[styles.pointsLabel, { color: t.inkMute }]}>SEUS PONTOS ACUMULADOS</Text>
+              <Text style={[styles.pointsValue, { color: t.ink }]}>{userPoints} <Text style={[styles.pointsUnit, { color: t.green }]}>PTS</Text></Text>
             </View>
-            <View style={styles.tierBadge}>
-              <Feather name="award" size={14} color="#00D09E" style={{ marginRight: 4 }} />
-              <Text style={styles.tierText}>BLACK</Text>
+            <View style={[styles.tierBadge, { backgroundColor: t.line, borderColor: t.line2 }]}>
+              <Feather name="award" size={14} color={t.green} style={{ marginRight: 4 }} />
+              <Text style={[styles.tierText, { color: t.green }]}>BLACK</Text>
             </View>
           </View>
 
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: t.line }]} />
 
           <View style={styles.pointsFooter}>
-            <Text style={styles.footerText}>Próximo nível: <Text style={styles.boldText}>Kora Private</Text></Text>
-            <Text style={styles.progressText}>Faltam 5.150 pts</Text>
+            <Text style={[styles.footerText, { color: t.inkMute }]}>Próximo nível: <Text style={[styles.boldText, { color: t.ink }]}>Kora Private</Text></Text>
+            <Text style={[styles.progressText, { color: t.green }]}>Faltam 5.150 pts</Text>
           </View>
         </LinearGradient>
       </View>
@@ -138,41 +140,41 @@ export const ExperiencesPanel: React.FC = () => {
           contentContainerStyle={styles.categoriesContainer}
         >
           <TouchableOpacity 
-            style={[styles.categoryPill, selectedCategory === 'tudo' && styles.activePill]}
+            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'tudo' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
             onPress={() => setSelectedCategory('tudo')}
             activeOpacity={0.7}
           >
-            <Text style={[styles.categoryText, selectedCategory === 'tudo' && styles.activeCategoryText]}>
+            <Text style={[styles.categoryText, { color: selectedCategory === 'tudo' ? t.orange : t.inkMute }]}>
               Tudo
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.categoryPill, selectedCategory === 'viagem' && styles.activePill]}
+            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'viagem' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
             onPress={() => setSelectedCategory('viagem')}
             activeOpacity={0.7}
           >
-            <Text style={[styles.categoryText, selectedCategory === 'viagem' && styles.activeCategoryText]}>
+            <Text style={[styles.categoryText, { color: selectedCategory === 'viagem' ? t.orange : t.inkMute }]}>
               Viagem & Lazer
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.categoryPill, selectedCategory === 'beneficio' && styles.activePill]}
+            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'beneficio' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
             onPress={() => setSelectedCategory('beneficio')}
             activeOpacity={0.7}
           >
-            <Text style={[styles.categoryText, selectedCategory === 'beneficio' && styles.activeCategoryText]}>
+            <Text style={[styles.categoryText, { color: selectedCategory === 'beneficio' ? t.orange : t.inkMute }]}>
               Benefícios
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.categoryPill, selectedCategory === 'estilo' && styles.activePill]}
+            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'estilo' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
             onPress={() => setSelectedCategory('estilo')}
             activeOpacity={0.7}
           >
-            <Text style={[styles.categoryText, selectedCategory === 'estilo' && styles.activeCategoryText]}>
+            <Text style={[styles.categoryText, { color: selectedCategory === 'estilo' ? t.orange : t.inkMute }]}>
               Estilo de Vida
             </Text>
           </TouchableOpacity>
@@ -181,53 +183,55 @@ export const ExperiencesPanel: React.FC = () => {
 
       {/* Lista de Experiências */}
       <View style={styles.listSection}>
-        <Text style={styles.sectionTitle}>Experiências Disponíveis</Text>
+        <Text style={[styles.sectionTitle, { color: t.ink }]}>Experiências Disponíveis</Text>
         
         {filteredExperiences.map((item) => (
-          <View key={item.id} style={styles.experienceCard}>
+          <View key={item.id} style={[styles.experienceCard, { borderColor: t.cardBorder }]}>
             <LinearGradient
-              colors={item.gradient}
+              colors={[t.bg2, t.bgElev]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cardGradient}
             >
               <View style={styles.cardHeader}>
                 <View style={styles.iconContainer}>
-                  <Feather name={item.icon} size={20} color="#00D09E" />
+                  <Feather name={item.icon} size={20} color={t.green} />
                 </View>
                 
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>
+                <View style={[styles.statusBadge, { backgroundColor: t.line, borderColor: t.line2 }]}>
+                  <Text style={[styles.statusText, { color: t.green }]}>
                     {item.status === 'vip' ? 'EXCLUSIVO' : item.costPoints}
                   </Text>
                 </View>
               </View>
 
-              <Text style={styles.cardTitle}>{item.title}</Text>
-              <Text style={styles.cardDescription}>{item.description}</Text>
+              <Text style={[styles.cardTitle, { color: t.ink }]}>{item.title}</Text>
+              <Text style={[styles.cardDescription, { color: t.inkMute }]}>{item.description}</Text>
 
               <View style={styles.cardFooter}>
                 <TouchableOpacity 
                   style={[
                     styles.actionButton,
-                    item.status === 'vip' ? styles.vipButton : styles.redeemButton
+                    item.status === 'vip'
+                      ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: t.green }
+                      : { backgroundColor: t.btnPrimaryBg }
                   ]}
                   activeOpacity={0.8}
                 >
                   <Text style={[
                     styles.actionButtonText,
-                    item.status === 'vip' ? styles.vipButtonText : styles.redeemButtonText
+                    { color: item.status === 'vip' ? t.green : t.btnPrimaryFg }
                   ]}>
                     {item.status === 'vip' ? 'Ver Benefício VIP' : 'Resgatar Agora'}
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={styles.shareButton}
+                  style={[styles.shareButton, { backgroundColor: t.bgElev }]}
                   onPress={() => handleShareBenefit(item.title)}
                   activeOpacity={0.7}
                 >
-                  <Feather name="share-2" size={18} color={COLORS.textSecondary} />
+                  <Feather name="share-2" size={18} color={t.inkMute} />
                 </TouchableOpacity>
               </View>
             </LinearGradient>
@@ -259,40 +263,33 @@ const styles = StyleSheet.create({
   },
   pointsLabel: {
     fontSize: 9,
-    color: COLORS.textSecondary,
     fontWeight: '700',
     letterSpacing: 1.5,
   },
   pointsValue: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#FFFFFF',
     marginTop: 4,
   },
   pointsUnit: {
     fontSize: 14,
-    color: '#00D09E',
     fontWeight: '600',
   },
   tierBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 208, 158, 0.1)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 208, 158, 0.2)',
     borderRadius: 12,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   tierText: {
-    color: '#00D09E',
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 1,
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     marginVertical: 15,
   },
   pointsFooter: {
@@ -302,15 +299,12 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 11,
-    color: COLORS.textSecondary,
   },
   boldText: {
-    color: '#FFFFFF',
     fontWeight: '600',
   },
   progressText: {
     fontSize: 11,
-    color: '#00D09E',
     fontWeight: '600',
   },
   categoriesWrapper: {
@@ -323,22 +317,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 9,
     borderRadius: 24,
-    backgroundColor: '#1E1E1E',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: 'transparent',
   },
   activePill: {
-    backgroundColor: 'rgba(0, 208, 158, 0.08)',
-    borderColor: 'rgba(0, 208, 158, 0.3)',
   },
   categoryText: {
-    color: COLORS.textSecondary,
     fontSize: 12,
     fontWeight: '600',
   },
   activeCategoryText: {
-    color: '#00D09E',
   },
   listSection: {
     marginTop: 4,
@@ -346,7 +334,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
     marginBottom: 16,
   },
   experienceCard: {
@@ -377,12 +364,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 10,
-    backgroundColor: 'rgba(0, 208, 158, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(0, 208, 158, 0.15)',
   },
   statusText: {
-    color: '#00D09E',
     fontSize: 9,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -390,12 +374,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#FFFFFF',
     marginBottom: 6,
   },
   cardDescription: {
     fontSize: 12,
-    color: COLORS.textSecondary,
     lineHeight: 18,
     marginBottom: 20,
   },
@@ -413,20 +395,14 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   redeemButton: {
-    backgroundColor: '#00D09E',
   },
   redeemButtonText: {
-    color: '#0D0D0D',
     fontSize: 12,
     fontWeight: '700',
   },
   vipButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 208, 158, 0.4)',
   },
   vipButtonText: {
-    color: '#00D09E',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -438,7 +414,6 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     alignItems: 'center',
     justifyContent: 'center',
   },

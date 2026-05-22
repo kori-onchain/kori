@@ -7,8 +7,12 @@ import { AmountScreen } from './screens/AmountScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
 import { PayingScreen } from './screens/PayingScreen';
 import { ReceiptScreen } from './screens/ReceiptScreen';
+import { useTheme } from '../../theme/ThemeProvider';
 
-const HandleBar = () => <View style={styles.handleBar} />;
+const HandleBar = () => {
+  const { t } = useTheme();
+  return <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />;
+};
 
 interface SendModalProps {
   visible: boolean;
@@ -23,6 +27,7 @@ export const SendModal: React.FC<SendModalProps> = ({
   initialScreen = 'scan',
   initialIntent
 }) => {
+  const { t } = useTheme();
   const [screen, setScreen] = useState<PaymentScreen>(initialScreen);
   const [intent, setIntent] = useState<Partial<PaymentIntent>>(initialIntent || {});
 
@@ -123,7 +128,7 @@ export const SendModal: React.FC<SendModalProps> = ({
     >
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
-        <View style={styles.drawer}>
+        <View style={[styles.drawer, { backgroundColor: t.bg, borderColor: t.cardBorder }]}>
           <HandleBar />
           {renderScreen()}
         </View>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   Modal, 
   View, 
   Text, 
@@ -12,8 +12,8 @@ import {
   Platform,
   ScrollView
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { COLORS } from '../constants/colors';
+import { Feather } from '../icons';
+import { useTheme } from '../theme/ThemeProvider';
 
 export interface TransactionItem {
   id: string;
@@ -323,6 +323,7 @@ interface TransactionsModalProps {
 }
 
 export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, onClose }) => {
+  const { t } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [hideBalances, setHideBalances] = useState(false);
   
@@ -376,21 +377,17 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
 
   const renderTransactionRow = (tx: TransactionItem) => (
     <TouchableOpacity key={tx.id} style={styles.transactionRow} activeOpacity={0.75}>
-      <View style={styles.iconCircle}>
+      <View style={[styles.iconCircle, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
         {tx.isAnonymous ? (
-          <Feather 
-            name="eye-off" 
-            size={18} 
-            color="#8E8E93" 
-          />
+          <Feather name="eye-off" size={18} color={t.inkMute} />
         ) : (
-          <Text style={styles.avatarText}>{tx.initials || 'TR'}</Text>
+          <Text style={[styles.avatarText, { color: t.ink }]}>{tx.initials || 'TR'}</Text>
         )}
       </View>
       
       <View style={styles.transactionDetails}>
-        <Text style={styles.transactionTitleText}>{tx.title}</Text>
-        <Text style={styles.transactionDescText} numberOfLines={1} ellipsizeMode="tail">
+        <Text style={[styles.transactionTitleText, { color: t.ink }]}>{tx.title}</Text>
+        <Text style={[styles.transactionDescText, { color: t.inkMute }]} numberOfLines={1} ellipsizeMode="tail">
           {tx.description}
         </Text>
       </View>
@@ -398,7 +395,7 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
       <View style={styles.amountContainer}>
         <Text style={[
           styles.amountText, 
-          tx.isInflow && styles.amountTextInflow
+          { color: tx.isInflow ? t.green : t.ink }
         ]}>
           {hideBalances ? '•••••' : tx.amount}
         </Text>
@@ -415,20 +412,20 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
     return (
       <View style={styles.groupContainer}>
         {index > 0 && !showMonthHeader && (
-          <View style={styles.separatorLine} />
+          <View style={[styles.separatorLine, { backgroundColor: t.line }]} />
         )}
         
         {showMonthHeader && (
           <View>
-            {index > 0 && <View style={styles.separatorLine} />}
-            <Text style={styles.monthHeaderTitle}>{group.month}</Text>
+            {index > 0 && <View style={[styles.separatorLine, { backgroundColor: t.line }]} />}
+            <Text style={[styles.monthHeaderTitle, { color: t.ink }]}>{group.month}</Text>
           </View>
         )}
         
         {/* Cabeçalho do Dia */}
         <View style={styles.dayHeaderRow}>
-          <Text style={styles.dayLabelText}>{group.dayLabel}</Text>
-          <Text style={styles.dayBalanceText}>
+          <Text style={[styles.dayLabelText, { color: t.inkMute }]}>{group.dayLabel}</Text>
+          <Text style={[styles.dayBalanceText, { color: t.inkMute }]}>
             {hideBalances ? 'Saldo R$ •••••' : group.balance}
           </Text>
         </View>
@@ -448,36 +445,36 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0D0D0D" />
+      <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
+        <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} />
         
         {/* Cabeçalho superior */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={onClose} style={styles.headerBtn} activeOpacity={0.7}>
-              <Feather name="arrow-left" size={24} color="#FFF" />
+              <Feather name="arrow-left" size={24} color={t.ink} />
             </TouchableOpacity>
-            <Text style={styles.headerTitleText}>Transações</Text>
+            <Text style={[styles.headerTitleText, { color: t.ink }]}>Transações</Text>
           </View>
           
           <View style={styles.headerRight} />
         </View>
 
         {/* Barra de Pesquisa */}
-        <View style={styles.searchBarContainer}>
-          <Feather name="search" size={18} color="#666" style={{ marginRight: 10 }} />
+        <View style={[styles.searchBarContainer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <Feather name="search" size={18} color={t.inkMute} style={{ marginRight: 10 }} />
           <TextInput
             placeholder="Pesquisar"
-            placeholderTextColor="#666"
+            placeholderTextColor={t.inkMute}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: t.ink }]}
             autoCorrect={false}
             clearButtonMode="while-editing"
           />
           {searchQuery !== '' && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Feather name="x" size={16} color="#666" />
+              <Feather name="x" size={16} color={t.inkMute} />
             </TouchableOpacity>
           )}
         </View>
@@ -493,22 +490,22 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                activeDropdown === 'month' && styles.dropdownTriggerActive,
-                activeMonth !== 'todos' && styles.dropdownTriggerSelected
+                { backgroundColor: activeDropdown === 'month' ? t.bgElev : t.bg2 },
+                activeMonth !== 'todos' && { borderWidth: 1, borderColor: t.green }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'month' ? null : 'month')}
               activeOpacity={0.7}
             >
               <Text style={[
                 styles.dropdownTriggerText,
-                activeMonth !== 'todos' && styles.dropdownTriggerTextSelected
+                { color: activeMonth !== 'todos' ? t.green : t.ink }
               ]} numberOfLines={1}>
                 {getMonthLabel()}
               </Text>
               <Feather 
                 name="chevron-down" 
                 size={14} 
-                color={activeMonth !== 'todos' ? "#00D09E" : "#8E8E93"} 
+                color={activeMonth !== 'todos' ? t.green : t.inkMute}
                 style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
@@ -517,22 +514,22 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                activeDropdown === 'category' && styles.dropdownTriggerActive,
-                activeCategory !== 'todas' && styles.dropdownTriggerSelected
+                { backgroundColor: activeDropdown === 'category' ? t.bgElev : t.bg2 },
+                activeCategory !== 'todas' && { borderWidth: 1, borderColor: t.green }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
               activeOpacity={0.7}
             >
               <Text style={[
                 styles.dropdownTriggerText,
-                activeCategory !== 'todas' && styles.dropdownTriggerTextSelected
+                { color: activeCategory !== 'todas' ? t.green : t.ink }
               ]} numberOfLines={1}>
                 {getCategoryLabel()}
               </Text>
               <Feather 
                 name="chevron-down" 
                 size={14} 
-                color={activeCategory !== 'todas' ? "#00D09E" : "#8E8E93"} 
+                color={activeCategory !== 'todas' ? t.green : t.inkMute}
                 style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
@@ -541,22 +538,22 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                activeDropdown === 'type' && styles.dropdownTriggerActive,
-                activeType !== 'todos' && styles.dropdownTriggerSelected
+                { backgroundColor: activeDropdown === 'type' ? t.bgElev : t.bg2 },
+                activeType !== 'todos' && { borderWidth: 1, borderColor: t.green }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')}
               activeOpacity={0.7}
             >
               <Text style={[
                 styles.dropdownTriggerText,
-                activeType !== 'todos' && styles.dropdownTriggerTextSelected
+                { color: activeType !== 'todos' ? t.green : t.ink }
               ]} numberOfLines={1}>
                 {getTypeLabel()}
               </Text>
               <Feather 
                 name="chevron-down" 
                 size={14} 
-                color={activeType !== 'todos' ? "#00D09E" : "#8E8E93"} 
+                color={activeType !== 'todos' ? t.green : t.inkMute}
                 style={{ marginLeft: 6 }}
               />
             </TouchableOpacity>
@@ -566,6 +563,7 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
           {activeDropdown && (
             <View style={[
               styles.optionsOverlay,
+              { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: '#000' },
               activeDropdown === 'month' && { left: 0 },
               activeDropdown === 'category' && { left: 80 },
               activeDropdown === 'type' && { right: 0 }
@@ -578,48 +576,48 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
                 {activeDropdown === 'month' && MONTH_FILTERS.map(item => (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.optionItem, activeMonth === item.id && styles.optionItemActive]}
+                    style={[styles.optionItem, { borderBottomColor: t.line }, activeMonth === item.id && { backgroundColor: t.bgElev }]}
                     onPress={() => {
                       setActiveMonth(item.id);
                       setActiveDropdown(null);
                     }}
                   >
-                    <Text style={[styles.optionText, activeMonth === item.id && styles.optionTextActive]}>
+                    <Text style={[styles.optionText, { color: activeMonth === item.id ? t.green : t.inkMute }]}>
                       {item.label}
                     </Text>
-                    {activeMonth === item.id && <Feather name="check" size={14} color="#00D09E" />}
+                    {activeMonth === item.id && <Feather name="check" size={14} color={t.green} />}
                   </TouchableOpacity>
                 ))}
 
                 {activeDropdown === 'category' && CATEGORY_FILTERS.map(item => (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.optionItem, activeCategory === item.id && styles.optionItemActive]}
+                    style={[styles.optionItem, { borderBottomColor: t.line }, activeCategory === item.id && { backgroundColor: t.bgElev }]}
                     onPress={() => {
                       setActiveCategory(item.id);
                       setActiveDropdown(null);
                     }}
                   >
-                    <Text style={[styles.optionText, activeCategory === item.id && styles.optionTextActive]}>
+                    <Text style={[styles.optionText, { color: activeCategory === item.id ? t.green : t.inkMute }]}>
                       {item.label}
                     </Text>
-                    {activeCategory === item.id && <Feather name="check" size={14} color="#00D09E" />}
+                    {activeCategory === item.id && <Feather name="check" size={14} color={t.green} />}
                   </TouchableOpacity>
                 ))}
 
                 {activeDropdown === 'type' && TYPE_FILTERS.map(item => (
                   <TouchableOpacity
                     key={item.id}
-                    style={[styles.optionItem, activeType === item.id && styles.optionItemActive]}
+                    style={[styles.optionItem, { borderBottomColor: t.line }, activeType === item.id && { backgroundColor: t.bgElev }]}
                     onPress={() => {
                       setActiveType(item.id);
                       setActiveDropdown(null);
                     }}
                   >
-                    <Text style={[styles.optionText, activeType === item.id && styles.optionTextActive]}>
+                    <Text style={[styles.optionText, { color: activeType === item.id ? t.green : t.inkMute }]}>
                       {item.label}
                     </Text>
-                    {activeType === item.id && <Feather name="check" size={14} color="#00D09E" />}
+                    {activeType === item.id && <Feather name="check" size={14} color={t.green} />}
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -635,8 +633,8 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Feather name="list" size={48} color="#262626" style={{ marginBottom: 12 }} />
-              <Text style={styles.emptyText}>Nenhuma transação encontrada</Text>
+              <Feather name="list" size={48} color={t.inkFaint} style={{ marginBottom: 12 }} />
+              <Text style={[styles.emptyText, { color: t.inkMute }]}>Nenhuma transação encontrada</Text>
             </View>
           }
         />

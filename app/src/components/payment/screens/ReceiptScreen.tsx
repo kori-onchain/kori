@@ -8,10 +8,10 @@ import {
   Platform,
   Share,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Feather } from '../../../icons';
 import * as Linking from 'expo-linking';
 import { PaymentIntent } from '../../../types/payment';
-import { COLORS } from '../../../constants/colors';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 interface ReceiptScreenProps {
   intent: PaymentIntent;
@@ -19,6 +19,7 @@ interface ReceiptScreenProps {
 }
 
 export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) => {
+  const { t } = useTheme();
   const { recipient, amount } = intent;
 
   // Formatação de valor
@@ -68,91 +69,91 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) 
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onDone} style={styles.headerBtn}>
-          <Feather name="arrow-left" size={22} color="#FFF" />
+          <Feather name="arrow-left" size={22} color={t.ink} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Comprovante</Text>
+        <Text style={[styles.headerTitle, { color: t.ink }]}>Comprovante</Text>
         <TouchableOpacity onPress={onDone} style={styles.headerBtn}>
-          <Feather name="home" size={22} color="#FFF" />
+          <Feather name="home" size={22} color={t.ink} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {/* Sucesso Header */}
         <View style={styles.successContainer}>
-          <View style={styles.checkCircle}>
+          <View style={[styles.checkCircle, { backgroundColor: t.green }]}>
             <Feather name="check" size={32} color="#FFF" />
           </View>
-          <Text style={styles.successTitle}>Pagamento enviado</Text>
-          <Text style={styles.successAmount}>{amountFormatted}</Text>
+          <Text style={[styles.successTitle, { color: t.ink }]}>Pagamento enviado</Text>
+          <Text style={[styles.successAmount, { color: t.ink }]}>{amountFormatted}</Text>
         </View>
 
         {/* Sobre a transação */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sobre a transação</Text>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>Sobre a transação</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Data do pagamento</Text>
-            <Text style={styles.detailValue}>{dateFormatted}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Data do pagamento</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>{dateFormatted}</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Horário</Text>
-            <Text style={styles.detailValue}>{timeStr}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Horário</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>{timeStr}</Text>
           </View>
 
           <View style={styles.detailRowVertical}>
-            <Text style={styles.detailLabel}>ID da transação (Solana)</Text>
-            <Text style={styles.txHashText} selectable>{txHash}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID da transação (Solana)</Text>
+            <Text style={[styles.txHashText, { color: t.ink }]} selectable>{txHash}</Text>
           </View>
 
           <TouchableOpacity style={styles.verifyLink} onPress={handleVerify} activeOpacity={0.7}>
-            <Text style={styles.verifyLinkText}>Verificar na blockchain</Text>
-            <Feather name="external-link" size={14} color="#00C9FF" />
+            <Text style={[styles.verifyLinkText, { color: t.sol }]}>Verificar na blockchain</Text>
+            <Feather name="external-link" size={14} color={t.sol} />
           </TouchableOpacity>
         </View>
 
         {/* Quem enviou */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quem enviou</Text>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>Quem enviou</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Nome</Text>
-            <Text style={styles.detailValue}>{recipient.isAnonymous ? 'Anônimo' : 'Pedro Henrique'}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Nome</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>{recipient.isAnonymous ? 'Anônimo' : 'Pedro Henrique'}</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>ID</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>
               {recipient.type === 'wallet' ? 'Endereço de Carteira' : '@opedrooz'}
             </Text>
           </View>
         </View>
 
-        <View style={styles.divider} />
+        <View style={[styles.divider, { backgroundColor: t.line, borderColor: t.line }]} />
 
         {/* Quem recebeu */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quem recebeu</Text>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>Quem recebeu</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Nome</Text>
-            <Text style={styles.detailValue}>{displayName}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Nome</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>{displayName}</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>ID</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]}>
               {recipient.type === 'wallet' ? 'Endereço de Carteira' : displayId}
             </Text>
           </View>
 
           {recipient.type === 'wallet' && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Endereço</Text>
-              <Text style={styles.detailValueMono}>{displayId}</Text>
+              <Text style={[styles.detailLabel, { color: t.inkMute }]}>Endereço</Text>
+              <Text style={[styles.detailValueMono, { color: t.ink }]}>{displayId}</Text>
             </View>
           )}
         </View>
@@ -160,12 +161,12 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) 
 
       {/* Botões Finais */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.shareBtn} onPress={handleShare} activeOpacity={0.85}>
-          <Text style={styles.shareBtnText}>Compartilhar comprovante</Text>
+        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleShare} activeOpacity={0.85}>
+          <Text style={[styles.shareBtnText, { color: t.btnPrimaryFg }]}>Compartilhar comprovante</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.newBtn} onPress={onDone} activeOpacity={0.85}>
-          <Text style={styles.newBtnText}>Realizar novo pagamento</Text>
+        <TouchableOpacity style={[styles.newBtn, { borderColor: t.ink }]} onPress={onDone} activeOpacity={0.85}>
+          <Text style={[styles.newBtnText, { color: t.ink }]}>Realizar novo pagamento</Text>
         </TouchableOpacity>
       </View>
     </View>

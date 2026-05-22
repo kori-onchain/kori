@@ -14,9 +14,8 @@ import {
   TextInput,
   Image,
 } from "react-native";
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, Ionicons, MaterialCommunityIcons } from "../icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../constants/colors";
 import { ThemePreference, useTheme } from "../theme/ThemeProvider";
 
 const { width } = Dimensions.get("window");
@@ -102,7 +101,7 @@ const SkeletonGridCard: React.FC = () => {
 const SkeletonListItem: React.FC<{
   iconName: string;
   iconType: "feather" | "ionicons" | "material";
-  lineWidth: number | string;
+  lineWidth: number | `${number}%`;
 }> = ({ iconName, iconType, lineWidth }) => {
   const pulseAnim = React.useRef(new Animated.Value(0.3)).current;
 
@@ -206,7 +205,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             /* ================= EDIT PROFILE SCREEN ================= */
             <View>
               {/* Large Title "Perfil" */}
-              <Text style={styles.editTitle}>Perfil</Text>
+              <Text style={[styles.editTitle, { color: t.ink }]}>Perfil</Text>
 
               {/* Avatar + Info Row */}
               <View style={styles.editProfileRow}>
@@ -222,11 +221,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     );
                   }}
                 >
-                  <View style={styles.editAvatar}>
+                  <View style={[styles.editAvatar, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
                     {avatarImage ? (
                       <Image source={{ uri: avatarImage }} style={styles.editAvatarImg} />
                     ) : (
-                      <Text style={styles.editAvatarText}>
+                      <Text style={[styles.editAvatarText, { color: t.ink }]}>
                         {editedUserName
                           ? editedUserName
                               .split(" ")
@@ -244,20 +243,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 </TouchableOpacity>
 
                 <View style={styles.editProfileInfo}>
-                  <Text style={styles.editProfileName}>{editedUserName}</Text>
-                  <Text style={styles.editProfileSubtitle}>Exibida apenas para você</Text>
+                  <Text style={[styles.editProfileName, { color: t.ink }]}>{editedUserName}</Text>
+                  <Text style={[styles.editProfileSubtitle, { color: t.inkMute }]}>Exibida apenas para você</Text>
                 </View>
               </View>
 
               {/* Display Name Card Input */}
-              <View style={styles.inputCard}>
-                <Text style={styles.inputLabel}>Nome de exibição</Text>
+              <View style={[styles.inputCard, { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: '#000', elevation: t.cardElev }]}>
+                <Text style={[styles.inputLabel, { color: t.inkMute }]}>Nome de exibição</Text>
                 <TextInput
-                  style={styles.textInput}
+                  style={[styles.textInput, { color: t.ink }]}
                   value={editedUserName}
                   onChangeText={setEditedUserName}
                   placeholder="Nome de exibição"
-                  placeholderTextColor="rgba(255, 255, 255, 0.3)"
+                  placeholderTextColor={t.inkMute}
                   keyboardAppearance="dark"
                   autoCapitalize="words"
                 />
@@ -335,11 +334,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 onPress={() => setIsEditingProfile(true)}
               >
                 <View style={styles.avatarContainer}>
-                  <View style={styles.avatar}>
+                  <View style={[styles.avatar, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
                     {avatarImage ? (
                       <Image source={{ uri: avatarImage }} style={styles.avatarImg} />
                     ) : (
-                      <Text style={styles.avatarText}>
+                      <Text style={[styles.avatarText, { color: t.ink }]}>
                         {editedUserName
                           ? editedUserName
                               .split(" ")
@@ -354,10 +353,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 </View>
 
                 <View style={styles.profileInfo}>
-                  <Text style={styles.profileName}>{editedUserName}</Text>
+                  <Text style={[styles.profileName, { color: t.ink }]}>{editedUserName}</Text>
                   <View style={styles.badgeContainer}>
-                    <View style={styles.primeBadge}>
-                      <Text style={styles.primeBadgeText}>
+                    <View style={[styles.primeBadge, { backgroundColor: t.bg2, borderColor: t.orange }]}>
+                      <Text style={[styles.primeBadgeText, { color: t.orange }]}>
                         {accountType === "PF" ? "Personal" : "Business"}
                       </Text>
                     </View>
@@ -367,7 +366,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 <Feather
                   name="chevron-right"
                   size={20}
-                  color={COLORS.textSecondary}
+                  color={t.inkMute}
                   style={styles.chevronRight}
                 />
               </TouchableOpacity>
@@ -379,18 +378,18 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.quickCardsScroll}
                 >
-                  <TouchableOpacity style={styles.quickCard} activeOpacity={0.8}>
-                    <View style={styles.quickCardIconContainer}>
-                      <Feather name="settings" size={20} color="#FFFFFF" />
+                  <TouchableOpacity style={[styles.quickCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} activeOpacity={0.8}>
+                    <View style={[styles.quickCardIconContainer, { backgroundColor: t.bgElev }]}>
+                      <Feather name="settings" size={20} color={t.ink} />
                     </View>
-                    <Text style={styles.quickCardTitle}>Settings</Text>
+                    <Text style={[styles.quickCardTitle, { color: t.ink }]}>Settings</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.quickCard} activeOpacity={0.8}>
-                    <View style={styles.quickCardIconContainer}>
-                      <Feather name="sliders" size={20} color="#FFFFFF" />
+                  <TouchableOpacity style={[styles.quickCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} activeOpacity={0.8}>
+                    <View style={[styles.quickCardIconContainer, { backgroundColor: t.bgElev }]}>
+                      <Feather name="sliders" size={20} color={t.ink} />
                     </View>
-                    <Text style={styles.quickCardTitle}>Meu{"\n"}Crédito</Text>
+                    <Text style={[styles.quickCardTitle, { color: t.ink }]}>Meu{"\n"}Crédito</Text>
                   </TouchableOpacity>
 
                   <SkeletonQuickCard />
@@ -401,8 +400,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               {/* Central de Segurança */}
               <View style={styles.sectionContainer}>
                 <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.7}>
-                  <Text style={styles.sectionTitle}>Central de Segurança</Text>
-                  <Feather name="chevron-right" size={20} color="#FFFFFF" />
+                  <Text style={[styles.sectionTitle, { color: t.ink }]}>Central de Segurança</Text>
+                  <Feather name="chevron-right" size={20} color={t.ink} />
                 </TouchableOpacity>
 
                 <View style={styles.cardsGrid}>
@@ -414,8 +413,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               {/* Benefícios */}
               <View style={styles.sectionContainer}>
                 <TouchableOpacity style={styles.sectionHeader} activeOpacity={0.7}>
-                  <Text style={styles.sectionTitle}>Benefícios</Text>
-                  <Feather name="chevron-right" size={20} color="#FFFFFF" />
+                  <Text style={[styles.sectionTitle, { color: t.ink }]}>Benefícios</Text>
+                  <Feather name="chevron-right" size={20} color={t.ink} />
                 </TouchableOpacity>
 
                 <View style={styles.cardsGrid}>
@@ -426,35 +425,35 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
               {/* Bottom Action Rows */}
               <View style={styles.bottomActionsContainer}>
-                <TouchableOpacity style={styles.actionRow} activeOpacity={0.7}>
-                  <View style={styles.actionRowIconContainer}>
-                    <Feather name="help-circle" size={22} color="#FFFFFF" />
+                <TouchableOpacity style={[styles.actionRow, { borderBottomColor: t.line }]} activeOpacity={0.7}>
+                  <View style={[styles.actionRowIconContainer, { backgroundColor: t.bg2 }]}>
+                    <Feather name="help-circle" size={22} color={t.ink} />
                   </View>
                   <View style={styles.actionRowTextContainer}>
-                    <Text style={styles.actionRowTitle}>Central de ajuda</Text>
+                    <Text style={[styles.actionRowTitle, { color: t.ink }]}>Central de ajuda</Text>
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.actionRow} activeOpacity={0.7}>
-                  <View style={styles.actionRowIconContainer}>
+                <TouchableOpacity style={[styles.actionRow, { borderBottomColor: t.line }]} activeOpacity={0.7}>
+                  <View style={[styles.actionRowIconContainer, { backgroundColor: t.bg2 }]}>
                     <MaterialCommunityIcons
                       name="bug-outline"
                       size={22}
-                      color="#FFFFFF"
+                      color={t.ink}
                     />
                   </View>
                   <View style={styles.actionRowTextContainer}>
-                    <Text style={styles.actionRowTitle}>Reportar problema</Text>
+                    <Text style={[styles.actionRowTitle, { color: t.ink }]}>Reportar problema</Text>
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.actionRow} activeOpacity={0.7}>
-                  <View style={styles.actionRowIconContainer}>
-                    <Feather name="log-out" size={22} color="#FFFFFF" />
+                <TouchableOpacity style={[styles.actionRow, { borderBottomColor: t.line }]} activeOpacity={0.7}>
+                  <View style={[styles.actionRowIconContainer, { backgroundColor: t.bg2 }]}>
+                    <Feather name="log-out" size={22} color={t.ink} />
                   </View>
                   <View style={styles.actionRowTextContainer}>
-                    <Text style={styles.actionRowTitle}>Sair</Text>
-                    <Text style={styles.actionRowSubtitle}>26.7</Text>
+                    <Text style={[styles.actionRowTitle, { color: t.ink }]}>Sair</Text>
+                    <Text style={[styles.actionRowSubtitle, { color: t.inkMute }]}>26.7</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -639,7 +638,7 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     fontSize: 11,
-    color: COLORS.textSecondary,
+    color: "#8E8E93",
     lineHeight: 15,
     marginTop: 6,
   },
@@ -651,7 +650,7 @@ const styles = StyleSheet.create({
   cardHeaderLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: COLORS.textSecondary,
+    color: "#8E8E93",
   },
   cardSubtitleSpecial: {
     fontSize: 11,
@@ -755,7 +754,7 @@ const styles = StyleSheet.create({
   },
   actionRowSubtitle: {
     fontSize: 12,
-    color: COLORS.textSecondary,
+    color: "#8E8E93",
     marginTop: 2,
   },
   skeletonQuickCard: {

@@ -13,9 +13,10 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { COLORS } from "../constants/colors";
+import { Feather, Ionicons } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts, radii } from "../theme/tokens";
+import { KoraGlyph } from "../components/ds/icons";
 
 const { width } = Dimensions.get("window");
 
@@ -27,6 +28,7 @@ interface AuthScreenProps {
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
+  const { t } = useTheme();
   // Mode: 'login' | 'signup'
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
@@ -113,8 +115,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={true} />
+    <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
+      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent={true} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
@@ -125,26 +127,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
         >
           {/* Header Branding */}
           <View style={styles.brandContainer}>
-            <View style={styles.logoSquare}>
-              <Text style={styles.logoText}>K</Text>
+            <View style={[styles.logoSquare, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+              <KoraGlyph size={34} color={t.ink} />
             </View>
-            <Text style={styles.brandName}>KORA</Text>
-            <Text style={styles.brandSubtitle}>Sua carteira digital inteligente</Text>
+            <Text style={[styles.brandName, { color: t.ink }]}>KORA</Text>
+            <Text style={[styles.brandSubtitle, { color: t.inkMute }]}>Sua carteira digital inteligente</Text>
           </View>
 
           {/* Form Container Card - Clean minimalist style matching COLORS.surface and COLORS.border */}
-          <View style={styles.formCard}>
+          <View style={[styles.formCard, { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: "#000", elevation: t.cardElev }]}>
             {/* Tab Switched Header */}
-            <View style={styles.tabContainer}>
+            <View style={[styles.tabContainer, { borderBottomColor: t.line }]}>
               <TouchableOpacity
                 style={[styles.tabButton, mode === "login" && styles.activeTabButton]}
                 onPress={() => handleModeChange("login")}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.tabText, mode === "login" && styles.activeTabText]}>
+                <Text style={[styles.tabText, { color: mode === "login" ? t.ink : t.inkMute }, mode === "login" && styles.activeTabText]}>
                   Entrar
                 </Text>
-                {mode === "login" && <View style={styles.activeTabIndicator} />}
+                {mode === "login" && <View style={[styles.activeTabIndicator, { backgroundColor: t.orange }]} />}
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -152,18 +154,18 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
                 onPress={() => handleModeChange("signup")}
                 activeOpacity={0.8}
               >
-                <Text style={[styles.tabText, mode === "signup" && styles.activeTabText]}>
+                <Text style={[styles.tabText, { color: mode === "signup" ? t.ink : t.inkMute }, mode === "signup" && styles.activeTabText]}>
                   Cadastrar
                 </Text>
-                {mode === "signup" && <View style={styles.activeTabIndicator} />}
+                {mode === "signup" && <View style={[styles.activeTabIndicator, { backgroundColor: t.orange }]} />}
               </TouchableOpacity>
             </View>
 
             {/* Error Message */}
             {error && (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle-outline" size={18} color="#FF3B30" style={styles.errorIcon} />
-                <Text style={styles.errorText}>{error}</Text>
+              <View style={[styles.errorContainer, { backgroundColor: t.bgElev, borderColor: t.orangeDark }]}>
+                <Ionicons name="alert-circle-outline" size={18} color={t.orangeDark} style={styles.errorIcon} />
+                <Text style={[styles.errorText, { color: t.orangeDark }]}>{error}</Text>
               </View>
             )}
 
@@ -175,14 +177,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
                 <>
                   {/* 1. Account Type Selector (Large Cards) - Ordered First! */}
                   <View style={styles.inputWrapper}>
-                    <Text style={styles.inputLabel}>Tipo de Conta</Text>
+                    <Text style={[styles.inputLabel, { color: t.ink }]}>Tipo de Conta</Text>
                     <View style={styles.cardsRow}>
                       
                       {/* PF Card */}
                       <TouchableOpacity
                         style={[
                           styles.typeCardBlock,
-                          accountType === "PF" && styles.typeCardBlockActive,
+                          { backgroundColor: t.bg, borderColor: t.line },
+                          accountType === "PF" && { backgroundColor: t.bgElev, borderColor: t.orange },
                         ]}
                         onPress={() => setAccountType("PF")}
                         activeOpacity={0.8}
@@ -190,15 +193,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
                         <Ionicons
                           name="person-outline"
                           size={22}
-                          color={accountType === "PF" ? COLORS.text : COLORS.textSecondary}
+                          color={accountType === "PF" ? t.ink : t.inkMute}
                         />
-                        <Text style={[styles.cardTitle, accountType === "PF" && styles.cardTitleActive]}>
+                        <Text style={[styles.cardTitle, { color: accountType === "PF" ? t.ink : t.inkMute }, accountType === "PF" && styles.cardTitleActive]}>
                           Pessoa Física
                         </Text>
-                        <Text style={styles.cardSubtitle}>Para você movimentar</Text>
+                        <Text style={[styles.cardSubtitle, { color: t.inkMute }]}>Para você movimentar</Text>
                         {accountType === "PF" && (
-                          <View style={styles.checkBadge}>
-                            <Feather name="check" size={10} color={COLORS.background} />
+                          <View style={[styles.checkBadge, { backgroundColor: t.btnPrimaryBg, borderColor: t.bg2 }]}>
+                            <Feather name="check" size={10} color={t.btnPrimaryFg} />
                           </View>
                         )}
                       </TouchableOpacity>
@@ -207,7 +210,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
                       <TouchableOpacity
                         style={[
                           styles.typeCardBlock,
-                          accountType === "PJ" && styles.typeCardBlockActive,
+                          { backgroundColor: t.bg, borderColor: t.line },
+                          accountType === "PJ" && { backgroundColor: t.bgElev, borderColor: t.orange },
                         ]}
                         onPress={() => setAccountType("PJ")}
                         activeOpacity={0.8}
@@ -215,15 +219,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
                         <Ionicons
                           name="business-outline"
                           size={22}
-                          color={accountType === "PJ" ? COLORS.text : COLORS.textSecondary}
+                          color={accountType === "PJ" ? t.ink : t.inkMute}
                         />
-                        <Text style={[styles.cardTitle, accountType === "PJ" && styles.cardTitleActive]}>
+                        <Text style={[styles.cardTitle, { color: accountType === "PJ" ? t.ink : t.inkMute }, accountType === "PJ" && styles.cardTitleActive]}>
                           Pessoa Jurídica
                         </Text>
-                        <Text style={styles.cardSubtitle}>Para sua empresa</Text>
+                        <Text style={[styles.cardSubtitle, { color: t.inkMute }]}>Para sua empresa</Text>
                         {accountType === "PJ" && (
-                          <View style={styles.checkBadge}>
-                            <Feather name="check" size={10} color={COLORS.background} />
+                          <View style={[styles.checkBadge, { backgroundColor: t.btnPrimaryBg, borderColor: t.bg2 }]}>
+                            <Feather name="check" size={10} color={t.btnPrimaryFg} />
                           </View>
                         )}
                       </TouchableOpacity>
@@ -233,25 +237,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
                   {/* 2. Username - Placed ABOVE Name/Razão Social and Email! */}
                   <View style={styles.inputWrapper}>
-                    <Text style={styles.inputLabel}>Username</Text>
+                    <Text style={[styles.inputLabel, { color: t.ink }]}>Username</Text>
                     <View
                       style={[
                         styles.inputContainer,
-                        focusedField === "username" && styles.inputContainerFocused,
+                        { backgroundColor: t.bg, borderColor: t.line },
+                        focusedField === "username" && { borderColor: t.orange, backgroundColor: t.bgElev },
                       ]}
                     >
                       <Text
                         style={[
                           styles.usernamePrefix,
-                          focusedField === "username" && styles.usernamePrefixActive,
+                          { color: focusedField === "username" ? t.ink : t.inkMute },
                         ]}
                       >
                         @
                       </Text>
-                      <TextInput
-                        style={styles.textInput}
+                    <TextInput
+                        style={[styles.textInput, { color: t.ink }]}
                         placeholder="opedrooz"
-                        placeholderTextColor={COLORS.textSecondary}
+                        placeholderTextColor={t.inkMute}
                         value={username}
                         onChangeText={handleUsernameChange}
                         onFocus={() => setFocusedField("username")}
@@ -264,25 +269,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
                   {/* 3. Full Name / Corporate Name */}
                   <View style={styles.inputWrapper}>
-                    <Text style={styles.inputLabel}>
+                    <Text style={[styles.inputLabel, { color: t.ink }]}>
                       {accountType === "PF" ? "Nome Completo" : "Razão Social"}
                     </Text>
                     <View
                       style={[
                         styles.inputContainer,
-                        focusedField === "name" && styles.inputContainerFocused,
+                        { backgroundColor: t.bg, borderColor: t.line },
+                        focusedField === "name" && { borderColor: t.orange, backgroundColor: t.bgElev },
                       ]}
                     >
                       <Feather
                         name={accountType === "PF" ? "user" : "briefcase"}
                         size={18}
-                        color={focusedField === "name" ? COLORS.text : COLORS.textSecondary}
+                        color={focusedField === "name" ? t.ink : t.inkMute}
                         style={styles.inputIcon}
                       />
                       <TextInput
-                        style={styles.textInput}
+                        style={[styles.textInput, { color: t.ink }]}
                         placeholder={accountType === "PF" ? "Ex: Pedro Henrique" : "Ex: Kora Ltda"}
-                        placeholderTextColor={COLORS.textSecondary}
+                        placeholderTextColor={t.inkMute}
                         value={name}
                         onChangeText={setName}
                         onFocus={() => setFocusedField("name")}
@@ -296,18 +302,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
               {/* 4. E-mail (Common to both modes; at the bottom of Signup) */}
               <View style={styles.inputWrapper}>
-                <Text style={styles.inputLabel}>E-mail</Text>
+                <Text style={[styles.inputLabel, { color: t.ink }]}>E-mail</Text>
                 <View
                   style={[
                     styles.inputContainer,
-                    focusedField === "email" && styles.inputContainerFocused,
+                    { backgroundColor: t.bg, borderColor: t.line },
+                    focusedField === "email" && { borderColor: t.orange, backgroundColor: t.bgElev },
                   ]}
                 >
-                  <Feather name="mail" size={18} color={focusedField === "email" ? COLORS.text : COLORS.textSecondary} style={styles.inputIcon} />
+                  <Feather name="mail" size={18} color={focusedField === "email" ? t.ink : t.inkMute} style={styles.inputIcon} />
                   <TextInput
-                    style={styles.textInput}
+                    style={[styles.textInput, { color: t.ink }]}
                     placeholder="Ex: seuemail@kora.com"
-                    placeholderTextColor={COLORS.textSecondary}
+                    placeholderTextColor={t.inkMute}
                     value={email}
                     onChangeText={setEmail}
                     onFocus={() => setFocusedField("email")}
@@ -323,15 +330,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
             {/* Premium Minimal Solid Button */}
             <TouchableOpacity
-              style={styles.submitButton}
+              style={[styles.submitButton, { backgroundColor: t.btnPrimaryBg }]}
               onPress={handleAuth}
               disabled={loading}
               activeOpacity={0.9}
             >
               {loading ? (
-                <ActivityIndicator size="small" color={COLORS.background} />
+                <ActivityIndicator size="small" color={t.btnPrimaryFg} />
               ) : (
-                <Text style={styles.submitButtonText}>
+                <Text style={[styles.submitButtonText, { color: t.btnPrimaryFg }]}>
                   {mode === "login" ? "Entrar na Carteira" : "Criar Minha Conta"}
                 </Text>
               )}
@@ -343,9 +350,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
               onPress={() => handleModeChange(mode === "login" ? "signup" : "login")}
               activeOpacity={0.7}
             >
-              <Text style={styles.switchModeSubText}>
+              <Text style={[styles.switchModeSubText, { color: t.inkMute }]}>
                 {mode === "login" ? "Novo por aqui? " : "Já tem uma conta? "}
-                <Text style={styles.switchModeHighlight}>
+                <Text style={[styles.switchModeHighlight, { color: t.ink }]}>
                   {mode === "login" ? "Crie uma conta" : "Faça Login"}
                 </Text>
               </Text>
@@ -354,8 +361,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 
           {/* Footer security tag */}
           <View style={styles.footer}>
-            <Feather name="shield" size={12} color={COLORS.textSecondary} style={{ marginRight: 4 }} />
-            <Text style={styles.footerText}>Conexão criptografada segura</Text>
+            <Feather name="shield" size={12} color={t.inkMute} style={{ marginRight: 4 }} />
+            <Text style={[styles.footerText, { color: t.inkMute }]}>Conexão criptografada segura</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -366,7 +373,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   keyboardView: {
     flex: 1,
@@ -386,42 +392,36 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 16,
-    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.border,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 12,
   },
   logoText: {
-    color: COLORS.text,
     fontSize: 28,
     fontWeight: "bold",
   },
   brandName: {
-    color: COLORS.text,
+    fontFamily: fonts.sans.bold,
     fontSize: 24,
     fontWeight: "bold",
     letterSpacing: 2,
   },
   brandSubtitle: {
-    color: COLORS.textSecondary,
+    fontFamily: fonts.sans.regular,
     fontSize: 13,
     marginTop: 4,
     textAlign: "center",
   },
   formCard: {
-    backgroundColor: COLORS.surface,
     borderRadius: 20,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   tabContainer: {
     flexDirection: "row",
     marginBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
   },
   tabButton: {
     flex: 1,
@@ -429,13 +429,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "relative",
   },
+  activeTabButton: {
+    backgroundColor: "transparent",
+  },
   tabText: {
-    color: COLORS.textSecondary,
     fontSize: 15,
     fontWeight: "600",
   },
   activeTabText: {
-    color: COLORS.text,
     fontWeight: "700",
   },
   activeTabIndicator: {
@@ -444,7 +445,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 2,
-    backgroundColor: COLORS.primary,
     borderRadius: 2,
   },
   errorContainer: {
@@ -461,7 +461,6 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   errorText: {
-    color: "#FF3B30",
     fontSize: 13,
     fontWeight: "500",
     flex: 1,
@@ -473,7 +472,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   inputLabel: {
-    color: COLORS.text,
     fontSize: 13,
     fontWeight: "600",
     marginBottom: 6,
@@ -481,32 +479,25 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#111111",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
     paddingHorizontal: 16,
     height: 52,
   },
   inputContainerFocused: {
-    borderColor: COLORS.primary,
-    backgroundColor: "#151515",
   },
   inputIcon: {
     marginRight: 12,
   },
   usernamePrefix: {
-    color: COLORS.textSecondary,
     fontSize: 16,
     fontWeight: "bold",
     marginRight: 4,
   },
   usernamePrefixActive: {
-    color: COLORS.text,
   },
   textInput: {
     flex: 1,
-    color: COLORS.text,
     fontSize: 14,
     height: "100%",
   },
@@ -517,30 +508,23 @@ const styles = StyleSheet.create({
   },
   typeCardBlock: {
     flex: 1,
-    backgroundColor: "#111111",
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.border,
     position: "relative",
     minHeight: 110,
     justifyContent: "center",
   },
   typeCardBlockActive: {
-    borderColor: COLORS.primary,
-    backgroundColor: "#151515",
   },
   cardTitle: {
-    color: COLORS.textSecondary,
     fontSize: 13,
     fontWeight: "bold",
     marginTop: 8,
   },
   cardTitleActive: {
-    color: COLORS.text,
   },
   cardSubtitle: {
-    color: COLORS.textSecondary,
     fontSize: 10,
     marginTop: 2,
     lineHeight: 12,
@@ -549,25 +533,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 12,
     right: 12,
-    backgroundColor: COLORS.text,
     borderRadius: 10,
     width: 16,
     height: 16,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: COLORS.surface,
   },
   submitButton: {
     height: 52,
-    backgroundColor: COLORS.text,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     marginTop: 24,
   },
   submitButtonText: {
-    color: COLORS.background,
     fontSize: 15,
     fontWeight: "bold",
     letterSpacing: 0.5,
@@ -577,11 +557,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   switchModeSubText: {
-    color: COLORS.textSecondary,
     fontSize: 13,
   },
   switchModeHighlight: {
-    color: COLORS.text,
     fontWeight: "bold",
   },
   footer: {
@@ -591,7 +569,6 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   footerText: {
-    color: COLORS.textSecondary,
     fontSize: 12,
   },
 });

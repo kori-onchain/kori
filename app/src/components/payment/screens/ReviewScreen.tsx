@@ -7,9 +7,9 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Feather, FontAwesome } from '../../../icons';
 import { PaymentIntent } from '../../../types/payment';
-import { COLORS } from '../../../constants/colors';
+import { useTheme } from '../../../theme/ThemeProvider';
 
 interface ReviewScreenProps {
   intent: PaymentIntent;
@@ -19,6 +19,7 @@ interface ReviewScreenProps {
 }
 
 export const ReviewScreen: React.FC<ReviewScreenProps> = ({ intent, onPay, onBack, onClose }) => {
+  const { t } = useTheme();
   const { recipient, amount } = intent;
   const [isFavorite, setIsFavorite] = useState(recipient.isFavorite);
 
@@ -39,52 +40,52 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ intent, onPay, onBac
     : recipient.userId;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: t.bg }]}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
-          <Feather name="arrow-left" size={22} color="#FFF" />
+          <Feather name="arrow-left" size={22} color={t.ink} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Revisão</Text>
+        <Text style={[styles.headerTitle, { color: t.ink }]}>Revisão</Text>
         <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Feather name="x" size={22} color={COLORS.textSecondary} />
+          <Feather name="x" size={22} color={t.inkMute} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {/* Avatar Centralizado */}
         <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Feather name="more-horizontal" size={24} color="#666" />
+          <View style={[styles.avatar, { backgroundColor: t.bg2 }]}>
+            <Feather name="more-horizontal" size={24} color={t.inkMute} />
           </View>
         </View>
 
         {/* Valor e Nome Resumido */}
         <View style={styles.summaryContainer}>
-          <Text style={styles.amountText}>{amountFormatted}</Text>
-          <Text style={styles.nameSubtitle}>{displayName}</Text>
+          <Text style={[styles.amountText, { color: t.ink }]}>{amountFormatted}</Text>
+          <Text style={[styles.nameSubtitle, { color: t.ink }]}>{displayName}</Text>
         </View>
 
         {/* Detalhes de Quem vai receber */}
         <View style={styles.detailsCard}>
-          <Text style={styles.sectionTitle}>Quem vai receber</Text>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>Quem vai receber</Text>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Nome</Text>
-            <Text style={styles.detailValue} numberOfLines={1}>{displayName}</Text>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Nome</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]} numberOfLines={1}>{displayName}</Text>
           </View>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>ID</Text>
-            <Text style={styles.detailValue} numberOfLines={1}>
+            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID</Text>
+            <Text style={[styles.detailValue, { color: t.ink }]} numberOfLines={1}>
               {recipient.type === 'wallet' ? 'Endereço de Carteira' : displayId}
             </Text>
           </View>
 
           {recipient.type === 'wallet' && (
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Endereço</Text>
-              <Text style={styles.detailValueMono} numberOfLines={1}>{displayId}</Text>
+              <Text style={[styles.detailLabel, { color: t.inkMute }]}>Endereço</Text>
+              <Text style={[styles.detailValueMono, { color: t.ink }]} numberOfLines={1}>{displayId}</Text>
             </View>
           )}
         </View>
@@ -98,16 +99,16 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ intent, onPay, onBac
           >
             <View style={styles.favoriteIconWrap}>
               {isFavorite ? (
-                <FontAwesome name="heart" size={22} color="#FFF" />
+                <FontAwesome name="heart" size={22} color={t.orange} />
               ) : (
-                <Feather name="heart" size={22} color="#FFF" />
+                <Feather name="heart" size={22} color={t.ink} />
               )}
             </View>
             <View style={styles.favoriteTextWrap}>
-              <Text style={styles.favoriteTitle}>
+              <Text style={[styles.favoriteTitle, { color: t.ink }]}>
                 {isFavorite ? 'Contato já favoritado' : 'Adicionar aos favoritos'}
               </Text>
-              <Text style={styles.favoriteSubtitle}>{displayId}</Text>
+              <Text style={[styles.favoriteSubtitle, { color: t.inkMute }]}>{displayId}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -116,11 +117,11 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({ intent, onPay, onBac
       {/* CTA */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={styles.payBtn}
+          style={[styles.payBtn, { backgroundColor: t.btnPrimaryBg }]}
           onPress={onPay}
           activeOpacity={0.85}
         >
-          <Text style={styles.payBtnText}>Pagar {amountFormatted}</Text>
+          <Text style={[styles.payBtnText, { color: t.btnPrimaryFg }]}>Pagar {amountFormatted}</Text>
         </TouchableOpacity>
       </View>
     </View>
