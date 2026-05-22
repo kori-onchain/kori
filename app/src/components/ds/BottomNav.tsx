@@ -6,7 +6,8 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { colors, fonts, radii } from '../../theme/tokens';
+import { fonts, radii } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeProvider';
 import { SoftCard } from './SoftCard';
 import {
   HomeIcon,
@@ -54,9 +55,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   onChange,
   onScanPress,
 }) => {
+  const { t } = useTheme();
+
   const renderTab = ({ id, label, Icon }: TabDef) => {
     const isActive = activeTab === id;
-    const tint = isActive ? colors.orange : colors.inkMute;
+    const tint = isActive ? t.orange : t.inkMute;
     return (
       <TouchableOpacity
         key={id}
@@ -64,7 +67,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         activeOpacity={0.7}
         onPress={() => onChange(id)}
       >
-        {isActive && <View style={styles.indicator} />}
+        {isActive && (
+          <View
+            style={[
+              styles.indicator,
+              { backgroundColor: t.orange, shadowColor: t.orange },
+            ]}
+          />
+        )}
         <Icon size={21} color={tint} strokeWidth={1.7} />
         <Text style={[styles.label, { color: tint }]}>{label}</Text>
       </TouchableOpacity>
@@ -72,7 +82,12 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: t.bnavBg, borderTopColor: t.line },
+      ]}
+    >
       {LEFT_TABS.map(renderTab)}
 
       {/* Center QR FAB — raised, no active state */}
@@ -84,7 +99,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         >
           <SoftCard radius={radii.pill} padding={0}>
             <View style={styles.fabInner}>
-              <QrIcon size={22} color={colors.ink} strokeWidth={1.7} />
+              <QrIcon size={22} color={t.ink} strokeWidth={1.7} />
             </View>
           </SoftCard>
         </TouchableOpacity>
@@ -100,9 +115,7 @@ const FAB_SIZE = 52;
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(10,10,10,0.92)',
     borderTopWidth: 1,
-    borderTopColor: colors.line,
     paddingTop: 14,
     paddingBottom: Platform.OS === 'android' ? 14 : 24,
     paddingHorizontal: 8,
@@ -121,8 +134,6 @@ const styles = StyleSheet.create({
     width: 26,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.orange,
-    shadowColor: colors.orange,
     shadowOpacity: 0.6,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 0 },

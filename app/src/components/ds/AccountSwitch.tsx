@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
-import { colors, fonts, radii } from '../../theme/tokens';
+import { LinearGradient } from 'expo-linear-gradient';
+import { fonts, radii } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeProvider';
 import { SoftCard } from './SoftCard';
-import { ChevronDownIcon, SolanaIcon } from './icons';
+import { ChevronDownIcon, KoraGlyph, SolanaIcon } from './icons';
 
 interface AccountSwitchProps {
   /** e.g. "TS" — derived from the active account name */
@@ -13,6 +15,8 @@ interface AccountSwitchProps {
   expanded?: boolean;
   /** Show the small Solana badge on the avatar. */
   showWalletBadge?: boolean;
+  /** Business accounts get the orange gradient avatar. */
+  isPJ?: boolean;
 }
 
 /**
@@ -24,23 +28,48 @@ export const AccountSwitch: React.FC<AccountSwitchProps> = ({
   initials,
   onPress,
   showWalletBadge = true,
+  isPJ = false,
 }) => {
+  const { t } = useTheme();
+
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
       <SoftCard radius={radii.pill} padding={0}>
         <View style={styles.row}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
+          <View
+            style={[
+              styles.avatar,
+              { backgroundColor: t.bgElev, borderColor: t.line },
+            ]}
+          >
+            {isPJ && (
+              <LinearGradient
+                colors={[t.orangeDark, t.orange]}
+                style={StyleSheet.absoluteFillObject}
+              />
+            )}
+            {isPJ ? (
+              <KoraGlyph size={14} color={t.ink} />
+            ) : (
+              <Text style={[styles.avatarText, { color: t.ink }]}>
+                {initials}
+              </Text>
+            )}
             {showWalletBadge && (
-              <View style={styles.solBadge}>
-                <SolanaIcon width={8} height={6} color={colors.inkDim} />
+              <View
+                style={[
+                  styles.solBadge,
+                  { backgroundColor: t.bg, borderColor: t.line2 },
+                ]}
+              >
+                <SolanaIcon width={8} height={6} color={t.inkDim} />
               </View>
             )}
           </View>
           <View style={styles.chevron}>
             <ChevronDownIcon
               size={13}
-              color={colors.inkDim}
+              color={t.inkDim}
               strokeWidth={2}
             />
           </View>
@@ -63,17 +92,15 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.bgElev,
     borderWidth: 1,
-    borderColor: colors.line,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    overflow: 'hidden',
   },
   avatarText: {
     fontFamily: fonts.sans.bold,
     fontSize: 11,
-    color: colors.ink,
     letterSpacing: 0.3,
   },
   solBadge: {
@@ -83,9 +110,7 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: colors.bg,
     borderWidth: 1,
-    borderColor: colors.line2,
     alignItems: 'center',
     justifyContent: 'center',
   },

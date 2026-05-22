@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, fonts, radii } from '../theme/tokens';
+import { fonts, radii, ThemeTokens } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeProvider';
 import { MOCK_CARDS } from '../data/cards';
 import { MOCK_TRANSACTIONS, Transaction } from '../data/transactions';
 import { Card } from '../data/cards';
@@ -10,9 +11,9 @@ import Svg, { Path } from 'react-native-svg';
 
 const PREVIEW_COUNT = 4;
 
-const EyeOffIcon: React.FC<{ size?: number; color?: string }> = ({
+const EyeOffIcon: React.FC<{ size?: number; color: string }> = ({
   size = 14,
-  color = colors.inkDim,
+  color,
 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <Path
@@ -30,8 +31,13 @@ const EyeOffIcon: React.FC<{ size?: number; color?: string }> = ({
   </Svg>
 );
 
-const CardBadge: React.FC<{ card: Card }> = ({ card }) => (
-  <View style={[styles.cardBadge, { backgroundColor: card.cardBg }]}>
+const CardBadge: React.FC<{ card: Card; t: ThemeTokens }> = ({ card, t }) => (
+  <View
+    style={[
+      styles.cardBadge,
+      { backgroundColor: card.cardBg, borderColor: t.line2 },
+    ]}
+  >
     <View style={styles.badgeChip} />
     {card.network === 'mastercard' ? (
       <View style={styles.badgeMcWrapper}>
@@ -44,21 +50,21 @@ const CardBadge: React.FC<{ card: Card }> = ({ card }) => (
   </View>
 );
 
-const pickRowIcon = (item: Transaction): React.ReactNode => {
+const pickRowIcon = (item: Transaction, t: ThemeTokens): React.ReactNode => {
   if (item.isAnonymous) {
-    return <EyeOffIcon size={14} color={colors.inkDim} />;
+    return <EyeOffIcon size={14} color={t.inkDim} />;
   }
   if (item.isAvatar && item.initials) {
-    return <Text style={styles.rowInitials}>{item.initials}</Text>;
+    return <Text style={[styles.rowInitials, { color: t.ink }]}>{item.initials}</Text>;
   }
   // fallback "type" icons — simple visual cues
   if (/yield/i.test(item.title)) {
-    return <InvestIcon size={14} color={colors.ink} strokeWidth={1.7} />;
+    return <InvestIcon size={14} color={t.ink} strokeWidth={1.7} />;
   }
   if (/cart/i.test(item.title) || /padaria|mercado/i.test(item.title)) {
-    return <CardIcon size={14} color={colors.ink} strokeWidth={1.7} />;
+    return <CardIcon size={14} color={t.ink} strokeWidth={1.7} />;
   }
-  return <ArrowRightIcon size={14} color={colors.ink} strokeWidth={1.7} />;
+  return <ArrowRightIcon size={14} color={t.ink} strokeWidth={1.7} />;
 };
 
 interface TransactionsProps {
@@ -69,53 +75,70 @@ const Row: React.FC<{ item: Transaction; isLast: boolean }> = ({
   item,
   isLast,
 }) => {
+  const { t } = useTheme();
   const card = item.cardId ? MOCK_CARDS.find((c) => c.id === item.cardId) : undefined;
   const isIncoming = item.amount.trim().startsWith('+');
 
   return (
-    <View style={[styles.row, isLast && styles.rowLast]}>
+    <View
+      style={[
+        styles.row,
+        { borderBottomColor: t.line },
+        isLast && styles.rowLast,
+      ]}
+    >
       <View style={styles.info}>
         <View style={styles.iconWrap}>
           <SoftCard radius={8} padding={0} flat>
-            <View style={styles.iconInner}>{pickRowIcon(item)}</View>
+            <View style={styles.iconInner}>{pickRowIcon(item, t)}</View>
           </SoftCard>
           {card && (
             <View style={styles.cardBadgeContainer}>
-              <CardBadge card={card} />
+              <CardBadge card={card} t={t} />
             </View>
           )}
         </View>
 
         <View style={styles.text}>
-          <Text style={styles.title} numberOfLines={1}>
+          <Text style={[styles.title, { color: t.ink }]} numberOfLines={1}>
             {item.title}
           </Text>
-          <Text style={styles.sub} numberOfLines={1}>
+          <Text style={[styles.sub, { color: t.inkMute }]} numberOfLines={1}>
             {item.type}
           </Text>
         </View>
       </View>
 
       <View style={styles.amounts}>
-        <Text style={[styles.amount, isIncoming && styles.amountIn]}>
+        <Text
+          style={[
+            styles.amount,
+            { color: isIncoming ? t.green : t.ink },
+          ]}
+        >
           {item.amount}
         </Text>
-        <Text style={styles.subAmount}>{item.subAmount}</Text>
+        <Text style={[styles.subAmount, { color: t.inkMute }]}>
+          {item.subAmount}
+        </Text>
       </View>
     </View>
   );
 };
 
 export const Transactions: React.FC<TransactionsProps> = ({ onSeeAll }) => {
+  const { t } = useTheme();
   const items = MOCK_TRANSACTIONS.slice(0, PREVIEW_COUNT);
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>HOJE · {items.length} MOVS</Text>
+        <Text style={[styles.sectionTitle, { color: t.inkMute }]}>
+          HOJE · {items.length} MOVS
+        </Text>
         <TouchableOpacity onPress={onSeeAll} activeOpacity={0.7}>
-          <Text style={styles.seeMoreText}>
-            Ver tudo <Text style={styles.seeMoreArrow}>→</Text>
+          <Text style={[styles.seeMoreText, { color: t.inkMute }]}>
+            Ver tudo <Text style={[styles.seeMoreArrow, { color: t.orange }]}>→</Text>
           </Text>
         </TouchableOpacity>
       </View>
@@ -138,20 +161,17 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   sectionTitle: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 10,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   seeMoreText: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 9,
     letterSpacing: 0.5,
   },
   seeMoreArrow: {
-    color: colors.orange,
     fontFamily: fonts.mono.semibold,
     fontSize: 11,
   },
@@ -162,7 +182,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: colors.line,
   },
   rowLast: {
     borderBottomWidth: 0,
@@ -187,7 +206,6 @@ const styles = StyleSheet.create({
   },
   rowInitials: {
     fontFamily: fonts.sans.semibold,
-    color: colors.ink,
     fontSize: 11,
     letterSpacing: 0.3,
   },
@@ -201,7 +219,6 @@ const styles = StyleSheet.create({
     height: 13,
     borderRadius: 3,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
     overflow: 'hidden',
     position: 'relative',
     justifyContent: 'flex-end',
@@ -241,12 +258,10 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: colors.ink,
     fontFamily: fonts.sans.medium,
     fontSize: 13,
   },
   sub: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.regular,
     fontSize: 10,
     letterSpacing: 0.3,
@@ -256,16 +271,11 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   amount: {
-    color: colors.ink,
     fontFamily: fonts.mono.semibold,
     fontSize: 12,
     letterSpacing: 0.2,
   },
-  amountIn: {
-    color: colors.green,
-  },
   subAmount: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.regular,
     fontSize: 9,
     letterSpacing: 0.3,

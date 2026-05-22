@@ -17,6 +17,7 @@ import {
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../constants/colors";
+import { ThemePreference, useTheme } from "../theme/ThemeProvider";
 
 const { width } = Dimensions.get("window");
 
@@ -155,6 +156,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   userName = "Pedro Henrique",
   accountType = "PF",
 }) => {
+  const { preference, t, toggle } = useTheme();
   const [isEditingProfile, setIsEditingProfile] = React.useState(false);
   const [editedUserName, setEditedUserName] = React.useState(userName);
   const [avatarImage, setAvatarImage] = React.useState<string | null>(null);
@@ -172,10 +174,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       transparent={false}
       onRequestClose={isEditingProfile ? () => setIsEditingProfile(false) : onClose}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: t.bg }]}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="#121212"
+          barStyle={t.statusBar}
+          backgroundColor={t.bg}
           translucent={true}
         />
 
@@ -186,12 +188,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             style={styles.headerBtn}
             activeOpacity={0.7}
           >
-            <Feather name="arrow-left" size={24} color="#FFFFFF" />
+            <Feather name="arrow-left" size={24} color={t.ink} />
           </TouchableOpacity>
 
           {!isEditingProfile && (
             <TouchableOpacity style={styles.headerBtn} activeOpacity={0.7}>
-              <Feather name="bell" size={22} color="#FFFFFF" />
+              <Feather name="bell" size={22} color={t.ink} />
             </TouchableOpacity>
           )}
         </View>
@@ -283,6 +285,49 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           ) : (
             /* ================= MAIN PROFILE SCREEN ================= */
             <View>
+              <View style={styles.themeBlock}>
+                <Text style={[styles.themeLabel, { color: t.inkMute }]}>
+                  TEMA
+                </Text>
+                <View
+                  style={[
+                    styles.themeSegmented,
+                    { backgroundColor: t.bgElev, borderColor: t.line },
+                  ]}
+                >
+                  {(['system', 'light', 'dark'] as ThemePreference[]).map((mode) => {
+                    const active = preference === mode;
+                    const label =
+                      mode === 'system'
+                        ? 'Sistema'
+                        : mode === 'light'
+                          ? 'Claro'
+                          : 'Escuro';
+
+                    return (
+                      <TouchableOpacity
+                        key={mode}
+                        style={[
+                          styles.themeOption,
+                          active && { backgroundColor: t.btnPrimaryBg },
+                        ]}
+                        activeOpacity={0.8}
+                        onPress={() => toggle(mode)}
+                      >
+                        <Text
+                          style={[
+                            styles.themeOptionText,
+                            { color: active ? t.btnPrimaryFg : t.inkDim },
+                          ]}
+                        >
+                          {label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
               {/* Perfil Header */}
               <TouchableOpacity
                 style={styles.profileRow}
@@ -444,6 +489,33 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+  },
+  themeBlock: {
+    marginTop: 12,
+    marginBottom: 18,
+  },
+  themeLabel: {
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+    marginBottom: 8,
+  },
+  themeSegmented: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 4,
+    gap: 4,
+  },
+  themeOption: {
+    flex: 1,
+    borderRadius: 9,
+    paddingVertical: 9,
+    alignItems: "center",
+  },
+  themeOptionText: {
+    fontSize: 12,
+    fontWeight: "800",
   },
   profileRow: {
     flexDirection: "row",

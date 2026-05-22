@@ -8,8 +8,8 @@ import {
   TextStyle,
   StyleProp,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, radii, fonts } from '../../theme/tokens';
+import { radii, fonts } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeProvider';
 import { SoftCard } from './SoftCard';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
@@ -43,8 +43,9 @@ export const Button: React.FC<ButtonProps> = ({
   labelStyle,
   full = false,
 }) => {
+  const { t } = useTheme();
   const contentColor =
-    variant === 'primary' ? colors.bg : colors.ink;
+    variant === 'primary' ? t.btnPrimaryFg : t.ink;
 
   const content = (
     <View style={styles.inner}>
@@ -90,18 +91,33 @@ export const Button: React.FC<ButtonProps> = ({
     <TouchableOpacity
       activeOpacity={0.85}
       onPress={onPress}
-      style={[styles.primaryOuter, full && styles.full, style]}
+      style={[
+        styles.primaryOuter,
+        {
+          backgroundColor: t.btnPrimaryBg,
+          shadowColor: '#000',
+          borderColor: t.cardBorder,
+          elevation: t.cardElev,
+        },
+        full && styles.full,
+        style,
+      ]}
     >
-      <LinearGradient
-        colors={['#ffffff', '#f0f0f2']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.primaryGradient}
+      <View
+        style={[
+          styles.primaryInner,
+          {
+            backgroundColor: t.btnPrimaryBg,
+          },
+        ]}
       >
         {/* "fio de luz" branco no topo (matches HTML mock inset shadow) */}
-        <View pointerEvents="none" style={styles.primaryHairline} />
+        <View
+          pointerEvents="none"
+          style={[styles.primaryHairline, { backgroundColor: t.hairline }]}
+        />
         {content}
-      </LinearGradient>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -113,9 +129,12 @@ const styles = StyleSheet.create({
   primaryOuter: {
     borderRadius: radii.btn,
     overflow: 'hidden',
-    elevation: 4,
+    borderWidth: 1,
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
   },
-  primaryGradient: {
+  primaryInner: {
     paddingVertical: 14,
     paddingHorizontal: 16,
     alignItems: 'center',
@@ -128,7 +147,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   ghost: {
     paddingVertical: 10,

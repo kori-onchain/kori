@@ -1,5 +1,6 @@
 import React from 'react';
 import Svg, { Path, Circle, Rect, Line } from 'react-native-svg';
+import { colors } from '../../theme/tokens';
 
 type IconProps = {
   size?: number;
@@ -9,7 +10,7 @@ type IconProps = {
 
 const defaults = {
   size: 20,
-  color: '#fafafa',
+  color: colors.ink,
   strokeWidth: 1.7,
 };
 

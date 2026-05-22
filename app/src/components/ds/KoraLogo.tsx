@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, fonts } from '../../theme/tokens';
+import { fonts } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeProvider';
 import { KoraGlyph } from './icons';
 
 interface KoraLogoProps {
@@ -15,16 +16,21 @@ interface KoraLogoProps {
  */
 export const KoraLogo: React.FC<KoraLogoProps> = ({
   size = 22,
-  color = colors.ink,
+  color,
   showWordmark = true,
-}) => (
-  <View style={styles.row}>
-    <KoraGlyph size={size} color={color} />
-    {showWordmark && (
-      <Text style={[styles.wordmark, { color }]}>KORA</Text>
-    )}
-  </View>
-);
+}) => {
+  const { t } = useTheme();
+  const resolvedColor = color ?? t.ink;
+
+  return (
+    <View style={styles.row}>
+      <KoraGlyph size={size} color={resolvedColor} />
+      {showWordmark && (
+        <Text style={[styles.wordmark, { color: resolvedColor }]}>KORA</Text>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   row: {

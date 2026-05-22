@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, radii, elevation } from '../../theme/tokens';
+import { radii } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeProvider';
 
 interface SoftCardProps {
   children: React.ReactNode;
@@ -12,12 +13,14 @@ interface SoftCardProps {
   padding?: number;
   /** Disable the Android elevation shadow when stacked inside scroll lists. */
   flat?: boolean;
+  /** Stronger Android elevation for floating surfaces/popovers. */
+  strong?: boolean;
 }
 
 /**
  * The DS workhorse. RN has no inset box-shadow, so we fake the "soft/glossy"
  * elevation by stacking:
- *   1. a top→bottom dark gradient (#1e1e23 → #16161a)
+ *   1. a top-to-bottom glossy surface from the active theme
  *   2. a 1px hairline at the top edge ("fio de luz")
  *   3. a hairline border + Android elevation for the outer drop shadow
  *
@@ -29,20 +32,30 @@ export const SoftCard: React.FC<SoftCardProps> = ({
   radius = radii.card,
   padding,
   flat = false,
+  strong = false,
 }) => {
+  const { t } = useTheme();
+  const cardElevation = flat ? 0 : strong ? t.cardElevStrong : t.cardElev;
+
   return (
     <View
       style={[
         styles.outer,
         {
           borderRadius: radius,
-          elevation: flat ? 0 : elevation.card,
+          borderColor: t.cardBorder,
+          backgroundColor: t.bg2,
+          shadowColor: '#000',
+          shadowOpacity: strong ? 0.22 : 0.16,
+          shadowRadius: strong ? 12 : 8,
+          shadowOffset: { width: 0, height: strong ? 8 : 5 },
+          elevation: cardElevation,
         },
         style,
       ]}
     >
       <LinearGradient
-        colors={[colors.softTop, colors.softBottom]}
+        colors={t.glossy}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={[
@@ -61,6 +74,7 @@ export const SoftCard: React.FC<SoftCardProps> = ({
             {
               borderTopLeftRadius: radius,
               borderTopRightRadius: radius,
+              backgroundColor: t.hairline,
             },
           ]}
         />
@@ -73,11 +87,10 @@ export const SoftCard: React.FC<SoftCardProps> = ({
 const styles = StyleSheet.create({
   outer: {
     borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.bg2, // fallback under the gradient
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   gradient: {
+    overflow: 'hidden',
     // Content-sized in both axes — Yoga's default alignItems:'stretch'
     // already stretches us to the outer View's width. Setting height/width
     // to '100%' here creates a circular dependency that blows the layout up
@@ -89,6 +102,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
   },
 });

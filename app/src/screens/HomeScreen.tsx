@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, SafeAreaView, ScrollView, Platform, StatusBar } from 'react-native';
-import { colors } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeProvider';
 import { Header } from '../components/Header';
 import { Balance } from '../components/Balance';
 import { CryptoInvestments } from '../components/CryptoInvestments';
@@ -36,6 +36,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onSwitchAccount,
   onAddAccount,
 }) => {
+  const { scheme, t } = useTheme();
   const { contacts, addContact } = useContacts();
   const { modals, open, close } = useModals();
   const [activeTab, setActiveTab] = useState('inicio');
@@ -86,94 +87,112 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={true} />
+    <View key={scheme} style={[styles.root, { backgroundColor: t.bg }]}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: t.bg }]}>
+        <StatusBar
+          barStyle={t.statusBar}
+          backgroundColor={t.bg}
+          translucent={true}
+        />
 
-      {activeTab === 'cartao' ? (
-        <View style={styles.panelWrapper}>
-          <Header {...headerProps} />
-          <CardsPanel userName={userName} />
-        </View>
-      ) : activeTab === 'investimentos' ? (
-        <View style={styles.panelWrapper}>
-          <Header {...headerProps} />
-          <InvestmentsPanel />
-        </View>
-      ) : activeTab === 'experiencias' ? (
-        <View style={styles.panelWrapper}>
-          <Header {...headerProps} />
-          <ExperiencesPanel />
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.container}>
-          <Header {...headerProps} />
-          <Balance
-            identity={identity}
-            userHandle={userHandle}
-            walletHashFull={walletHashFull}
-            walletHashShort={walletHashShort}
-            onSendPress={() => {
-              setSendIntent({});
-              setSendInitialScreen('manual');
-              open('sendPayment');
-            }}
-          />
-          <NftHoldings onSeeAll={() => open('contacts')} />
-          <Transactions onSeeAll={() => open('transactions')} />
-          <CryptoInvestments />
-        </ScrollView>
-      )}
+        {activeTab === 'cartao' ? (
+          <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
+            <Header {...headerProps} />
+            <CardsPanel userName={userName} />
+          </View>
+        ) : activeTab === 'investimentos' ? (
+          <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
+            <Header {...headerProps} />
+            <InvestmentsPanel />
+          </View>
+        ) : activeTab === 'experiencias' ? (
+          <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
+            <Header {...headerProps} />
+            <ExperiencesPanel />
+          </View>
+        ) : (
+          <ScrollView
+            style={[styles.scroller, { backgroundColor: t.bg }]}
+            contentContainerStyle={[
+              styles.container,
+              { backgroundColor: t.bg },
+            ]}
+            endFillColor={t.bg}
+          >
+            <Header {...headerProps} />
+            <Balance
+              identity={identity}
+              userHandle={userHandle}
+              walletHashFull={walletHashFull}
+              walletHashShort={walletHashShort}
+              onSendPress={() => {
+                setSendIntent({});
+                setSendInitialScreen('manual');
+                open('sendPayment');
+              }}
+            />
+            <NftHoldings onSeeAll={() => open('contacts')} />
+            <Transactions onSeeAll={() => open('transactions')} />
+            <CryptoInvestments />
+          </ScrollView>
+        )}
 
-      <BottomMenu
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onScanPress={handleScanPress}
-      />
+        <BottomMenu
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onScanPress={handleScanPress}
+        />
 
-      <ContactsModal
-        visible={modals.contacts}
-        contacts={contacts}
-        onClose={() => close('contacts')}
-        onAddPress={() => open('addContact')}
-        onContactPress={(contact) => {
-          close('contacts');
-          handleContactPress(contact);
-        }}
-      />
+        <ContactsModal
+          visible={modals.contacts}
+          contacts={contacts}
+          onClose={() => close('contacts')}
+          onAddPress={() => open('addContact')}
+          onContactPress={(contact) => {
+            close('contacts');
+            handleContactPress(contact);
+          }}
+        />
 
-      <AddContactModal
-        visible={modals.addContact}
-        onClose={() => close('addContact')}
-        onSave={addContact}
-      />
+        <AddContactModal
+          visible={modals.addContact}
+          onClose={() => close('addContact')}
+          onSave={addContact}
+        />
 
-      <TransactionsModal
-        visible={modals.transactions}
-        onClose={() => close('transactions')}
-      />
+        <TransactionsModal
+          visible={modals.transactions}
+          onClose={() => close('transactions')}
+        />
 
-      <ProfileModal
-        visible={modals.profile}
-        onClose={() => close('profile')}
-        userName={userName}
-        accountType={accountType}
-      />
+        <ProfileModal
+          visible={modals.profile}
+          onClose={() => close('profile')}
+          userName={userName}
+          accountType={accountType}
+        />
 
-      <SendModal
-        visible={modals.sendPayment}
-        onClose={() => close('sendPayment')}
-        initialScreen={sendInitialScreen}
-        initialIntent={sendIntent}
-      />
-    </SafeAreaView>
+        <SendModal
+          visible={modals.sendPayment}
+          onClose={() => close('sendPayment')}
+          initialScreen={sendInitialScreen}
+          initialIntent={sendIntent}
+        />
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.bg,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  scroller: {
+    flex: 1,
   },
   container: {
     paddingHorizontal: 20,

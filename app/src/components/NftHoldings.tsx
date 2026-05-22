@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, fonts, radii } from '../theme/tokens';
+import { fonts, radii, ThemeTokens } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeProvider';
 import { SoftCard } from './ds/SoftCard';
 import { KoraGlyph, TicketIcon } from './ds/icons';
 
@@ -31,12 +32,17 @@ const HOLDINGS: NftItem[] = [
   },
 ];
 
-const NftArt: React.FC<{ kind: NftKind }> = ({ kind }) => (
-  <View style={styles.art}>
+const NftArt: React.FC<{ kind: NftKind; t: ThemeTokens }> = ({ kind, t }) => (
+  <View
+    style={[
+      styles.art,
+      { backgroundColor: t.artBg, borderColor: t.line },
+    ]}
+  >
     {kind === 'kora' ? (
-      <KoraGlyph size={32} color={colors.ink} />
+      <KoraGlyph size={32} color={t.ink} />
     ) : (
-      <TicketIcon size={24} color={colors.ink} strokeWidth={1.5} />
+      <TicketIcon size={24} color={t.ink} strokeWidth={1.5} />
     )}
   </View>
 );
@@ -45,17 +51,22 @@ interface NftHoldingsProps {
   onSeeAll?: () => void;
 }
 
-export const NftHoldings: React.FC<NftHoldingsProps> = ({ onSeeAll }) => (
-  <View style={styles.container}>
-    <View style={styles.headerRow}>
-      <Text style={styles.sectionTitle}>NFT HOLDINGS</Text>
-      <TouchableOpacity onPress={onSeeAll} activeOpacity={0.7}>
-        <Text style={styles.seeMore}>
-          {HOLDINGS.length} ativos{' '}
-          <Text style={styles.seeMoreArrow}>→</Text>
+export const NftHoldings: React.FC<NftHoldingsProps> = ({ onSeeAll }) => {
+  const { t } = useTheme();
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={[styles.sectionTitle, { color: t.inkMute }]}>
+          NFT HOLDINGS
         </Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity onPress={onSeeAll} activeOpacity={0.7}>
+          <Text style={[styles.seeMore, { color: t.inkMute }]}>
+            {HOLDINGS.length} ativos{' '}
+            <Text style={[styles.seeMoreArrow, { color: t.orange }]}>→</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
 
     <View style={styles.grid}>
       {HOLDINGS.map((item) => (
@@ -63,26 +74,27 @@ export const NftHoldings: React.FC<NftHoldingsProps> = ({ onSeeAll }) => (
           <SoftCard
             radius={radii.cardSm}
             padding={9}
-            style={item.accent ? styles.cardAccent : undefined}
+            style={item.accent ? { borderColor: t.orange } : undefined}
           >
-            <NftArt kind={item.kind} />
+            <NftArt kind={item.kind} t={t} />
             <Text
               style={[
                 styles.category,
-                item.accent && styles.categoryAccent,
+                { color: item.accent ? t.orange : t.inkMute },
               ]}
             >
               {item.category.toUpperCase()}
             </Text>
-            <Text style={styles.name} numberOfLines={1}>
+            <Text style={[styles.name, { color: t.ink }]} numberOfLines={1}>
               {item.name}
             </Text>
           </SoftCard>
         </View>
       ))}
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -95,20 +107,17 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 10,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   seeMore: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 9,
     letterSpacing: 0.5,
   },
   seeMoreArrow: {
-    color: colors.orange,
     fontFamily: fonts.mono.semibold,
     fontSize: 11,
   },
@@ -119,31 +128,20 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
   },
-  cardAccent: {
-    // Matches HTML mock: inset 0 0 0 1px rgba(255,107,61,0.22)
-    borderColor: 'rgba(255,107,61,0.22)',
-  },
   art: {
     aspectRatio: 1.6,
     borderRadius: 9,
     marginBottom: 7,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.artBg,
     borderWidth: 1,
-    borderColor: colors.line,
   },
   category: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 7,
     letterSpacing: 0.7,
   },
-  categoryAccent: {
-    color: colors.orange,
-  },
   name: {
-    color: colors.ink,
     fontFamily: fonts.sans.semibold,
     fontSize: 11,
     marginTop: 2,

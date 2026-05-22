@@ -17,6 +17,7 @@ import { AuthScreen } from "./src/screens/AuthScreen";
 import { SecuritySetupScreen } from "./src/screens/SecuritySetupScreen";
 import { SplashScreen } from "./src/screens/SplashScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
+import { ThemeProvider } from "./src/theme/ThemeProvider";
 
 interface UserSession {
   name: string;
@@ -81,17 +82,15 @@ export default function App() {
     setTempSession(null);
   };
 
+  let screen: React.ReactNode;
+
   if (showSplash) {
-    return <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
-  }
-
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
-  }
-
-  // If a session is active, go straight to HomeScreen
-  if (session) {
-    return (
+    screen = <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
+  } else if (showOnboarding) {
+    screen = <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  } else if (session) {
+    // If a session is active, go straight to HomeScreen
+    screen = (
       <HomeScreen
         userName={session.name}
         username={session.username}
@@ -101,11 +100,9 @@ export default function App() {
         onAddAccount={handleAddAccount}
       />
     );
-  }
-
-  // If we just signed up, route through Security Setup onboarding step
-  if (tempSession) {
-    return (
+  } else if (tempSession) {
+    // If we just signed up, route through Security Setup onboarding step
+    screen = (
       <SecuritySetupScreen
         userName={tempSession.name}
         onComplete={(method) => {
@@ -115,20 +112,22 @@ export default function App() {
         }}
       />
     );
+  } else {
+    // Otherwise, display the main Authentication Screen (Login / Signup)
+    screen = (
+      <AuthScreen
+        onAuthSuccess={(userData, isSignup) => {
+          if (isSignup) {
+            // If it was a signup, go to security setup
+            setTempSession(userData);
+          } else {
+            // If it was a login, go straight to home screen
+            setSession(userData);
+          }
+        }}
+      />
+    );
   }
 
-  // Otherwise, display the main Authentication Screen (Login / Signup)
-  return (
-    <AuthScreen
-      onAuthSuccess={(userData, isSignup) => {
-        if (isSignup) {
-          // If it was a signup, go to security setup
-          setTempSession(userData);
-        } else {
-          // If it was a login, go straight to home screen
-          setSession(userData);
-        }
-      }}
-    />
-  );
+  return <ThemeProvider>{screen}</ThemeProvider>;
 }
