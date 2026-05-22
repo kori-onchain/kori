@@ -1,18 +1,17 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { colors } from '../../theme/tokens';
-import { KoraGlyph, KoraWordmark } from './icons';
+import { View, Text, StyleSheet } from 'react-native';
+import { colors, fonts } from '../../theme/tokens';
+import { KoraGlyph } from './icons';
 
 interface KoraLogoProps {
-  /** Size of the K mark on the left (px). The wordmark on the right scales relative to it. */
+  /** Size of the K glyph on the left (px). */
   size?: number;
   color?: string;
   showWordmark?: boolean;
 }
 
 /**
- * Topbar lockup: the K glyph mark (left) + the official KORA text logo (right).
- * Both come straight from the brand SVG assets so spacing matches the spec.
+ * Topbar lockup: K glyph (SVG, left) + "KORA" wordmark in Geist (right).
  */
 export const KoraLogo: React.FC<KoraLogoProps> = ({
   size = 22,
@@ -22,7 +21,7 @@ export const KoraLogo: React.FC<KoraLogoProps> = ({
   <View style={styles.row}>
     <KoraGlyph size={size} color={color} />
     {showWordmark && (
-      <KoraWordmark height={Math.round(size * 0.55)} color={color} />
+      <Text style={[styles.wordmark, { color }]}>KORA</Text>
     )}
   </View>
 );
@@ -31,6 +30,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 8,
+  },
+  wordmark: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 15,
+    letterSpacing: 0.3,
   },
 });

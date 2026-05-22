@@ -5,30 +5,31 @@ import {
   Animated,
   StatusBar,
   Easing,
-  Platform,
-  Text,
 } from "react-native";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../constants/colors";
+import { KoraGlyph, KoraWordmark } from "../components/ds/icons";
 
 interface SplashScreenProps {
   onAnimationComplete: () => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete }) => {
-  // Animation hooks
+const GLYPH_SIZE = 110;
+const WORDMARK_HEIGHT = 22;
+const STACK_GAP = 16;
+const WRAPPER_WIDTH = 170;
+const WRAPPER_HEIGHT = GLYPH_SIZE + STACK_GAP + WORDMARK_HEIGHT;
+
+export const SplashScreen: React.FC<SplashScreenProps> = ({
+  onAnimationComplete,
+}) => {
   const scaleAnim = useRef(new Animated.Value(0.75)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
-  
-  // Metallic breathing glow of the prateada shape
   const shineOpacity = useRef(new Animated.Value(0.15)).current;
-  
-  // Diagonal shimmer sweep
   const shimmerTranslateX = useRef(new Animated.Value(-150)).current;
 
   useEffect(() => {
-    // 1. Smooth Spring Entry (Scale & Fade In)
     Animated.parallel([
       Animated.timing(opacityAnim, {
         toValue: 1,
@@ -44,7 +45,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
       }),
     ]).start();
 
-    // 2. Metallic Shimmer "Breathe" (Pulse of the shiny silver layer)
     Animated.loop(
       Animated.sequence([
         Animated.timing(shineOpacity, {
@@ -54,7 +54,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
           useNativeDriver: true,
         }),
         Animated.timing(shineOpacity, {
-          toValue: 0.40,
+          toValue: 0.4,
           duration: 1800,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
@@ -62,11 +62,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
       ])
     ).start();
 
-    // 3. Shimmer Sweep Animation (Looping diagonal sweep)
     Animated.loop(
       Animated.sequence([
         Animated.timing(shimmerTranslateX, {
-          toValue: 200,
+          toValue: 240,
           duration: 1600,
           easing: Easing.bezier(0.25, 1, 0.5, 1),
           useNativeDriver: true,
@@ -76,11 +75,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
           duration: 0,
           useNativeDriver: true,
         }),
-        Animated.delay(1300), // Delay between sweeps
+        Animated.delay(1300),
       ])
     ).start();
 
-    // 4. Automatic transition to onboarding
     const timeout = setTimeout(() => {
       Animated.timing(opacityAnim, {
         toValue: 0,
@@ -96,43 +94,50 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onAnimationComplete 
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} translucent={true} />
-      
-      <Animated.View 
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.background}
+        translucent={true}
+      />
+
+      <Animated.View
         style={[
-          styles.logoWrapper, 
-          { 
+          styles.logoWrapper,
+          {
             opacity: opacityAnim,
-            transform: [{ scale: scaleAnim }]
-          }
+            transform: [{ scale: scaleAnim }],
+          },
         ]}
       >
         <MaskedView
           style={StyleSheet.absoluteFill}
           maskElement={
-            <View style={styles.maskContainer}>
-              {/* Clean, standard, premium capital letter K as a text mask */}
-              <Text style={styles.maskText}>K</Text>
+            <View style={styles.maskStack}>
+              <KoraGlyph size={GLYPH_SIZE} color="#000" />
+              <View style={{ height: STACK_GAP }} />
+              <KoraWordmark height={WORDMARK_HEIGHT} color="#000" />
             </View>
           }
         >
-          {/* Base layer: Dark premium silver */}
-          <View style={styles.baseBranchFill} />
-          
-          {/* Shine layer: Glowing prateada */}
-          <Animated.View style={[styles.shineBranchFill, { opacity: shineOpacity }]} />
+          {/* Base layer — premium silver */}
+          <View style={styles.baseFill} />
 
-          {/* Shimmer gloss sweep line (sweeps across the whole K) */}
-          <Animated.View 
+          {/* Shine layer — radiant white, breathing */}
+          <Animated.View
+            style={[styles.shineFill, { opacity: shineOpacity }]}
+          />
+
+          {/* Diagonal shimmer sweep */}
+          <Animated.View
             style={[
-              styles.shimmerSweep, 
-              { 
+              styles.shimmerSweep,
+              {
                 transform: [
                   { translateX: shimmerTranslateX },
-                  { rotate: "22deg" }
-                ] 
-              }
-            ]} 
+                  { rotate: "22deg" },
+                ],
+              },
+            ]}
           >
             <LinearGradient
               colors={[
@@ -163,40 +168,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoWrapper: {
-    width: 120,
-    height: 140,
+    width: WRAPPER_WIDTH,
+    height: WRAPPER_HEIGHT,
     position: "relative",
   },
-  baseBranchFill: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#CCCCCC", // Sleek metallic silver base
+  maskStack: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
   },
-  shineBranchFill: {
+  baseFill: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#FFFFFF", // Radiant shining white-silver
+    backgroundColor: "#CCCCCC",
+  },
+  shineFill: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#FFFFFF",
   },
   shimmerSweep: {
     position: "absolute",
-    width: 60,
-    height: 250,
-    top: -50,
-    left: -30,
-  },
-  maskContainer: {
-    flex: 1,
-    backgroundColor: "transparent",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  maskText: {
-    fontSize: 130,
-    fontWeight: "900",
-    color: "#000000",
-    textAlign: "center",
-    fontFamily: Platform.select({
-      ios: "System",
-      android: "sans-serif-black",
-      default: "sans-serif",
-    }),
+    width: 70,
+    height: WRAPPER_HEIGHT + 120,
+    top: -60,
+    left: -40,
   },
 });
