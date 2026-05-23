@@ -1,9 +1,11 @@
 import React from "react";
 import {
+  Animated,
   Platform,
   StyleSheet,
   StyleProp,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   ViewStyle,
@@ -50,21 +52,38 @@ export const PaymentHeader: React.FC<{
       <TouchableOpacity
         activeOpacity={0.75}
         onPress={onBack ?? onClose}
-        style={[styles.headerButton, { backgroundColor: t.bg2 }]}
+        style={styles.headerButtonSlot}
       >
-        <Feather name={onBack ? "arrow-left" : "x"} size={20} color={t.ink} />
+        <SoftCard radius={19} padding={0} flat style={styles.headerButtonCard}>
+          <View style={styles.headerButton}>
+            <Feather
+              name={onBack ? "arrow-left" : "x"}
+              size={19}
+              color={t.ink}
+            />
+          </View>
+        </SoftCard>
       </TouchableOpacity>
       <Text style={[styles.headerTitle, { color: t.ink }]}>{title}</Text>
       {onClose ? (
         <TouchableOpacity
           activeOpacity={0.75}
           onPress={onClose}
-          style={[styles.headerButton, { backgroundColor: t.bg2 }]}
+          style={styles.headerButtonSlot}
         >
-          <Feather name={rightIcon} size={20} color={t.inkMute} />
+          <SoftCard
+            radius={19}
+            padding={0}
+            flat
+            style={styles.headerButtonCard}
+          >
+            <View style={styles.headerButton}>
+              <Feather name={rightIcon} size={19} color={t.inkMute} />
+            </View>
+          </SoftCard>
         </TouchableOpacity>
       ) : (
-        <View style={styles.headerButton} />
+        <View style={styles.headerButtonSlot} />
       )}
     </View>
   );
@@ -139,6 +158,197 @@ export const PaymentCard: React.FC<{
   </SoftCard>
 );
 
+export const PaymentToast: React.FC<{
+  message: string | null;
+  opacity: Animated.Value;
+}> = ({ message, opacity }) => {
+  const { t } = useTheme();
+  if (!message) return null;
+  return (
+    <Animated.View
+      style={[
+        styles.toast,
+        { opacity, backgroundColor: t.bg2, borderColor: t.cardBorder },
+      ]}
+    >
+      <Feather name="check-circle" size={15} color={t.green} />
+      <Text style={[styles.toastText, { color: t.ink }]}>{message}</Text>
+    </Animated.View>
+  );
+};
+
+export const PaymentActionCard: React.FC<{
+  title: string;
+  description: string;
+  icon: React.ComponentProps<typeof Feather>["name"];
+  tone?: string;
+  onPress: () => void;
+  style?: ViewStyle;
+}> = ({ title, description, icon, tone, onPress, style }) => {
+  const { t } = useTheme();
+  const iconColor = tone ?? t.ink;
+  return (
+    <TouchableOpacity activeOpacity={0.75} onPress={onPress} style={style}>
+      <PaymentCard padding={14}>
+        <View style={styles.actionRow}>
+          <SoftCard
+            radius={radii.cardSm}
+            padding={0}
+            flat
+            style={styles.iconBubble}
+          >
+            <View style={styles.iconBubbleInner}>
+              <Feather name={icon} size={18} color={iconColor} />
+            </View>
+          </SoftCard>
+          <View style={styles.actionText}>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>{title}</Text>
+            <Text style={[styles.actionDescription, { color: t.inkMute }]}>
+              {description}
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
+        </View>
+      </PaymentCard>
+    </TouchableOpacity>
+  );
+};
+
+export const PaymentInfoCard: React.FC<{
+  icon: React.ComponentProps<typeof Feather>["name"];
+  iconColor?: string;
+  label: string;
+  value: string;
+  description: string;
+  mono?: boolean;
+  style?: ViewStyle;
+}> = ({ icon, iconColor, label, value, description, mono, style }) => {
+  const { t } = useTheme();
+  const resolvedIconColor = iconColor ?? t.ink;
+  return (
+    <PaymentCard padding={20} style={style}>
+      <View style={styles.infoContent}>
+        <SoftCard radius={28} padding={0} flat style={styles.infoIcon}>
+          <View style={styles.infoIconInner}>
+            <Feather name={icon} size={26} color={resolvedIconColor} />
+          </View>
+        </SoftCard>
+        <Text style={[styles.infoLabel, { color: t.inkMute }]}>{label}</Text>
+        <Text
+          style={[styles.infoValue, mono && styles.mono, { color: t.ink }]}
+          numberOfLines={mono ? 1 : undefined}
+          ellipsizeMode="middle"
+        >
+          {value}
+        </Text>
+        <Text style={[styles.infoDescription, { color: t.inkDim }]}>
+          {description}
+        </Text>
+      </View>
+    </PaymentCard>
+  );
+};
+
+export const PaymentSegmentedControl = <T extends string>({
+  value,
+  options,
+  onChange,
+  style,
+}: {
+  value: T;
+  options: Array<{ value: T; label: string }>;
+  onChange: (value: T) => void;
+  style?: ViewStyle;
+}) => {
+  const { t } = useTheme();
+  return (
+    <View
+      style={[
+        styles.segmentRow,
+        { backgroundColor: t.bgElev, borderColor: t.cardBorder },
+        style,
+      ]}
+    >
+      {options.map((option) => {
+        const active = value === option.value;
+        return (
+          <TouchableOpacity
+            key={option.value}
+            activeOpacity={0.75}
+            style={[
+              styles.segment,
+              active && { backgroundColor: t.btnPrimaryBg },
+            ]}
+            onPress={() => onChange(option.value)}
+          >
+            <Text
+              style={[
+                styles.segmentText,
+                { color: active ? t.btnPrimaryFg : t.inkMute },
+              ]}
+            >
+              {option.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+};
+
+export const PaymentAmountField: React.FC<{
+  value: string;
+  onChangeText: (value: string) => void;
+  placeholder?: string;
+  style?: ViewStyle;
+}> = ({ value, onChangeText, placeholder = "0,00", style }) => {
+  const { t } = useTheme();
+  return (
+    <PaymentCard padding={14} style={style}>
+      <View style={styles.amountRow}>
+        <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>R$</Text>
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType="decimal-pad"
+          placeholder={placeholder}
+          placeholderTextColor={t.inkMute}
+          style={[styles.amountInput, { color: t.ink }]}
+        />
+      </View>
+    </PaymentCard>
+  );
+};
+
+export const PaymentQrSurface: React.FC<{
+  children: React.ReactNode;
+  amount?: string;
+  caption: string;
+  footer?: React.ReactNode;
+  style?: ViewStyle;
+}> = ({ children, amount, caption, footer, style }) => {
+  const { t } = useTheme();
+  return (
+    <PaymentCard padding={18} style={style}>
+      <View style={styles.qrContent}>
+        {amount ? (
+          <Text style={[styles.qrAmount, { color: t.ink }]}>{amount}</Text>
+        ) : null}
+        <View
+          style={[
+            styles.qrBox,
+            { backgroundColor: t.bg2, borderColor: t.cardBorder },
+          ]}
+        >
+          {children}
+        </View>
+        <Text style={[styles.qrCaption, { color: t.inkMute }]}>{caption}</Text>
+        {footer}
+      </View>
+    </PaymentCard>
+  );
+};
+
 export const RecipientAvatar: React.FC<{
   recipient: PaymentRecipient;
   size?: number;
@@ -212,10 +422,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  headerButtonSlot: {
+    width: 38,
+    height: 38,
+  },
+  headerButtonCard: {
+    width: 38,
+    height: 38,
+  },
   headerButton: {
     width: 38,
     height: 38,
-    borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -238,6 +455,143 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.38,
+  },
+  toast: {
+    position: "absolute",
+    top: 74,
+    alignSelf: "center",
+    zIndex: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderRadius: radii.pill,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  toastText: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
+  },
+  iconBubble: {
+    width: 44,
+    height: 44,
+  },
+  iconBubbleInner: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  actionText: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 3,
+  },
+  actionDescription: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  infoContent: {
+    alignItems: "center",
+  },
+  infoIcon: {
+    width: 56,
+    height: 56,
+    marginBottom: 12,
+  },
+  infoIconInner: {
+    width: 56,
+    height: 56,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  infoLabel: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  infoValue: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 18,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  infoDescription: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: "center",
+  },
+  segmentRow: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: radii.btn,
+    padding: 4,
+  },
+  segment: {
+    flex: 1,
+    alignItems: "center",
+    borderRadius: 11,
+    paddingVertical: 10,
+  },
+  segmentText: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  currencyPrefix: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 16,
+    marginRight: 8,
+  },
+  amountInput: {
+    flex: 1,
+    fontFamily: fonts.sans.bold,
+    fontSize: 28,
+    fontWeight: "800",
+    paddingVertical: 2,
+  },
+  qrContent: {
+    alignItems: "center",
+  },
+  qrAmount: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 32,
+    fontWeight: "900",
+    letterSpacing: -0.7,
+    marginBottom: 18,
+  },
+  qrBox: {
+    borderWidth: 1,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+  },
+  qrCaption: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 13,
+    lineHeight: 18,
+    textAlign: "center",
+    marginBottom: 18,
   },
   avatar: {
     borderWidth: 1,

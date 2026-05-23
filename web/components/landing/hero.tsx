@@ -1,4 +1,6 @@
-import { BottomNav, PhoneFrame, ScreenHeroHome } from "./phone-screens"
+import Image from "next/image"
+
+import { GlossyOrangeButton } from "./glossy-orange-button"
 
 export function Hero() {
   return (
@@ -25,19 +27,23 @@ export function Hero() {
       </p>
 
       <div className="hero-ctas reveal d3">
-        <a href="#" className="btn">
+        <GlossyOrangeButton href="#">
           Baixar app Android
-        </a>
+        </GlossyOrangeButton>
         <a href="#" className="btn btn-ghost">
           Ver demo
         </a>
       </div>
 
       <div className="hero-phone-wrap reveal d4">
-        <PhoneFrame>
-          <ScreenHeroHome />
-          <BottomNav active="home" />
-        </PhoneFrame>
+        <Image
+          className="hero-phone-img"
+          src="/hero-phone.png"
+          alt="Preview do app Kora"
+          width={481}
+          height={609}
+          priority
+        />
       </div>
     </section>
   )
