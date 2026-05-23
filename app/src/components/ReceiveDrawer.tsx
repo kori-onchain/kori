@@ -1,29 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from "react";
 import {
+  Animated,
   Modal,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
   Platform,
   ScrollView,
   Share,
-  Animated,
-  Dimensions,
-} from 'react-native';
-import * as Clipboard from 'expo-clipboard';
-import { Feather } from '../icons';
-import QRCode from 'react-native-qrcode-svg';
-import { useTheme } from '../theme/ThemeProvider';
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as Clipboard from "expo-clipboard";
+import QRCode from "react-native-qrcode-svg";
+import { Feather } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts } from "../theme/tokens";
+import {
+  PaymentCard,
+  PaymentHeader,
+  PaymentPrimaryButton,
+  PaymentSecondaryButton,
+  PaymentScreenFrame,
+} from "./payment/PaymentDS";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const USER_ID = "opedrooz";
+const WALLET_ADDRESS = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
+const APP_SCHEME = "kora://pay";
 
-const USER_ID = 'opedrooz';
-const WALLET_ADDRESS = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a';
-const APP_SCHEME = 'kora://pay';
-
-type Screen = 'menu' | 'share_id' | 'share_wallet' | 'payment_link' | 'qrcode';
+type Screen = "menu" | "share_id" | "share_wallet" | "payment_link" | "qrcode";
 
 interface ReceiveDrawerProps {
   visible: boolean;
@@ -34,461 +39,559 @@ const useToast = () => {
   const [message, setMessage] = useState<string | null>(null);
   const opacity = useRef(new Animated.Value(0)).current;
 
-  const show = (msg: string) => {
-    setMessage(msg);
+  const show = (next: string) => {
+    setMessage(next);
     Animated.sequence([
-      Animated.timing(opacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-      Animated.delay(1800),
-      Animated.timing(opacity, { toValue: 0, duration: 250, useNativeDriver: true }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.delay(1500),
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true,
+      }),
     ]).start(() => setMessage(null));
   };
 
   return { message, opacity, show };
 };
 
-const Toast: React.FC<{ message: string | null; opacity: Animated.Value }> = ({ message, opacity }) => {
+const Toast: React.FC<{ message: string | null; opacity: Animated.Value }> = ({
+  message,
+  opacity,
+}) => {
   const { t } = useTheme();
   if (!message) return null;
   return (
-    <Animated.View style={[styles.toast, { opacity, backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-      <Feather name="check-circle" size={15} color={t.green} style={{ marginRight: 8 }} />
+    <Animated.View
+      style={[
+        styles.toast,
+        { opacity, backgroundColor: t.bg2, borderColor: t.cardBorder },
+      ]}
+    >
+      <Feather name="check-circle" size={15} color={t.green} />
       <Text style={[styles.toastText, { color: t.ink }]}>{message}</Text>
     </Animated.View>
   );
 };
 
-const HandleBar = () => {
-  const { t } = useTheme();
-  return <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />;
-};
-
-const BackHeader: React.FC<{ title: string; onBack: () => void; onClose: () => void }> = ({ title, onBack, onClose }) => {
+const ReceiveAction: React.FC<{
+  title: string;
+  description: string;
+  icon: React.ComponentProps<typeof Feather>["name"];
+  tone: string;
+  onPress: () => void;
+}> = ({ title, description, icon, tone, onPress }) => {
   const { t } = useTheme();
   return (
-    <View style={[styles.header, { borderBottomColor: t.line }]}>
-      <TouchableOpacity onPress={onBack} style={styles.headerBtn}>
-        <Feather name="arrow-left" size={20} color={t.ink} />
-      </TouchableOpacity>
-      <Text style={[styles.headerTitle, { color: t.ink }]}>{title}</Text>
-      <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-        <Feather name="x" size={20} color={t.inkMute} />
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity activeOpacity={0.75} onPress={onPress}>
+      <PaymentCard padding={14} style={styles.actionCard}>
+        <View style={styles.actionRow}>
+          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
+            <Feather name={icon} size={20} color={tone} />
+          </View>
+          <View style={styles.actionText}>
+            <Text style={[styles.actionTitle, { color: t.ink }]}>{title}</Text>
+            <Text style={[styles.actionDescription, { color: t.inkMute }]}>
+              {description}
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={18} color={t.inkMute} />
+        </View>
+      </PaymentCard>
+    </TouchableOpacity>
   );
 };
 
-const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+const InfoCard: React.FC<{
+  icon: React.ComponentProps<typeof Feather>["name"];
+  iconColor: string;
+  label: string;
+  value: string;
+  description: string;
+  mono?: boolean;
+}> = ({ icon, iconColor, label, value, description, mono }) => {
+  const { t } = useTheme();
+  return (
+    <PaymentCard padding={20} style={styles.infoCard}>
+      <View style={[styles.infoIcon, { backgroundColor: t.bgElev }]}>
+        <Feather name={icon} size={28} color={iconColor} />
+      </View>
+      <Text style={[styles.infoLabel, { color: t.inkMute }]}>{label}</Text>
+      <Text
+        style={[styles.infoValue, mono && styles.mono, { color: t.ink }]}
+        numberOfLines={mono ? 1 : undefined}
+        ellipsizeMode="middle"
+      >
+        {value}
+      </Text>
+      <Text style={[styles.infoDescription, { color: t.inkDim }]}>
+        {description}
+      </Text>
+    </PaymentCard>
+  );
+};
+
+const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({
+  onBack,
+  onClose,
+}) => {
   const { t } = useTheme();
   const toast = useToast();
   const deepLink = `${APP_SCHEME}?to=${USER_ID}`;
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(`@${USER_ID}`);
-    toast.show('ID copiado!');
+    toast.show("ID copiado");
   };
 
   const handleShare = async () => {
     await Share.share({
-      message: `Me pague pelo Kora! Acesse o link para transferir: ${deepLink}`,
+      message: `Me pague pelo Kora: ${deepLink}`,
       url: deepLink,
     });
   };
 
   return (
-    <View style={styles.screenContainer}>
-      <BackHeader title="Compartilhar ID" onBack={onBack} onClose={onClose} />
+    <PaymentScreenFrame
+      title="Compartilhar ID"
+      onBack={onBack}
+      onClose={onClose}
+    >
       <Toast message={toast.message} opacity={toast.opacity} />
-
-      <View style={styles.body}>
-        <View style={[styles.infoCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-          <View style={styles.infoIconRow}>
-            <Feather name="at-sign" size={28} color={t.orange} />
-          </View>
-          <Text style={[styles.infoLabel, { color: t.inkMute }]}>Seu ID de usuário</Text>
-          <Text style={[styles.infoValue, { color: t.ink }]}>@{USER_ID}</Text>
-          <Text style={[styles.infoDesc, { color: t.inkDim }]}>
-            Quem receber esse link poderá te enviar um valor diretamente. Basta clicar, inserir o montante e confirmar.
-          </Text>
-        </View>
-
-        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
-            <Feather name="copy" size={20} color={t.sol} />
-          </View>
-          <View style={styles.actionText}>
-            <Text style={[styles.actionTitle, { color: t.ink }]}>Copiar ID</Text>
-            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Copia @{USER_ID} para a área de transferência</Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={t.inkMute} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleShare} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
-            <Feather name="share-2" size={20} color={t.green} />
-          </View>
-          <View style={styles.actionText}>
-            <Text style={[styles.actionTitle, { color: t.ink }]}>Compartilhar link</Text>
-            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Abre direto na transferência para você</Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={t.inkMute} />
-        </TouchableOpacity>
-      </View>
-    </View>
+      <InfoCard
+        icon="at-sign"
+        iconColor={t.orange}
+        label="Seu ID Kora"
+        value={`@${USER_ID}`}
+        description="Ideal para receber de contatos dentro da Kora."
+      />
+      <ReceiveAction
+        title="Copiar ID"
+        description={`Copia @${USER_ID} para a área de transferência`}
+        icon="copy"
+        tone={t.sol}
+        onPress={handleCopy}
+      />
+      <ReceiveAction
+        title="Compartilhar link"
+        description="Abre direto na transferência para você"
+        icon="share-2"
+        tone={t.green}
+        onPress={handleShare}
+      />
+    </PaymentScreenFrame>
   );
 };
 
-const ShareWalletScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+const ShareWalletScreen: React.FC<{
+  onBack: () => void;
+  onClose: () => void;
+}> = ({ onBack, onClose }) => {
   const { t } = useTheme();
   const toast = useToast();
-  const shortAddress = `${WALLET_ADDRESS.substring(0, 6)}...${WALLET_ADDRESS.substring(WALLET_ADDRESS.length - 6)}`;
+  const shortAddress = `${WALLET_ADDRESS.slice(0, 6)}...${WALLET_ADDRESS.slice(-6)}`;
   const deepLink = `${APP_SCHEME}?wallet=${WALLET_ADDRESS}`;
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(WALLET_ADDRESS);
-    toast.show('Endereço copiado!');
+    toast.show("Endereço copiado");
   };
 
   const handleShare = async () => {
     await Share.share({
-      message: `Me pague pelo Kora! Use meu endereço de carteira: ${deepLink}`,
+      message: `Me pague pelo Kora: ${deepLink}`,
       url: deepLink,
     });
   };
 
   return (
-    <View style={styles.screenContainer}>
-      <BackHeader title="Compartilhar Wallet" onBack={onBack} onClose={onClose} />
+    <PaymentScreenFrame
+      title="Wallet address"
+      onBack={onBack}
+      onClose={onClose}
+    >
       <Toast message={toast.message} opacity={toast.opacity} />
-
-      <View style={styles.body}>
-        <View style={[styles.infoCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-          <View style={styles.infoIconRow}>
-            <Feather name="shield" size={28} color={t.sol} />
-          </View>
-          <Text style={[styles.infoLabel, { color: t.inkMute }]}>Endereço da carteira</Text>
-          <Text style={[styles.infoValue, styles.monoText, { color: t.ink }]} numberOfLines={1} ellipsizeMode="middle">
-            {WALLET_ADDRESS}
-          </Text>
-          <Text style={[styles.infoDesc, { color: t.inkDim }]}>
-            Endereço criptográfico descentralizado. Garante anonimato total — nenhum dado de identidade é exposto na transação.
-          </Text>
-        </View>
-
-        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
-            <Feather name="copy" size={20} color={t.sol} />
-          </View>
-          <View style={styles.actionText}>
-            <Text style={[styles.actionTitle, { color: t.ink }]}>Copiar endereço</Text>
-            <Text style={[styles.actionDesc, { color: t.inkMute }]}>{shortAddress}</Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={t.inkMute} />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.actionRow, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleShare} activeOpacity={0.75}>
-          <View style={[styles.actionIcon, { backgroundColor: t.bgElev }]}>
-            <Feather name="share-2" size={20} color={t.green} />
-          </View>
-          <View style={styles.actionText}>
-            <Text style={[styles.actionTitle, { color: t.ink }]}>Compartilhar link</Text>
-            <Text style={[styles.actionDesc, { color: t.inkMute }]}>Abre direto no pagamento para você</Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={t.inkMute} />
-        </TouchableOpacity>
-      </View>
-    </View>
+      <InfoCard
+        icon="shield"
+        iconColor={t.sol}
+        label="Carteira Solana"
+        value={WALLET_ADDRESS}
+        description="Use para receber direto na carteira, sem expor identidade."
+        mono
+      />
+      <ReceiveAction
+        title="Copiar endereço"
+        description={shortAddress}
+        icon="copy"
+        tone={t.sol}
+        onPress={handleCopy}
+      />
+      <ReceiveAction
+        title="Compartilhar link"
+        description="Abre direto no pagamento para você"
+        icon="share-2"
+        tone={t.green}
+        onPress={handleShare}
+      />
+    </PaymentScreenFrame>
   );
 };
 
-const PaymentLinkScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+const ChargeControls: React.FC<{
+  mode: "free" | "fixed";
+  amount: string;
+  setMode: (mode: "free" | "fixed") => void;
+  setAmount: (amount: string) => void;
+}> = ({ mode, amount, setMode, setAmount }) => {
+  const { t } = useTheme();
+  return (
+    <>
+      <Text style={[styles.sectionLabel, { color: t.inkMute }]}>
+        Tipo de cobrança
+      </Text>
+      <View
+        style={[
+          styles.segmentRow,
+          { backgroundColor: t.bgElev, borderColor: t.cardBorder },
+        ]}
+      >
+        {(["free", "fixed"] as const).map((item) => {
+          const active = mode === item;
+          return (
+            <TouchableOpacity
+              key={item}
+              activeOpacity={0.75}
+              style={[
+                styles.segment,
+                active && { backgroundColor: t.btnPrimaryBg },
+              ]}
+              onPress={() => setMode(item)}
+            >
+              <Text
+                style={[
+                  styles.segmentText,
+                  { color: active ? t.btnPrimaryFg : t.inkMute },
+                ]}
+              >
+                {item === "free" ? "Valor livre" : "Valor fixo"}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {mode === "fixed" ? (
+        <PaymentCard padding={14} style={styles.amountCard}>
+          <View style={styles.amountRow}>
+            <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>
+              R$
+            </Text>
+            <TextInput
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="decimal-pad"
+              placeholder="0,00"
+              placeholderTextColor={t.inkMute}
+              style={[styles.amountInput, { color: t.ink }]}
+            />
+          </View>
+        </PaymentCard>
+      ) : null}
+    </>
+  );
+};
+
+const PaymentLinkScreen: React.FC<{
+  onBack: () => void;
+  onClose: () => void;
+}> = ({ onBack, onClose }) => {
   const { t } = useTheme();
   const toast = useToast();
-  const [mode, setMode] = useState<'free' | 'fixed'>('free');
-  const [amount, setAmount] = useState('');
+  const [mode, setMode] = useState<"free" | "fixed">("free");
+  const [amount, setAmount] = useState("");
   const [generated, setGenerated] = useState(false);
 
   const buildLink = () => {
     const base = `${APP_SCHEME}?to=${USER_ID}`;
-    return mode === 'fixed' && amount ? `${base}&amount=${amount.replace(',', '.')}` : base;
+    return mode === "fixed" && amount
+      ? `${base}&amount=${amount.replace(",", ".")}`
+      : base;
   };
-
-  const handleGenerate = () => setGenerated(true);
 
   const handleCopy = async () => {
     await Clipboard.setStringAsync(buildLink());
-    toast.show('Link copiado!');
+    toast.show("Link copiado");
   };
 
   const handleShare = async () => {
     const link = buildLink();
-    const amountText = mode === 'fixed' && amount ? ` de R$ ${amount}` : '';
-    await Share.share({
-      message: `Me pague${amountText} pelo Kora! Acesse: ${link}`,
-      url: link,
-    });
+    await Share.share({ message: `Me pague pelo Kora: ${link}`, url: link });
   };
 
+  const canGenerate = mode === "free" || !!amount;
+
   return (
-    <View style={styles.screenContainer}>
-      <BackHeader title="Link de Pagamento" onBack={onBack} onClose={onClose} />
+    <PaymentScreenFrame
+      title="Link de pagamento"
+      onBack={onBack}
+      onClose={onClose}
+      footer={
+        generated ? undefined : (
+          <PaymentPrimaryButton
+            label="Gerar link"
+            onPress={() => setGenerated(true)}
+            disabled={!canGenerate}
+            icon={<Feather name="link" size={16} color={t.btnPrimaryFg} />}
+          />
+        )
+      }
+    >
       <Toast message={toast.message} opacity={toast.opacity} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <ChargeControls
+          mode={mode}
+          amount={amount}
+          setMode={(next) => {
+            setMode(next);
+            setGenerated(false);
+          }}
+          setAmount={(next) => {
+            setAmount(next);
+            setGenerated(false);
+          }}
+        />
 
-      <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.sectionLabel, { color: t.inkMute }]}>TIPO DE COBRANÇA</Text>
-        <View style={[styles.segmentRow, { backgroundColor: t.bgElev }]}>
-          <TouchableOpacity
-            style={[styles.segment, mode === 'free' && { backgroundColor: t.btnPrimaryBg }]}
-            onPress={() => { setMode('free'); setGenerated(false); }}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.segmentText, { color: mode === 'free' ? t.btnPrimaryFg : t.inkMute }]}>Valor livre</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.segment, mode === 'fixed' && { backgroundColor: t.btnPrimaryBg }]}
-            onPress={() => { setMode('fixed'); setGenerated(false); }}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.segmentText, { color: mode === 'fixed' ? t.btnPrimaryFg : t.inkMute }]}>Valor fixo</Text>
-          </TouchableOpacity>
-        </View>
-
-        {mode === 'fixed' && (
-          <View style={[styles.amountRow, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-            <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>R$</Text>
-            <TextInput
-              style={[styles.amountInput, { color: t.ink }]}
-              keyboardType="decimal-pad"
-              placeholder="0,00"
-              placeholderTextColor={t.inkMute}
-              value={amount}
-              onChangeText={(t) => { setAmount(t); setGenerated(false); }}
-            />
-          </View>
-        )}
-
-        {!generated ? (
-          <TouchableOpacity
-            style={[styles.primaryBtn, { backgroundColor: t.btnPrimaryBg }, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
-            onPress={handleGenerate}
-            activeOpacity={0.8}
-            disabled={mode === 'fixed' && !amount}
-          >
-            <Feather name="link" size={16} color={t.btnPrimaryFg} style={{ marginRight: 8 }} />
-            <Text style={[styles.primaryBtnText, { color: t.btnPrimaryFg }]}>Gerar link</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={[styles.generatedBox, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-            <Text style={[styles.generatedLabel, { color: t.inkMute }]}>Link gerado</Text>
-            <Text style={[styles.generatedLink, { color: t.ink }]} numberOfLines={2}>{buildLink()}</Text>
-
-            <View style={styles.shareRow}>
-              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={handleCopy} activeOpacity={0.75}>
-                <Feather name="copy" size={16} color={t.ink} />
-                <Text style={[styles.shareBtnText, { color: t.ink }]}>Copiar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.green }]} onPress={handleShare} activeOpacity={0.75}>
-                <Feather name="share-2" size={16} color="#000" />
-                <Text style={[styles.shareBtnText, { color: '#000' }]}>Compartilhar</Text>
-              </TouchableOpacity>
+        {generated ? (
+          <PaymentCard padding={16} style={styles.generatedCard}>
+            <Text style={[styles.generatedLabel, { color: t.inkMute }]}>
+              Link gerado
+            </Text>
+            <Text
+              style={[styles.generatedValue, { color: t.ink }]}
+              numberOfLines={3}
+            >
+              {buildLink()}
+            </Text>
+            <View style={styles.splitActions}>
+              <PaymentSecondaryButton
+                label="Copiar"
+                onPress={handleCopy}
+                full
+                icon={<Feather name="copy" size={16} color={t.ink} />}
+              />
+              <PaymentPrimaryButton
+                label="Compartilhar"
+                onPress={handleShare}
+                full
+                icon={
+                  <Feather name="share-2" size={16} color={t.btnPrimaryFg} />
+                }
+              />
             </View>
-          </View>
-        )}
+          </PaymentCard>
+        ) : null}
       </ScrollView>
-    </View>
+    </PaymentScreenFrame>
   );
 };
 
-const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({ onBack, onClose }) => {
+const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({
+  onBack,
+  onClose,
+}) => {
   const { t } = useTheme();
-  const toast = useToast();
-  const [mode, setMode] = useState<'free' | 'fixed'>('free');
-  const [amount, setAmount] = useState('');
+  const [mode, setMode] = useState<"free" | "fixed">("free");
+  const [amount, setAmount] = useState("");
   const [generated, setGenerated] = useState(false);
-  const qrRef = useRef<any>(null);
 
   const buildQRValue = () => {
     const base = `${APP_SCHEME}?to=${USER_ID}`;
-    return mode === 'fixed' && amount ? `${base}&amount=${amount.replace(',', '.')}` : base;
+    return mode === "fixed" && amount
+      ? `${base}&amount=${amount.replace(",", ".")}`
+      : base;
   };
-
-  const handleGenerate = () => setGenerated(true);
 
   const handleShare = async () => {
     const link = buildQRValue();
-    const amountText = mode === 'fixed' && amount ? ` de R$ ${amount}` : '';
-    await Share.share({
-      message: `Me pague${amountText} pelo Kora! Acesse: ${link}`,
-      url: link,
-    });
+    await Share.share({ message: `Me pague pelo Kora: ${link}`, url: link });
   };
 
+  const canGenerate = mode === "free" || !!amount;
+
   return (
-    <View style={styles.screenContainer}>
-      <BackHeader title="QR Code" onBack={onBack} onClose={onClose} />
-      <Toast message={toast.message} opacity={toast.opacity} />
+    <PaymentScreenFrame
+      title="QR Code"
+      onBack={onBack}
+      onClose={onClose}
+      footer={
+        generated ? undefined : (
+          <PaymentPrimaryButton
+            label="Gerar QR Code"
+            onPress={() => setGenerated(true)}
+            disabled={!canGenerate}
+            icon={<Feather name="grid" size={16} color={t.btnPrimaryFg} />}
+          />
+        )
+      }
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollPad}
+      >
+        <ChargeControls
+          mode={mode}
+          amount={amount}
+          setMode={(next) => {
+            setMode(next);
+            setGenerated(false);
+          }}
+          setAmount={(next) => {
+            setAmount(next);
+            setGenerated(false);
+          }}
+        />
 
-      <ScrollView style={styles.body} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-        <Text style={[styles.sectionLabel, { color: t.inkMute }]}>TIPO DE COBRANÇA</Text>
-        <View style={[styles.segmentRow, { backgroundColor: t.bgElev }]}>
-          <TouchableOpacity
-            style={[styles.segment, mode === 'free' && { backgroundColor: t.btnPrimaryBg }]}
-            onPress={() => { setMode('free'); setGenerated(false); }}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.segmentText, { color: mode === 'free' ? t.btnPrimaryFg : t.inkMute }]}>Valor livre</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.segment, mode === 'fixed' && { backgroundColor: t.btnPrimaryBg }]}
-            onPress={() => { setMode('fixed'); setGenerated(false); }}
-            activeOpacity={0.75}
-          >
-            <Text style={[styles.segmentText, { color: mode === 'fixed' ? t.btnPrimaryFg : t.inkMute }]}>Valor fixo</Text>
-          </TouchableOpacity>
-        </View>
-
-        {mode === 'fixed' && (
-          <View style={[styles.amountRow, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-            <Text style={[styles.currencyPrefix, { color: t.inkMute }]}>R$</Text>
-            <TextInput
-              style={[styles.amountInput, { color: t.ink }]}
-              keyboardType="decimal-pad"
-              placeholder="0,00"
-              placeholderTextColor={t.inkMute}
-              value={amount}
-              onChangeText={(t) => { setAmount(t); setGenerated(false); }}
-            />
-          </View>
-        )}
-
-        {!generated ? (
-          <TouchableOpacity
-            style={[styles.primaryBtn, { backgroundColor: t.btnPrimaryBg }, mode === 'fixed' && !amount && styles.primaryBtnDisabled]}
-            onPress={handleGenerate}
-            activeOpacity={0.8}
-            disabled={mode === 'fixed' && !amount}
-          >
-            <Feather name="grid" size={16} color={t.btnPrimaryFg} style={{ marginRight: 8 }} />
-            <Text style={[styles.primaryBtnText, { color: t.btnPrimaryFg }]}>Gerar QR Code</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={[styles.qrContainer, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-            {mode === 'fixed' && amount && (
-              <Text style={[styles.qrAmount, { color: t.ink }]}>R$ {amount}</Text>
-            )}
-
-            <View style={styles.qrBox}>
+        {generated ? (
+          <PaymentCard padding={18} style={styles.qrCard}>
+            {mode === "fixed" && amount ? (
+              <Text style={[styles.qrAmount, { color: t.ink }]}>
+                R$ {amount}
+              </Text>
+            ) : null}
+            <View
+              style={[
+                styles.qrBox,
+                { backgroundColor: t.bg2, borderColor: t.cardBorder },
+              ]}
+            >
               <QRCode
                 value={buildQRValue()}
                 size={200}
-              color={t.ink}
-              backgroundColor={t.bg2}
-                getRef={(ref) => (qrRef.current = ref)}
+                color={t.ink}
+                backgroundColor={t.bg2}
               />
             </View>
-
             <Text style={[styles.qrCaption, { color: t.inkMute }]}>
-              {mode === 'free'
-                ? 'Quem escanear pode pagar qualquer valor'
-                : `Pagamento de R$ ${amount} ao escanear`}
+              {mode === "free"
+                ? "Quem escanear escolhe o valor."
+                : `Pagamento de R$ ${amount} ao escanear.`}
             </Text>
-
-            <View style={styles.shareRow}>
-              <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.green }]} onPress={handleShare} activeOpacity={0.75}>
-                <Feather name="share-2" size={16} color="#000" />
-                <Text style={[styles.shareBtnText, { color: '#000' }]}>Compartilhar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+            <PaymentPrimaryButton
+              label="Compartilhar"
+              onPress={handleShare}
+              icon={<Feather name="share-2" size={16} color={t.btnPrimaryFg} />}
+            />
+          </PaymentCard>
+        ) : null}
       </ScrollView>
-    </View>
+    </PaymentScreenFrame>
   );
 };
 
-const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void }> = ({ onSelect, onClose }) => {
+const MenuScreen: React.FC<{
+  onSelect: (screen: Screen) => void;
+  onClose: () => void;
+}> = ({ onSelect, onClose }) => {
   const { t } = useTheme();
   const options = [
     {
-      screen: 'share_id' as Screen,
-      icon: 'at-sign' as const,
-      color: t.sol,
-      bg: t.bgElev,
-      title: 'Compartilhar ID',
-      desc: 'Compartilha seu @usuário para receber qualquer valor',
-    },
-    {
-      screen: 'share_wallet' as Screen,
-      icon: 'shield' as const,
-      color: t.sol,
-      bg: t.bgElev,
-      title: 'Wallet Address',
-      desc: 'Endereço criptográfico com anonimato total',
-    },
-    {
-      screen: 'payment_link' as Screen,
-      icon: 'link' as const,
+      screen: "share_id" as Screen,
+      icon: "at-sign" as const,
       color: t.orange,
-      bg: t.bgElev,
-      title: 'Link de Pagamento',
-      desc: 'Crie um link com valor livre ou fixo',
+      title: "Compartilhar ID",
+      desc: "Receba pelo seu @usuário Kora",
     },
     {
-      screen: 'qrcode' as Screen,
-      icon: 'grid' as const,
+      screen: "share_wallet" as Screen,
+      icon: "shield" as const,
+      color: t.sol,
+      title: "Wallet address",
+      desc: "Receba direto na carteira",
+    },
+    {
+      screen: "payment_link" as Screen,
+      icon: "link" as const,
+      color: t.ink,
+      title: "Link de pagamento",
+      desc: "Valor livre ou cobrança fixa",
+    },
+    {
+      screen: "qrcode" as Screen,
+      icon: "grid" as const,
       color: t.green,
-      bg: t.bgElev,
-      title: 'QR Code',
-      desc: 'Gere e compartilhe um QR Code de cobrança',
+      title: "QR Code",
+      desc: "Gere uma cobrança escaneável",
     },
   ];
 
   return (
-    <View style={[styles.screenContainer, { backgroundColor: t.bg2 }]}>
-      <View style={[styles.header, { borderBottomColor: t.line }]}>
-        <Text style={[styles.headerTitle, { color: t.ink }]}>Receber</Text>
-        <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
-          <Feather name="x" size={20} color={t.inkMute} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.body}>
-        <Text style={[styles.menuSubtitle, { color: t.inkMute }]}>Escolha como deseja receber:</Text>
-        {options.map((opt) => (
-          <TouchableOpacity key={opt.screen} style={[styles.menuCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={() => onSelect(opt.screen)} activeOpacity={0.75}>
-            <View style={[styles.menuIcon, { backgroundColor: opt.bg }]}>
-              <Feather name={opt.icon} size={22} color={opt.color} />
-            </View>
-            <View style={styles.menuText}>
-              <Text style={[styles.menuTitle, { color: t.ink }]}>{opt.title}</Text>
-              <Text style={[styles.menuDesc, { color: t.inkMute }]}>{opt.desc}</Text>
-            </View>
-            <Feather name="chevron-right" size={18} color={t.inkMute} />
-          </TouchableOpacity>
+    <View style={[styles.menuFrame, { backgroundColor: t.bg }]}>
+      <PaymentHeader title="Receber" onClose={onClose} />
+      <View style={styles.menuBody}>
+        <Text style={[styles.menuSubtitle, { color: t.inkMute }]}>
+          Escolha como deseja receber.
+        </Text>
+        {options.map((option) => (
+          <ReceiveAction
+            key={option.screen}
+            title={option.title}
+            description={option.desc}
+            icon={option.icon}
+            tone={option.color}
+            onPress={() => onSelect(option.screen)}
+          />
         ))}
       </View>
     </View>
   );
 };
 
-export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose }) => {
+export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({
+  visible,
+  onClose,
+}) => {
   const { t } = useTheme();
-  const [screen, setScreen] = useState<Screen>('menu');
+  const [screen, setScreen] = useState<Screen>("menu");
 
   const handleClose = () => {
     onClose();
-    setTimeout(() => setScreen('menu'), 300);
+    setTimeout(() => setScreen("menu"), 300);
   };
 
   const renderScreen = () => {
     switch (screen) {
-      case 'share_id':
-        return <ShareIdScreen onBack={() => setScreen('menu')} onClose={handleClose} />;
-      case 'share_wallet':
-        return <ShareWalletScreen onBack={() => setScreen('menu')} onClose={handleClose} />;
-      case 'payment_link':
-        return <PaymentLinkScreen onBack={() => setScreen('menu')} onClose={handleClose} />;
-      case 'qrcode':
-        return <QRCodeScreen onBack={() => setScreen('menu')} onClose={handleClose} />;
+      case "share_id":
+        return (
+          <ShareIdScreen
+            onBack={() => setScreen("menu")}
+            onClose={handleClose}
+          />
+        );
+      case "share_wallet":
+        return (
+          <ShareWalletScreen
+            onBack={() => setScreen("menu")}
+            onClose={handleClose}
+          />
+        );
+      case "payment_link":
+        return (
+          <PaymentLinkScreen
+            onBack={() => setScreen("menu")}
+            onClose={handleClose}
+          />
+        );
+      case "qrcode":
+        return (
+          <QRCodeScreen
+            onBack={() => setScreen("menu")}
+            onClose={handleClose}
+          />
+        );
       default:
         return <MenuScreen onSelect={setScreen} onClose={handleClose} />;
     }
@@ -503,9 +606,18 @@ export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose }
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
-        <View style={[styles.drawer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-          <HandleBar />
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={handleClose}
+        />
+        <View
+          style={[
+            styles.drawer,
+            { backgroundColor: t.bg, borderColor: t.line },
+          ]}
+        >
+          <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
           {renderScreen()}
         </View>
       </View>
@@ -516,340 +628,215 @@ export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose }
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "flex-end",
   },
   backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
     zIndex: 1,
   },
   drawer: {
-    backgroundColor: '#111',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#242424',
-    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+    paddingBottom: Platform.OS === "ios" ? 40 : 28,
     zIndex: 2,
-    maxHeight: '88%',
+    height: "88%",
+    overflow: "hidden",
   },
   handleBar: {
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#333',
-    alignSelf: 'center',
+    alignSelf: "center",
     marginTop: 10,
     marginBottom: 6,
   },
-  screenContainer: {
-    flex: 0,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1E1E1E',
-  },
-  headerBtn: {
-    padding: 4,
-    width: 32,
-  },
-  headerTitle: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '800',
-    flex: 1,
-    textAlign: 'center',
-  },
-  body: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-  },
   toast: {
-    position: 'absolute',
-    top: 70,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
+    position: "absolute",
+    top: 74,
+    alignSelf: "center",
+    zIndex: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
     borderWidth: 1,
-    borderColor: '#2C2C2C',
-    borderRadius: 20,
+    borderRadius: 999,
+    paddingHorizontal: 16,
     paddingVertical: 10,
-    paddingHorizontal: 18,
-    zIndex: 999,
   },
   toastText: {
-    color: '#FFF',
+    fontFamily: fonts.sans.semibold,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "700",
   },
-
-  menuSubtitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    marginBottom: 16,
-  },
-  menuCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    borderWidth: 1,
-    borderColor: '#242424',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 10,
-    gap: 14,
-  },
-  menuIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuText: {
+  menuFrame: {
     flex: 1,
   },
-  menuTitle: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 3,
+  menuBody: {
+    paddingHorizontal: 22,
+    paddingTop: 18,
   },
-  menuDesc: {
-    fontSize: 12,
-    fontWeight: '400',
-    lineHeight: 16,
-  },
-
-  infoCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#242424',
-  },
-  infoIconRow: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#242424',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 6,
-  },
-  infoValue: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '800',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  monoText: {
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  menuSubtitle: {
+    fontFamily: fonts.sans.medium,
     fontSize: 13,
+    marginBottom: 16,
   },
-  infoDesc: {
-    color: '#666',
-    fontSize: 12,
-    lineHeight: 17,
-    textAlign: 'center',
+  actionCard: {
+    marginBottom: 10,
   },
   actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#242424',
-    gap: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 13,
   },
   actionIcon: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
   actionText: {
     flex: 1,
   },
   actionTitle: {
-    color: '#FFF',
+    fontFamily: fonts.sans.semibold,
     fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 2,
+    fontWeight: "700",
+    marginBottom: 3,
   },
-  actionDesc: {
+  actionDescription: {
+    fontFamily: fonts.sans.medium,
     fontSize: 12,
+    lineHeight: 16,
   },
-
-  sectionLabel: {
+  infoCard: {
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  infoIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  infoLabel: {
+    fontFamily: fonts.mono.semibold,
     fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.2,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  infoValue: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 18,
+    fontWeight: "800",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  mono: {
+    fontFamily: fonts.mono.medium,
+    fontSize: 13,
+  },
+  infoDescription: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: "center",
+  },
+  sectionLabel: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
+    letterSpacing: 1.1,
+    textTransform: "uppercase",
     marginBottom: 10,
   },
   segmentRow: {
-    flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
+    flexDirection: "row",
     borderWidth: 1,
-    borderColor: '#242424',
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 18,
   },
   segment: {
     flex: 1,
+    alignItems: "center",
+    borderRadius: 10,
     paddingVertical: 10,
-    borderRadius: 9,
-    alignItems: 'center',
-  },
-  segmentActive: {
-    backgroundColor: '#2A2A2A',
   },
   segmentText: {
+    fontFamily: fonts.sans.semibold,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "700",
   },
-  segmentTextActive: {
-    color: '#FFF',
+  amountCard: {
+    marginBottom: 18,
   },
   amountRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
-    paddingHorizontal: 16,
-    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
   },
   currencyPrefix: {
+    fontFamily: fonts.sans.bold,
     fontSize: 16,
-    fontWeight: '700',
     marginRight: 8,
   },
   amountInput: {
     flex: 1,
-    color: '#FFF',
+    fontFamily: fonts.sans.bold,
     fontSize: 28,
-    fontWeight: '800',
-    paddingVertical: 14,
-    padding: 0,
+    fontWeight: "800",
+    paddingVertical: 2,
   },
-  primaryBtn: {
-    backgroundColor: '#FFF',
-    borderRadius: 14,
-    paddingVertical: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  primaryBtnDisabled: {
-    opacity: 0.4,
-  },
-  primaryBtnText: {
-    color: '#000',
-    fontSize: 15,
-    fontWeight: '800',
-  },
-  generatedBox: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#242424',
-    marginBottom: 16,
+  generatedCard: {
+    marginBottom: 20,
   },
   generatedLabel: {
+    fontFamily: fonts.mono.semibold,
     fontSize: 10,
-    fontWeight: '700',
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: 8,
   },
-  generatedLink: {
-    color: '#FFF',
+  generatedValue: {
+    fontFamily: fonts.mono.medium,
     fontSize: 12,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    marginBottom: 16,
     lineHeight: 18,
+    marginBottom: 16,
   },
-  shareRow: {
-    flexDirection: 'row',
+  splitActions: {
+    flexDirection: "row",
     gap: 10,
   },
-  shareBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#2A2A2A',
-    borderRadius: 10,
-    paddingVertical: 12,
-    gap: 8,
+  scrollPad: {
+    paddingBottom: 24,
   },
-  shareBtnGreen: {
-    backgroundColor: '#00D09E',
-  },
-  shareBtnText: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-
-  qrContainer: {
-    alignItems: 'center',
-    paddingTop: 8,
+  qrCard: {
+    alignItems: "center",
   },
   qrAmount: {
-    color: '#FFF',
+    fontFamily: fonts.sans.bold,
     fontSize: 32,
-    fontWeight: '900',
-    marginBottom: 20,
-    letterSpacing: -0.5,
+    fontWeight: "900",
+    letterSpacing: -0.7,
+    marginBottom: 18,
   },
   qrBox: {
-    backgroundColor: '#161616',
+    borderWidth: 1,
     borderRadius: 20,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
     marginBottom: 16,
-    shadowColor: '#00D09E',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
   },
   qrCaption: {
+    fontFamily: fonts.sans.medium,
     fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 20,
     lineHeight: 18,
+    textAlign: "center",
+    marginBottom: 18,
   },
 });

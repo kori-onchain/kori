@@ -1,41 +1,47 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
   Platform,
+  ScrollView,
   Share,
-} from 'react-native';
-import { Feather } from '../../../icons';
-import * as Linking from 'expo-linking';
-import { PaymentIntent } from '../../../types/payment';
-import { useTheme } from '../../../theme/ThemeProvider';
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as Linking from "expo-linking";
+import { Feather } from "../../../icons";
+import { PaymentIntent } from "../../../types/payment";
+import { useTheme } from "../../../theme/ThemeProvider";
+import {
+  DetailRow,
+  formatPaymentAmount,
+  getRecipientId,
+  PaymentCard,
+  PaymentPrimaryButton,
+  PaymentScreenFrame,
+  PaymentSecondaryButton,
+  RecipientAvatar,
+  SectionTitle,
+} from "../PaymentDS";
+import { fonts } from "../../../theme/tokens";
 
 interface ReceiptScreenProps {
   intent: PaymentIntent;
   onDone: () => void;
 }
 
-export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) => {
+export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
+  intent,
+  onDone,
+}) => {
   const { t } = useTheme();
   const { recipient, amount } = intent;
+  const amountFormatted = formatPaymentAmount(amount);
 
-  // Formatação de valor
-  const formatValue = (val: string | undefined) => {
-    if (!val) return 'R$ 0,00';
-    const num = parseFloat(val.replace(',', '.'));
-    if (isNaN(num)) return 'R$ 0,00';
-    return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  };
-
-  const amountFormatted = formatValue(amount);
-
-  // Geração determinística (fake) do hash Solana baseado no tempo
   const txHash = useMemo(() => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
     for (let i = 0; i < 43; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
@@ -43,25 +49,23 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) 
   }, []);
 
   const now = new Date();
-  const dateStr = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-  const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-  
-  // Nomes com primeira letra maiúscula para o dia da semana
+  const dateStr = now.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+  const timeStr = now
+    .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    .replace(":", "h");
   const dateFormatted = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-
-  const displayName = recipient.isAnonymous ? 'Anônimo' : recipient.displayName;
-  const displayId = recipient.isAnonymous 
-    ? `${(recipient.walletAddress ?? '').substring(0, 10)}...${(recipient.walletAddress ?? '').substring((recipient.walletAddress?.length ?? 0) - 8)}`
-    : recipient.userId;
+  const displayName = recipient.isAnonymous ? "Anônimo" : recipient.displayName;
+  const displayId = getRecipientId(recipient);
 
   const handleShare = async () => {
-    try {
-      await Share.share({
-        message: `Comprovante de pagamento Kora:\n\nValor: ${amountFormatted}\nPara: ${displayName}\nData: ${dateFormatted} às ${timeStr}\n\nTX Hash: ${txHash}\nVerificar na rede Solana: https://solscan.io/tx/${txHash}`,
-      });
-    } catch (error) {
-      console.log('Share error', error);
-    }
+    await Share.share({
+      message: `Comprovante Kora\n\nValor: ${amountFormatted}\nPara: ${displayName}\nData: ${dateFormatted} às ${timeStr}\nTX: ${txHash}`,
+    });
   };
 
   const handleVerify = () => {
@@ -69,201 +73,160 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({ intent, onDone }) 
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: t.bg }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onDone} style={styles.headerBtn}>
-          <Feather name="arrow-left" size={22} color={t.ink} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: t.ink }]}>Comprovante</Text>
-        <TouchableOpacity onPress={onDone} style={styles.headerBtn}>
-          <Feather name="home" size={22} color={t.ink} />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* Sucesso Header */}
-        <View style={styles.successContainer}>
+    <PaymentScreenFrame
+      title="Comprovante"
+      onBack={onDone}
+      onClose={onDone}
+      rightIcon="home"
+      footer={
+        <View style={styles.footerButtons}>
+          <PaymentPrimaryButton
+            label="Compartilhar comprovante"
+            onPress={handleShare}
+          />
+          <PaymentSecondaryButton label="Concluir" onPress={onDone} />
+        </View>
+      }
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+      >
+        <View style={styles.success}>
           <View style={[styles.checkCircle, { backgroundColor: t.green }]}>
-            <Feather name="check" size={32} color="#FFF" />
+            <Feather name="check" size={32} color="#0a0a0a" />
           </View>
-          <Text style={[styles.successTitle, { color: t.ink }]}>Pagamento enviado</Text>
-          <Text style={[styles.successAmount, { color: t.ink }]}>{amountFormatted}</Text>
+          <Text style={[styles.successTitle, { color: t.ink }]}>
+            Pagamento enviado
+          </Text>
+          <Text style={[styles.successAmount, { color: t.ink }]}>
+            {amountFormatted}
+          </Text>
         </View>
 
-        {/* Sobre a transação */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Sobre a transação</Text>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Data do pagamento</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>{dateFormatted}</Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Horário</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>{timeStr}</Text>
-          </View>
-
-          <View style={styles.detailRowVertical}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID da transação (Solana)</Text>
-            <Text style={[styles.txHashText, { color: t.ink }]} selectable>{txHash}</Text>
-          </View>
-
-          <TouchableOpacity style={styles.verifyLink} onPress={handleVerify} activeOpacity={0.7}>
-            <Text style={[styles.verifyLinkText, { color: t.sol }]}>Verificar na blockchain</Text>
-            <Feather name="external-link" size={14} color={t.sol} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Quem enviou */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Quem enviou</Text>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Nome</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>{recipient.isAnonymous ? 'Anônimo' : 'Pedro Henrique'}</Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>
-              {recipient.type === 'wallet' ? 'Endereço de Carteira' : '@opedrooz'}
+        <PaymentCard padding={16} style={styles.card}>
+          <SectionTitle>Transação</SectionTitle>
+          <DetailRow label="Data" value={dateFormatted} />
+          <DetailRow label="Horário" value={timeStr} />
+          <View style={styles.txBlock}>
+            <Text style={[styles.txLabel, { color: t.inkMute }]}>
+              ID da transação
             </Text>
-          </View>
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: t.line, borderColor: t.line }]} />
-
-        {/* Quem recebeu */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: t.ink }]}>Quem recebeu</Text>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>Nome</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>{displayName}</Text>
-          </View>
-          
-          <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: t.inkMute }]}>ID</Text>
-            <Text style={[styles.detailValue, { color: t.ink }]}>
-              {recipient.type === 'wallet' ? 'Endereço de Carteira' : displayId}
+            <Text style={[styles.txHash, { color: t.ink }]} selectable>
+              {txHash}
             </Text>
+            <TouchableOpacity
+              style={styles.verify}
+              onPress={handleVerify}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.verifyText, { color: t.sol }]}>
+                Verificar na blockchain
+              </Text>
+              <Feather name="external-link" size={14} color={t.sol} />
+            </TouchableOpacity>
           </View>
+        </PaymentCard>
 
-          {recipient.type === 'wallet' && (
-            <View style={styles.detailRow}>
-              <Text style={[styles.detailLabel, { color: t.inkMute }]}>Endereço</Text>
-              <Text style={[styles.detailValueMono, { color: t.ink }]}>{displayId}</Text>
+        <PaymentCard padding={16} style={styles.card}>
+          <SectionTitle>Quem recebeu</SectionTitle>
+          <View style={styles.recipientHeader}>
+            <RecipientAvatar recipient={recipient} size={44} />
+            <View>
+              <Text style={[styles.recipientName, { color: t.ink }]}>
+                {displayName}
+              </Text>
+              <Text style={[styles.recipientId, { color: t.inkMute }]}>
+                {displayId}
+              </Text>
             </View>
-          )}
-        </View>
+          </View>
+          <DetailRow
+            label="Tipo"
+            value={recipient.type === "wallet" ? "Carteira Solana" : "ID Kora"}
+          />
+          {recipient.type === "wallet" ? (
+            <DetailRow label="Endereço" value={displayId ?? ""} mono />
+          ) : null}
+        </PaymentCard>
       </ScrollView>
-
-      {/* Botões Finais */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={[styles.shareBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleShare} activeOpacity={0.85}>
-          <Text style={[styles.shareBtnText, { color: t.btnPrimaryFg }]}>Compartilhar comprovante</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={[styles.newBtn, { borderColor: t.ink }]} onPress={onDone} activeOpacity={0.85}>
-          <Text style={[styles.newBtnText, { color: t.ink }]}>Realizar novo pagamento</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </PaymentScreenFrame>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1A1A1A' },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  scroll: {
+    paddingBottom: 16,
   },
-  headerBtn: { padding: 4, width: 36, alignItems: 'center' },
-  headerTitle: { color: '#FFF', fontSize: 17, fontWeight: '700', flex: 1, textAlign: 'center' },
-  
-  body: { paddingHorizontal: 24, paddingBottom: 40 },
-  
-  successContainer: { alignItems: 'center', marginTop: 20, marginBottom: 40 },
+  success: {
+    alignItems: "center",
+    paddingTop: 16,
+    paddingBottom: 30,
+  },
   checkCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#34C759', // Verde sucesso
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
-  successTitle: { color: '#FFF', fontSize: 22, fontWeight: '700', marginBottom: 8 },
-  successAmount: { color: '#FFF', fontSize: 24, fontWeight: '800' },
-  
-  section: { marginBottom: 24 },
-  sectionTitle: { color: '#FFF', fontSize: 16, fontWeight: '700', marginBottom: 16 },
-  
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+  successTitle: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 20,
+    fontWeight: "700",
   },
-  detailRowVertical: {
-    marginBottom: 12,
+  successAmount: {
+    marginTop: 8,
+    fontFamily: fonts.sans.bold,
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: -0.7,
   },
-  detailLabel: { color: '#8E8E93', fontSize: 14, fontWeight: '500', marginBottom: 4 },
-  detailValue: { color: '#FFF', fontSize: 14, fontWeight: '600' },
-  detailValueMono: { color: '#FFF', fontSize: 13, fontWeight: '500', fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
-  
-  txHashText: {
-    color: '#FFF',
+  card: {
+    marginBottom: 14,
+  },
+  txBlock: {
+    marginTop: 8,
+  },
+  txLabel: {
+    fontFamily: fonts.sans.medium,
     fontSize: 13,
-    fontWeight: '600',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    marginTop: 4,
+    marginBottom: 6,
   },
-  verifyLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  txHash: {
+    fontFamily: Platform.OS === "ios" ? fonts.mono.medium : "monospace",
+    fontSize: 12,
+    lineHeight: 18,
+  },
+  verify: {
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
-    marginTop: 4,
   },
-  verifyLinkText: {
-    color: '#00C9FF',
-    fontSize: 14,
-    fontWeight: '600',
+  verifyText: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 13,
+    fontWeight: "700",
   },
-  
-  divider: {
-    height: 1,
-    backgroundColor: '#242424',
-    borderStyle: 'dashed',
-    borderWidth: 1,
-    borderColor: '#242424',
-    marginBottom: 24,
-    borderRadius: 1,
+  recipientHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 14,
   },
-
-  footer: { paddingHorizontal: 24, paddingBottom: Platform.OS === 'ios' ? 40 : 24, paddingTop: 16 },
-  shareBtn: {
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
+  recipientName: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 15,
+    fontWeight: "700",
   },
-  shareBtnText: { color: '#000', fontSize: 16, fontWeight: '800' },
-  
-  newBtn: {
-    backgroundColor: 'transparent',
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#FFF',
+  recipientId: {
+    marginTop: 2,
+    fontFamily: fonts.mono.medium,
+    fontSize: 11,
   },
-  newBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },
+  footerButtons: {
+    gap: 10,
+  },
 });

@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
-import { Feather } from '../../../icons';
-import { useTheme } from '../../../theme/ThemeProvider';
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import { Feather } from "../../../icons";
+import { useTheme } from "../../../theme/ThemeProvider";
+import { PaymentCard } from "../PaymentDS";
+import { fonts } from "../../../theme/tokens";
 
 interface PayingScreenProps {
   onComplete: () => void;
@@ -9,65 +11,66 @@ interface PayingScreenProps {
 
 export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
   const { t } = useTheme();
-  const pulseAnim = useRef(new Animated.Value(0)).current;
+  const pulse = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Animação de pulso contínua
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
+        Animated.timing(pulse, {
           toValue: 1,
-          duration: 1000,
+          duration: 900,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(pulseAnim, {
+        Animated.timing(pulse, {
           toValue: 0,
-          duration: 1000,
+          duration: 900,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-      ])
-    ).start();
+      ]),
+    );
+    loop.start();
+    const timer = setTimeout(onComplete, 1800);
 
-    // Auto-avança após tempo simulado
-    const timer = setTimeout(() => {
-      onComplete();
-    }, 1800);
+    return () => {
+      loop.stop();
+      clearTimeout(timer);
+    };
+  }, [onComplete, pulse]);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const scale = pulseAnim.interpolate({
+  const scale = pulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, 1.2],
+    outputRange: [1, 1.18],
   });
-
-  const opacity = pulseAnim.interpolate({
+  const opacity = pulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [0.8, 0.2],
+    outputRange: [0.22, 0.06],
   });
 
   return (
     <View style={[styles.container, { backgroundColor: t.bg }]}>
-      <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Animated.View
-            style={[
-              styles.pulseCircle,
-              {
-                transform: [{ scale }],
-                opacity,
-                backgroundColor: t.btnPrimaryBg,
-              },
-            ]}
-          />
-          <View style={[styles.centerIcon, { backgroundColor: t.bg2, borderColor: t.btnPrimaryBg }]}>
-            <Feather name="send" size={32} color={t.orange} style={{ marginLeft: -4, marginTop: 4 }} />
+      <View style={styles.iconWrap}>
+        <Animated.View
+          style={[
+            styles.pulse,
+            {
+              backgroundColor: t.btnPrimaryBg,
+              opacity,
+              transform: [{ scale }],
+            },
+          ]}
+        />
+        <PaymentCard padding={0} style={styles.iconCard}>
+          <View style={styles.iconCenter}>
+            <Feather name="send" size={30} color={t.orange} />
           </View>
-        </View>
-        <Text style={[styles.text, { color: t.ink }]}>Processando pagamento...</Text>
+        </PaymentCard>
       </View>
+      <Text style={[styles.title, { color: t.ink }]}>Enviando pagamento</Text>
+      <Text style={[styles.subtitle, { color: t.inkMute }]}>
+        Confirmando a transação na Solana.
+      </Text>
     </View>
   );
 };
@@ -75,41 +78,42 @@ export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
   },
-  content: {
-    alignItems: 'center',
+  iconWrap: {
+    width: 112,
+    height: 112,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 30,
   },
-  iconContainer: {
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 32,
+  pulse: {
+    position: "absolute",
+    width: 112,
+    height: 112,
+    borderRadius: 56,
   },
-  pulseCircle: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#FFF',
+  iconCard: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
   },
-  centerIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#1A1A1A',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-    borderWidth: 2,
-    borderColor: '#FFF',
+  iconCenter: {
+    width: 72,
+    height: 72,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  text: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '600',
+  title: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  subtitle: {
+    marginTop: 8,
+    fontFamily: fonts.sans.medium,
+    fontSize: 13,
   },
 });

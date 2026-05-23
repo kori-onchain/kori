@@ -1,5 +1,6 @@
 import React, { ReactNode, useMemo, useState } from "react";
 import {
+  Animated,
   SafeAreaView,
   StatusBar,
   Text,
@@ -56,21 +57,8 @@ const SLIDES: Slide[] = [
   },
 ];
 
-const StatusBarRow = () => (
-  <View className="h-[42px] flex-row items-start justify-between px-[22px] pt-[15px]">
-    <Text className="font-mono-medium text-[12px] text-ink">9:41</Text>
-    <Text className="font-mono-medium text-[10px] text-ink">5G ◐ ▮</Text>
-  </View>
-);
-
-const PhoneShell = ({ children }: { children: ReactNode }) => (
-  <View className="w-full max-w-[340px] flex-1 rounded-[42px] bg-black p-[9px] shadow-2xl">
-    <View className="absolute left-1/2 top-4 z-50 h-6 w-[88px] -translate-x-11 rounded-full bg-black" />
-    <View className="flex-1 overflow-hidden rounded-[34px] bg-bg">
-      <StatusBarRow />
-      {children}
-    </View>
-  </View>
+const ScreenShell = ({ children }: { children: ReactNode }) => (
+  <View className="flex-1 bg-bg">{children}</View>
 );
 
 const PoweredBySolana = () => (
@@ -342,6 +330,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
 }) => {
   const { t } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
+  const transition = React.useRef(new Animated.Value(1)).current;
   const slide = SLIDES[activeIndex];
   const isLast = activeIndex === SLIDES.length - 1;
 
@@ -355,36 +344,61 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       onComplete();
       return;
     }
-    setActiveIndex((current) => current + 1);
+    Animated.timing(transition, {
+      toValue: 0,
+      duration: 130,
+      useNativeDriver: true,
+    }).start(() => {
+      setActiveIndex((current) => current + 1);
+      transition.setValue(0);
+      Animated.timing(transition, {
+        toValue: 1,
+        duration: 260,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const animatedStyle = {
+    opacity: transition,
+    transform: [
+      {
+        translateY: transition.interpolate({
+          inputRange: [0, 1],
+          outputRange: [10, 0],
+        }),
+      },
+    ],
   };
 
   return (
     <SafeAreaView className="flex-1 bg-[#050505]">
       <StatusBar barStyle={t.statusBar} backgroundColor="#050505" translucent />
-      <View className="flex-1 items-center justify-center px-4 py-5">
-        <PhoneShell key={screenKey}>
-          <View className="flex-1 px-[26px] pb-[26px] pt-2.5">
-            <View className="h-6 flex-row items-center justify-end">
-              {!isLast && (
-                <TouchableOpacity activeOpacity={0.7} onPress={onComplete}>
-                  <Text className="font-mono text-[10px] uppercase tracking-[0.5px] text-ink-mute">
-                    pular
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            <SlideBody slide={slide} />
-
-            <SlideFooter
-              activeIndex={activeIndex}
-              isLast={isLast}
-              onNext={handleNext}
-              onComplete={onComplete}
-            />
+      <ScreenShell key={screenKey}>
+        <Animated.View
+          style={animatedStyle}
+          className="flex-1 px-[26px] pb-[26px] pt-2.5"
+        >
+          <View className="h-6 flex-row items-center justify-end">
+            {!isLast && (
+              <TouchableOpacity activeOpacity={0.7} onPress={onComplete}>
+                <Text className="font-mono text-[10px] uppercase tracking-[0.5px] text-ink-mute">
+                  pular
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
-        </PhoneShell>
-      </View>
+
+          <SlideBody slide={slide} />
+
+          <SlideFooter
+            activeIndex={activeIndex}
+            isLast={isLast}
+            onNext={handleNext}
+            onComplete={onComplete}
+          />
+        </Animated.View>
+      </ScreenShell>
     </SafeAreaView>
   );
 };

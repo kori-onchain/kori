@@ -1,5 +1,11 @@
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 type AuthButtonProps = {
@@ -23,7 +29,11 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
 }) => {
   const isPrimary = variant === "primary";
   const isGhost = variant === "ghost";
-  const textClass = isPrimary ? "text-bg" : isGhost ? "text-ink-dim" : "text-ink";
+  const textClass = isPrimary
+    ? "text-bg"
+    : isGhost
+      ? "text-ink-dim"
+      : "text-ink";
 
   return (
     <Pressable
@@ -45,17 +55,35 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
           style={StyleSheet.absoluteFill}
         />
       )}
-      {!isGhost && <View pointerEvents="none" className="absolute inset-x-0 top-0 h-px bg-white/10" />}
+      {!isGhost && (
+        <View
+          pointerEvents="none"
+          className="absolute inset-x-0 top-0 h-px bg-white/10"
+        />
+      )}
       <View className="h-full flex-row items-center justify-center px-4">
+        <View className={loading ? "opacity-0" : "opacity-100"}>
+          <View className="flex-row items-center justify-center">
+            {icon && iconPosition === "left" && (
+              <View className="mr-2">{icon}</View>
+            )}
+            <Text className={`font-sans-semibold text-[14px] ${textClass}`}>
+              {label}
+            </Text>
+            {icon && iconPosition === "right" && (
+              <View className="ml-2">{icon}</View>
+            )}
+          </View>
+        </View>
+
         {loading ? (
-          <ActivityIndicator size="small" color={isPrimary ? "#0a0a0a" : "#fafafa"} />
-        ) : (
-          <>
-            {icon && iconPosition === "left" && <View className="mr-2">{icon}</View>}
-            <Text className={`font-sans-semibold text-[14px] ${textClass}`}>{label}</Text>
-            {icon && iconPosition === "right" && <View className="ml-2">{icon}</View>}
-          </>
-        )}
+          <View className="absolute inset-0 items-center justify-center">
+            <ActivityIndicator
+              size="small"
+              color={isPrimary ? "#0a0a0a" : "#fafafa"}
+            />
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );

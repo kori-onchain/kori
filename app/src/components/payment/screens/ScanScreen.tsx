@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,34 +6,42 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
-} from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Feather } from '../../../icons';
-import { PaymentRecipient } from '../../../types/payment';
-import { MOCK_CONTACTS } from '../../../data/contacts';
-import { useTheme } from '../../../theme/ThemeProvider';
+} from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { Feather } from "../../../icons";
+import { PaymentRecipient } from "../../../types/payment";
+import { MOCK_CONTACTS } from "../../../data/contacts";
+import { useTheme } from "../../../theme/ThemeProvider";
+import {
+  PaymentCard,
+  PaymentPrimaryButton,
+  PaymentScreenFrame,
+} from "../PaymentDS";
+import { fonts } from "../../../theme/tokens";
 
-const APP_SCHEME = 'kora://pay';
+const APP_SCHEME = "kora://pay";
 
 interface ScanScreenProps {
   onResult: (recipient: PaymentRecipient, amount?: string) => void;
   onClose: () => void;
 }
 
-const parseSolanaOrKoraQR = (raw: string): { recipient: PaymentRecipient; amount?: string } | null => {
+const parseSolanaOrKoraQR = (
+  raw: string,
+): { recipient: PaymentRecipient; amount?: string } | null => {
   try {
     // kora://pay?to=@handle&amount=10.00  OR  kora://pay?wallet=ADDRESS&amount=...
-    if (raw.startsWith('kora://pay')) {
+    if (raw.startsWith("kora://pay")) {
       const url = new URL(raw);
-      const to = url.searchParams.get('to');
-      const wallet = url.searchParams.get('wallet');
-      const amount = url.searchParams.get('amount') ?? undefined;
+      const to = url.searchParams.get("to");
+      const wallet = url.searchParams.get("wallet");
+      const amount = url.searchParams.get("amount") ?? undefined;
 
       if (wallet) {
         return {
           recipient: {
-            type: 'wallet',
-            displayName: 'Anônimo',
+            type: "wallet",
+            displayName: "Anônimo",
             walletAddress: wallet,
             isAnonymous: true,
             isFavorite: false,
@@ -43,11 +51,13 @@ const parseSolanaOrKoraQR = (raw: string): { recipient: PaymentRecipient; amount
       }
 
       if (to) {
-        const handle = to.replace('@', '');
-        const contact = MOCK_CONTACTS.find((c) => c.walletId === `@${handle}` || c.walletId === handle);
+        const handle = to.replace("@", "");
+        const contact = MOCK_CONTACTS.find(
+          (c) => c.walletId === `@${handle}` || c.walletId === handle,
+        );
         return {
           recipient: {
-            type: 'id',
+            type: "id",
             displayName: contact?.name ?? handle,
             userId: `@${handle}`,
             isAnonymous: false,
@@ -63,7 +73,10 @@ const parseSolanaOrKoraQR = (raw: string): { recipient: PaymentRecipient; amount
   return null;
 };
 
-export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => {
+export const ScanScreen: React.FC<ScanScreenProps> = ({
+  onResult,
+  onClose,
+}) => {
   const { t } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -72,9 +85,19 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(scanLine, { toValue: 1, duration: 1800, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-        Animated.timing(scanLine, { toValue: 0, duration: 1800, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-      ])
+        Animated.timing(scanLine, {
+          toValue: 1,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanLine, {
+          toValue: 0,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
     ).start();
   }, []);
 
@@ -90,27 +113,40 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
     }
   };
 
-  if (!permission) return <View style={[styles.container, { backgroundColor: t.bg }]} />;
+  if (!permission)
+    return <View style={[styles.container, { backgroundColor: t.bg }]} />;
 
   if (!permission.granted) {
     return (
-      <View style={[styles.permContainer, { backgroundColor: t.bg }]}>
-        <View style={[styles.permCard, { backgroundColor: t.bg2, borderColor: t.cardBorder, shadowColor: '#000', elevation: t.cardElev }]}>
-          <View style={[styles.permIconCircle, { backgroundColor: t.bgElev }]}>
-            <Feather name="camera" size={32} color={t.ink} />
-          </View>
-          <Text style={[styles.permTitle, { color: t.ink }]}>Permissão de câmera</Text>
-          <Text style={[styles.permDesc, { color: t.inkMute }]}>
-            Para escanear QR Codes da Kora, precisamos de acesso à sua câmera.
-          </Text>
-          <TouchableOpacity style={[styles.permBtn, { backgroundColor: t.orange }]} onPress={requestPermission} activeOpacity={0.85}>
-            <Text style={styles.permBtnText}>Permitir acesso</Text>
-          </TouchableOpacity>
+      <PaymentScreenFrame
+        title="Escanear QR"
+        onClose={onClose}
+        footer={
+          <PaymentPrimaryButton
+            label="Permitir câmera"
+            onPress={requestPermission}
+          />
+        }
+      >
+        <View style={styles.permissionCenter}>
+          <PaymentCard padding={24}>
+            <View style={styles.permissionCard}>
+              <View
+                style={[styles.permIconCircle, { backgroundColor: t.bgElev }]}
+              >
+                <Feather name="camera" size={32} color={t.ink} />
+              </View>
+              <Text style={[styles.permTitle, { color: t.ink }]}>
+                Permissão de câmera
+              </Text>
+              <Text style={[styles.permDesc, { color: t.inkMute }]}>
+                Para escanear QR Codes da Kora, precisamos de acesso à sua
+                câmera.
+              </Text>
+            </View>
+          </PaymentCard>
         </View>
-        <TouchableOpacity style={styles.closeAbsolute} onPress={onClose}>
-          <Feather name="x" size={22} color={t.ink} />
-        </TouchableOpacity>
-      </View>
+      </PaymentScreenFrame>
     );
   }
 
@@ -126,7 +162,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
         <TouchableOpacity onPress={onClose} style={styles.headerBtn}>
           <Feather name="x" size={22} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Escanear QR Code</Text>
+        <Text style={styles.headerTitle}>Escanear QR</Text>
         <View style={styles.headerBtnPlaceholder} />
       </View>
 
@@ -136,7 +172,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
           style={StyleSheet.absoluteFill}
           facing="back"
           onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-          barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
         />
 
         {/* Overlay escuro com janela de scan */}
@@ -153,17 +189,21 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({ onResult, onClose }) => 
 
               {/* Linha de scan animada */}
               <Animated.View
-                style={[styles.scanLineBar, { transform: [{ translateY: scanLineTranslate }] }]}
+                style={[
+                  styles.scanLineBar,
+                  { transform: [{ translateY: scanLineTranslate }] },
+                ]}
               />
             </View>
             <View style={styles.overlaySide} />
           </View>
           <View style={styles.overlayBottom}>
-            <Text style={styles.scanHint}>
-              Aponte para um QR Code da Kora
-            </Text>
+            <Text style={styles.scanHint}>Aponte para um QR Code da Kora</Text>
             {scanned && (
-              <TouchableOpacity onPress={() => setScanned(false)} style={styles.retryBtn}>
+              <TouchableOpacity
+                onPress={() => setScanned(false)}
+                style={styles.retryBtn}
+              >
                 <Text style={styles.retryText}>Escanear novamente</Text>
               </TouchableOpacity>
             )}
@@ -181,129 +221,128 @@ const CORNER_THICKNESS = 3;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 16,
     paddingTop: 24,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: "rgba(0,0,0,0.6)",
     zIndex: 10,
   },
   headerBtn: { padding: 6, width: 34 },
   headerBtnPlaceholder: { width: 34 },
   headerTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   cameraWrapper: { flex: 1 },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    flexDirection: 'column',
+    flexDirection: "column",
   },
-  overlayTop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.65)' },
-  overlayMiddle: { flexDirection: 'row' },
-  overlaySide: { flex: 1, backgroundColor: 'rgba(0,0,0,0.65)' },
+  overlayTop: { flex: 1, backgroundColor: "rgba(0,0,0,0.65)" },
+  overlayMiddle: { flexDirection: "row" },
+  overlaySide: { flex: 1, backgroundColor: "rgba(0,0,0,0.65)" },
   scanWindow: {
     width: WINDOW_SIZE,
     height: WINDOW_SIZE,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   overlayBottom: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.65)",
+    alignItems: "center",
     paddingTop: 32,
     gap: 16,
   },
   scanHint: {
-    color: 'rgba(255,255,255,0.75)',
+    color: "rgba(255,255,255,0.75)",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   corner: {
-    position: 'absolute',
+    position: "absolute",
     width: CORNER_SIZE,
     height: CORNER_SIZE,
-    borderColor: '#FF6B00',
+    borderColor: "#ff6b3d",
   },
-  cornerTL: { top: 0, left: 0, borderTopWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, borderTopLeftRadius: 4 },
-  cornerTR: { top: 0, right: 0, borderTopWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, borderTopRightRadius: 4 },
-  cornerBL: { bottom: 0, left: 0, borderBottomWidth: CORNER_THICKNESS, borderLeftWidth: CORNER_THICKNESS, borderBottomLeftRadius: 4 },
-  cornerBR: { bottom: 0, right: 0, borderBottomWidth: CORNER_THICKNESS, borderRightWidth: CORNER_THICKNESS, borderBottomRightRadius: 4 },
+  cornerTL: {
+    top: 0,
+    left: 0,
+    borderTopWidth: CORNER_THICKNESS,
+    borderLeftWidth: CORNER_THICKNESS,
+    borderTopLeftRadius: 4,
+  },
+  cornerTR: {
+    top: 0,
+    right: 0,
+    borderTopWidth: CORNER_THICKNESS,
+    borderRightWidth: CORNER_THICKNESS,
+    borderTopRightRadius: 4,
+  },
+  cornerBL: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: CORNER_THICKNESS,
+    borderLeftWidth: CORNER_THICKNESS,
+    borderBottomLeftRadius: 4,
+  },
+  cornerBR: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: CORNER_THICKNESS,
+    borderRightWidth: CORNER_THICKNESS,
+    borderBottomRightRadius: 4,
+  },
   scanLineBar: {
-    position: 'absolute',
+    position: "absolute",
     left: 8,
     right: 8,
     height: 2,
-    backgroundColor: '#FF6B00',
+    backgroundColor: "#ff6b3d",
     borderRadius: 1,
-    shadowColor: '#FF6B00',
+    shadowColor: "#ff6b3d",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 6,
     elevation: 4,
   },
   retryBtn: { paddingVertical: 8 },
-  retryText: { color: '#8E8E93', fontSize: 13, fontWeight: '500' },
+  retryText: { color: "#8E8E93", fontSize: 13, fontWeight: "500" },
 
-  // Permission screen
-  permContainer: {
+  permissionCenter: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
+    justifyContent: "center",
   },
-  permCard: {
-    width: '100%',
-    backgroundColor: '#161616',
-    borderRadius: 20,
-    padding: 28,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#242424',
+  permissionCard: {
+    alignItems: "center",
   },
   permIconCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#242424',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#242424",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 20,
   },
   permTitle: {
-    color: '#FFF',
+    fontFamily: fonts.sans.bold,
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   permDesc: {
-    color: '#8E8E93',
+    fontFamily: fonts.sans.medium,
     fontSize: 14,
     lineHeight: 20,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 24,
-  },
-  permBtn: {
-    width: '100%',
-    backgroundColor: '#FF6B00',
-    borderRadius: 14,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  permBtnText: { color: '#FFF', fontSize: 15, fontWeight: '800' },
-  closeAbsolute: {
-    position: 'absolute',
-    top: 52,
-    right: 24,
-    padding: 8,
   },
 });
