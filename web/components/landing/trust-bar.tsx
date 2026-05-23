@@ -1,27 +1,40 @@
 export function TrustBar() {
+  const items = [
+    {
+      label: "Built on",
+      value: "Solana",
+      meta: "Devnet",
+      solana: true,
+    },
+    {
+      label: "Demo",
+      value: "Hackanation 2026",
+      meta: "v1 pública",
+    },
+    {
+      label: "Status",
+      value: "v1 on Devnet",
+      meta: "roadmap honesto",
+    },
+  ]
+
   return (
     <section className="trust-bar">
       <div className="trust-grid">
-        <div className="trust-item">
-          <span className="lbl">Built on</span>
-          <span className="val">
-            <svg className="solana-mark">
-              <use href="#solana" />
-            </svg>
-            Solana
-            <span className="micro">· Devnet</span>
-          </span>
-        </div>
-        <div className="trust-item">
-          <span className="lbl">Demo</span>
-          <span className="val">Hackanation 2026</span>
-        </div>
-        <div className="trust-item">
-          <span className="lbl">Status</span>
-          <span className="val">
-            v1 on Devnet<span className="micro">· roadmap honesto</span>
-          </span>
-        </div>
+        {items.map((item) => (
+          <div className="trust-item" key={item.label}>
+            <span className="lbl">{item.label}</span>
+            <span className="val">
+              {item.solana ? (
+                <svg className="solana-mark" aria-hidden="true">
+                  <use href="#solana" />
+                </svg>
+              ) : null}
+              {item.value}
+            </span>
+            <span className="micro">{item.meta}</span>
+          </div>
+        ))}
       </div>
     </section>
   )

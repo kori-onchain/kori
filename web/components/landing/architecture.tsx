@@ -1,9 +1,69 @@
 const STEPS = [
-  { step: "STEP 01", name: "User intent", active: true },
-  { step: "STEP 02", name: "Score & KYC check" },
-  { step: "STEP 03", name: "Solana submission" },
-  { step: "STEP 04", name: "Atomic settlement" },
-  { step: "STEP 05", name: "Reputation update" },
+  {
+    step: "01",
+    name: "Intent",
+    detail: "Usuário escolhe valor, destino e tipo de operação.",
+    meta: "mobile",
+    active: true,
+  },
+  {
+    step: "02",
+    name: "Risk check",
+    detail: "Score e regras da conta validam limite, reputação e wallet.",
+    meta: "offchain + onchain",
+  },
+  {
+    step: "03",
+    name: "Transaction",
+    detail: "App assina e envia a instrução para Solana Devnet.",
+    meta: "solana",
+  },
+  {
+    step: "04",
+    name: "Settlement",
+    detail: "USDC liquida a operação e atualiza os saldos.",
+    meta: "atomic",
+  },
+  {
+    step: "05",
+    name: "Reputation",
+    detail: "Histórico entra no Reputation Token para próximos limites.",
+    meta: "profile",
+  },
+]
+
+const NODES = [
+  {
+    id: "app",
+    title: "Kora App",
+    sub: "intent + assinatura",
+    position: "node-app",
+  },
+  {
+    id: "score",
+    title: "Score Engine",
+    sub: "risco, limite, reputação",
+    position: "node-score",
+  },
+  {
+    id: "program",
+    title: "Solana Program",
+    sub: "instruções + escrow",
+    position: "node-program",
+    featured: true,
+  },
+  {
+    id: "usdc",
+    title: "USDC Settlement",
+    sub: "split + liquidação",
+    position: "node-usdc",
+  },
+  {
+    id: "rep",
+    title: "Reputation Token",
+    sub: "histórico portátil",
+    position: "node-rep",
+  },
 ]
 
 export function Architecture() {
@@ -22,153 +82,55 @@ export function Architecture() {
       </div>
 
       <div className="arch">
-        <ul className="arch-list">
+        <div className="arch-list" aria-label="Fluxo da transação">
           {STEPS.map((s) => (
-            <li key={s.step} className={s.active ? "active" : ""}>
-              <div>
-                <div className="step">{s.step}</div>
-                <div className="name">{s.name}</div>
+            <article key={s.step} className={s.active ? "active" : ""}>
+              <span className="step-index">{s.step}</span>
+              <div className="step-copy">
+                <div className="step-top">
+                  <span className="name">{s.name}</span>
+                  <span className="meta">{s.meta}</span>
+                </div>
+                <p>{s.detail}</p>
               </div>
-            </li>
+            </article>
           ))}
-        </ul>
+        </div>
 
         <div className="arch-canvas">
-          <svg
-            className="arch-svg"
-            viewBox="0 0 500 300"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <marker
-                id="arr"
-                viewBox="0 0 10 10"
-                refX="8"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
-                orient="auto"
+          <div className="arch-canvas-head">
+            <span>Runtime map</span>
+            <b>Devnet transaction path</b>
+          </div>
+
+          <div className="arch-map" aria-label="Diagrama da arquitetura Kora">
+            <span className="flow-line line-app-program" />
+            <span className="flow-line line-score-program" />
+            <span className="flow-line line-program-usdc" />
+            <span className="flow-line line-program-rep" />
+
+            {NODES.map((node) => (
+              <div
+                className={`arch-node ${node.position} ${node.featured ? "featured" : ""}`}
+                key={node.id}
               >
-                <path d="M0,0 L10,5 L0,10 Z" fill="#fafafa" />
-              </marker>
-            </defs>
+                <span className="node-kicker">{node.id}</span>
+                <strong>{node.title}</strong>
+                <span>{node.sub}</span>
+              </div>
+            ))}
+          </div>
 
-            <g fontFamily="Geist Mono, monospace" fontSize="10" fill="#fafafa">
-              <rect
-                x="20"
-                y="120"
-                width="100"
-                height="60"
-                rx="6"
-                fill="#16161a"
-                stroke="#fafafa"
-                strokeWidth="1"
-              />
-              <text x="70" y="148" textAnchor="middle">
-                USER
-              </text>
-              <text x="70" y="162" textAnchor="middle" fill="#5a5a5e">
-                tap to pay
-              </text>
-
-              <rect
-                x="180"
-                y="40"
-                width="100"
-                height="60"
-                rx="6"
-                fill="#16161a"
-                stroke="rgba(255,255,255,0.13)"
-              />
-              <text x="230" y="64" textAnchor="middle">
-                SCORE
-              </text>
-              <text x="230" y="78" textAnchor="middle" fill="#5a5a5e">
-                on-chain
-              </text>
-              <text x="230" y="92" textAnchor="middle" fill="#5a5a5e">
-                verify
-              </text>
-
-              <rect
-                x="180"
-                y="120"
-                width="100"
-                height="60"
-                rx="6"
-                fill="#16161a"
-                stroke="#fafafa"
-                strokeWidth="1"
-              />
-              <text x="230" y="148" textAnchor="middle">
-                SOLANA
-              </text>
-              <text x="230" y="162" textAnchor="middle" fill="#5a5a5e">
-                tx submit
-              </text>
-
-              <rect
-                x="180"
-                y="200"
-                width="100"
-                height="60"
-                rx="6"
-                fill="#16161a"
-                stroke="rgba(255,255,255,0.13)"
-              />
-              <text x="230" y="224" textAnchor="middle">
-                YIELD
-              </text>
-              <text x="230" y="238" textAnchor="middle" fill="#5a5a5e">
-                cashback
-              </text>
-              <text x="230" y="252" textAnchor="middle" fill="#5a5a5e">
-                routing
-              </text>
-
-              <rect
-                x="340"
-                y="120"
-                width="120"
-                height="60"
-                rx="6"
-                fill="#16161a"
-                stroke="#fafafa"
-                strokeWidth="1"
-              />
-              <text x="400" y="148" textAnchor="middle">
-                SETTLEMENT
-              </text>
-              <text x="400" y="162" textAnchor="middle" fill="#5a5a5e">
-                + rep update
-              </text>
-            </g>
-
-            <g fill="none" stroke="#fafafa" strokeWidth="1">
-              <path
-                d="M120,150 L180,70"
-                strokeOpacity="0.30"
-                markerEnd="url(#arr)"
-              />
-              <path
-                d="M120,150 L180,150"
-                strokeOpacity="0.9"
-                markerEnd="url(#arr)"
-              />
-              <path
-                d="M120,150 L180,230"
-                strokeOpacity="0.30"
-                markerEnd="url(#arr)"
-              />
-              <path d="M280,70 L340,140" strokeOpacity="0.18" />
-              <path
-                d="M280,150 L340,150"
-                strokeOpacity="0.9"
-                markerEnd="url(#arr)"
-              />
-              <path d="M280,230 L340,160" strokeOpacity="0.18" />
-            </g>
-          </svg>
+          <div className="arch-payloads">
+            <div>
+              <span>payload</span>
+              <b>amount, receiver, nonce</b>
+            </div>
+            <div>
+              <span>settlement</span>
+              <b>USDC + reputation update</b>
+            </div>
+          </div>
         </div>
       </div>
     </section>
