@@ -1,241 +1,251 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Dimensions, 
-  Platform,
-  Share
-} from 'react-native';
-import { Feather } from '../icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme } from '../theme/ThemeProvider';
+import React, { useState } from "react";
+import {
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Feather } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts, radii } from "../theme/tokens";
+import { Button } from "./ds/Button";
+import { SoftCard } from "./ds/SoftCard";
+import { TicketIcon } from "./ds/icons";
 
-const { width } = Dimensions.get('window');
+type Category = "tudo" | "viagem" | "estilo" | "beneficio";
 
 interface ExperienceItem {
   id: string;
   title: string;
-  category: string;
+  category: Category;
   description: string;
   costPoints: string;
-  status: 'disponivel' | 'resgatado' | 'vip';
-  icon: keyof typeof Feather.glyphMap;
-  gradient: [string, string];
+  status: "disponivel" | "vip";
+  icon: React.ComponentProps<typeof Feather>["name"];
 }
+
+const EXPERIENCES: ExperienceItem[] = [
+  {
+    id: "lounge",
+    title: "Sala VIP Aeroportos",
+    category: "viagem",
+    description: "Acesso a salas parceiras com um acompanhante.",
+    costPoints: "Kora Black",
+    status: "vip",
+    icon: "map-pin",
+  },
+  {
+    id: "cashback",
+    title: "Cashback Turbo 3%",
+    category: "beneficio",
+    description: "Cashback elevado em compras por 30 dias.",
+    costPoints: "4.500 pts",
+    status: "disponivel",
+    icon: "zap",
+  },
+  {
+    id: "concierge",
+    title: "Concierge 24/7",
+    category: "estilo",
+    description: "Reservas, hotéis e eventos com atendimento prioritário.",
+    costPoints: "Kora VIP",
+    status: "vip",
+    icon: "award",
+  },
+  {
+    id: "hotel",
+    title: "Kora Collection Hotéis",
+    category: "viagem",
+    description: "Upgrade de quarto e café da manhã em hotéis selecionados.",
+    costPoints: "8.000 pts",
+    status: "disponivel",
+    icon: "compass",
+  },
+  {
+    id: "ingressos",
+    title: "Pré-vendas Exclusivas",
+    category: "beneficio",
+    description: "Acesso antecipado a shows, festivais e eventos.",
+    costPoints: "2.500 pts",
+    status: "disponivel",
+    icon: "gift",
+  },
+];
+
+const FILTERS: Array<{ id: Category; label: string }> = [
+  { id: "tudo", label: "Tudo" },
+  { id: "viagem", label: "Viagem" },
+  { id: "beneficio", label: "Benefícios" },
+  { id: "estilo", label: "Estilo" },
+];
 
 export const ExperiencesPanel: React.FC = () => {
   const { t } = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState<'tudo' | 'viagem' | 'estilo' | 'beneficio'>('tudo');
-  const [userPoints] = useState('24.850');
+  const [selectedCategory, setSelectedCategory] = useState<Category>("tudo");
+  const userPoints = "24.850";
 
-  const experiences: ExperienceItem[] = [
-    {
-      id: 'lounge',
-      title: 'Sala VIP Aeroportos',
-      category: 'viagem',
-      description: 'Acesso ilimitado às salas VIP parceiras em aeroportos internacionais com um acompanhante grátis.',
-      costPoints: 'Kora Black Exclusive',
-      status: 'vip',
-      icon: 'map-pin',
-      gradient: ['#0E362C', '#111111'],
-    },
-    {
-      id: 'cashback',
-      title: 'Cashback Turbo 3%',
-      category: 'beneficio',
-      description: 'Ative o cashback de 3% em todas as compras no cartão virtual Kora durante 30 dias.',
-      costPoints: '4.500 pts',
-      status: 'disponivel',
-      icon: 'zap',
-      gradient: ['#161616', '#0E362C'],
-    },
-    {
-      id: 'concierge',
-      title: 'Concierge Pessoal 24/7',
-      category: 'estilo',
-      description: 'Assistência exclusiva para reservas de restaurantes de alta gastronomia, hotéis de luxo e eventos globais.',
-      costPoints: 'Kora VIP Access',
-      status: 'vip',
-      icon: 'award',
-      gradient: ['#1A1A1A', '#2E200C'], // Elegant gold-dark vibe
-    },
-    {
-      id: 'hotel',
-      title: 'Kora Collection Hotéis',
-      category: 'viagem',
-      description: 'Diárias com upgrade de quarto automático, café da manhã incluso e early check-in em hotéis selecionados.',
-      costPoints: '8.000 pts',
-      status: 'disponivel',
-      icon: 'compass',
-      gradient: ['#0C2336', '#111111'], // Elegant dark blue
-    },
-    {
-      id: 'ingressos',
-      title: 'Pré-vendas Exclusivas',
-      category: 'beneficio',
-      description: 'Acesso prioritário a ingressos para shows internacionais, festivais de música e eventos de moda de luxo.',
-      costPoints: '2.500 pts',
-      status: 'disponivel',
-      icon: 'gift',
-      gradient: ['#1E1E1E', '#161616'],
-    },
-  ];
+  const filteredExperiences =
+    selectedCategory === "tudo"
+      ? EXPERIENCES
+      : EXPERIENCES.filter((item) => item.category === selectedCategory);
 
   const handleShareBenefit = async (benefitTitle: string) => {
-    try {
-      await Share.share({
-        message: `Olha esse benefício incrível do Kora: ${benefitTitle}! Acesse e experimente uma nova era financeira.`,
-      });
-    } catch (error) {
-      console.log('Error sharing benefit:', error);
-    }
+    await Share.share({
+      message: `Olha esse benefício do Kora: ${benefitTitle}`,
+    });
   };
 
-  const filteredExperiences = selectedCategory === 'tudo'
-    ? experiences
-    : experiences.filter(item => item.category === selectedCategory);
-
   return (
-    <ScrollView 
+    <ScrollView
       style={{ backgroundColor: t.bg }}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
     >
-      {/* Cabeçalho de Pontos/Nível */}
-      <View style={[styles.pointsCard, { borderColor: t.cardBorder }]}>
-        <LinearGradient
-          colors={[t.bg2, t.bgElev]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.pointsGradient}
-        >
-          <View style={styles.pointsRow}>
-            <View>
-              <Text style={[styles.pointsLabel, { color: t.inkMute }]}>SEUS PONTOS ACUMULADOS</Text>
-              <Text style={[styles.pointsValue, { color: t.ink }]}>{userPoints} <Text style={[styles.pointsUnit, { color: t.green }]}>PTS</Text></Text>
-            </View>
-            <View style={[styles.tierBadge, { backgroundColor: t.line, borderColor: t.line2 }]}>
-              <Feather name="award" size={14} color={t.green} style={{ marginRight: 4 }} />
-              <Text style={[styles.tierText, { color: t.green }]}>BLACK</Text>
-            </View>
+      <SoftCard
+        radius={radii.card}
+        padding={20}
+        strong
+        style={styles.pointsCard}
+      >
+        <View style={styles.pointsRow}>
+          <View>
+            <Text style={[styles.pointsLabel, { color: t.inkMute }]}>
+              REPUTATION POINTS
+            </Text>
+            <Text style={[styles.pointsValue, { color: t.ink }]}>
+              {userPoints}
+              <Text style={[styles.pointsUnit, { color: t.inkMute }]}>
+                {" "}
+                PTS
+              </Text>
+            </Text>
           </View>
-
-          <View style={[styles.divider, { backgroundColor: t.line }]} />
-
-          <View style={styles.pointsFooter}>
-            <Text style={[styles.footerText, { color: t.inkMute }]}>Próximo nível: <Text style={[styles.boldText, { color: t.ink }]}>Kora Private</Text></Text>
-            <Text style={[styles.progressText, { color: t.green }]}>Faltam 5.150 pts</Text>
+          <View style={[styles.tierInline, { borderColor: t.line2 }]}>
+            <TicketIcon size={14} color={t.orange} />
+            <Text style={[styles.tierText, { color: t.orange }]}>BLACK</Text>
           </View>
-        </LinearGradient>
-      </View>
+        </View>
 
-      {/* Filtros de Categorias (Pílulas) */}
-      <View style={styles.categoriesWrapper}>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        >
-          <TouchableOpacity 
-            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'tudo' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
-            onPress={() => setSelectedCategory('tudo')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.categoryText, { color: selectedCategory === 'tudo' ? t.orange : t.inkMute }]}>
-              Tudo
-            </Text>
-          </TouchableOpacity>
+        <View style={[styles.divider, { backgroundColor: t.line }]} />
 
-          <TouchableOpacity 
-            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'viagem' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
-            onPress={() => setSelectedCategory('viagem')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.categoryText, { color: selectedCategory === 'viagem' ? t.orange : t.inkMute }]}>
-              Viagem & Lazer
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.pointsFooter}>
+          <Text style={[styles.footerText, { color: t.inkMute }]}>
+            Próximo nível: <Text style={{ color: t.ink }}>Kora Private</Text>
+          </Text>
+          <Text style={[styles.footerText, { color: t.inkMute }]}>
+            faltam 5.150 pts
+          </Text>
+        </View>
+      </SoftCard>
 
-          <TouchableOpacity 
-            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'beneficio' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
-            onPress={() => setSelectedCategory('beneficio')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.categoryText, { color: selectedCategory === 'beneficio' ? t.orange : t.inkMute }]}>
-              Benefícios
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.categoryPill, { backgroundColor: t.bg2, borderColor: t.cardBorder }, selectedCategory === 'estilo' && { backgroundColor: t.bgElev, borderColor: t.orange }]}
-            onPress={() => setSelectedCategory('estilo')}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.categoryText, { color: selectedCategory === 'estilo' ? t.orange : t.inkMute }]}>
-              Estilo de Vida
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-
-      {/* Lista de Experiências */}
-      <View style={styles.listSection}>
-        <Text style={[styles.sectionTitle, { color: t.ink }]}>Experiências Disponíveis</Text>
-        
-        {filteredExperiences.map((item) => (
-          <View key={item.id} style={[styles.experienceCard, { borderColor: t.cardBorder }]}>
-            <LinearGradient
-              colors={[t.bg2, t.bgElev]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.cardGradient}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesContainer}
+      >
+        {FILTERS.map((filter) => {
+          const active = selectedCategory === filter.id;
+          return (
+            <TouchableOpacity
+              key={filter.id}
+              activeOpacity={0.75}
+              onPress={() => setSelectedCategory(filter.id)}
             >
-              <View style={styles.cardHeader}>
-                <View style={styles.iconContainer}>
-                  <Feather name={item.icon} size={20} color={t.green} />
-                </View>
-                
-                <View style={[styles.statusBadge, { backgroundColor: t.line, borderColor: t.line2 }]}>
-                  <Text style={[styles.statusText, { color: t.green }]}>
-                    {item.status === 'vip' ? 'EXCLUSIVO' : item.costPoints}
+              <SoftCard radius={radii.pill} padding={0} flat>
+                <View style={styles.categoryPill}>
+                  <Text
+                    style={[
+                      styles.categoryText,
+                      { color: active ? t.ink : t.inkMute },
+                    ]}
+                  >
+                    {filter.label}
                   </Text>
                 </View>
+              </SoftCard>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
+      <View style={styles.listSection}>
+        <Text style={[styles.sectionTitle, { color: t.ink }]}>
+          Experiências disponíveis
+        </Text>
+
+        {filteredExperiences.map((item) => (
+          <SoftCard
+            key={item.id}
+            radius={radii.card}
+            padding={16}
+            style={styles.experienceCard}
+          >
+            <View style={styles.cardHeader}>
+              <SoftCard
+                radius={radii.cardSm}
+                padding={0}
+                flat
+                style={styles.iconCard}
+              >
+                <View style={styles.iconInner}>
+                  <Feather
+                    name={item.icon}
+                    size={19}
+                    color={item.status === "vip" ? t.orange : t.ink}
+                  />
+                </View>
+              </SoftCard>
+              <View style={styles.cardCopy}>
+                <Text style={[styles.cardTitle, { color: t.ink }]}>
+                  {item.title}
+                </Text>
+                <Text style={[styles.cardDescription, { color: t.inkMute }]}>
+                  {item.description}
+                </Text>
               </View>
+            </View>
 
-              <Text style={[styles.cardTitle, { color: t.ink }]}>{item.title}</Text>
-              <Text style={[styles.cardDescription, { color: t.inkMute }]}>{item.description}</Text>
-
-              <View style={styles.cardFooter}>
-                <TouchableOpacity 
-                  style={[
-                    styles.actionButton,
-                    item.status === 'vip'
-                      ? { backgroundColor: 'transparent', borderWidth: 1, borderColor: t.green }
-                      : { backgroundColor: t.btnPrimaryBg }
-                  ]}
-                  activeOpacity={0.8}
-                >
-                  <Text style={[
-                    styles.actionButtonText,
-                    { color: item.status === 'vip' ? t.green : t.btnPrimaryFg }
-                  ]}>
-                    {item.status === 'vip' ? 'Ver Benefício VIP' : 'Resgatar Agora'}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[styles.shareButton, { backgroundColor: t.bgElev }]}
+            <View style={styles.cardFooter}>
+              <Text
+                style={[
+                  styles.costText,
+                  { color: item.status === "vip" ? t.orange : t.inkMute },
+                ]}
+              >
+                {item.costPoints}
+              </Text>
+              <View style={styles.cardActions}>
+                <Button
+                  label={item.status === "vip" ? "Ver" : "Resgatar"}
+                  variant={item.status === "vip" ? "secondary" : "primary"}
+                  icon={
+                    <Feather
+                      name="arrow-right"
+                      size={14}
+                      color={item.status === "vip" ? t.ink : t.btnPrimaryFg}
+                    />
+                  }
+                />
+                <TouchableOpacity
+                  activeOpacity={0.75}
                   onPress={() => handleShareBenefit(item.title)}
-                  activeOpacity={0.7}
                 >
-                  <Feather name="share-2" size={18} color={t.inkMute} />
+                  <SoftCard
+                    radius={radii.btn}
+                    padding={0}
+                    flat
+                    style={styles.shareButton}
+                  >
+                    <View style={styles.shareInner}>
+                      <Feather name="share-2" size={17} color={t.inkMute} />
+                    </View>
+                  </SoftCard>
                 </TouchableOpacity>
               </View>
-            </LinearGradient>
-          </View>
+            </View>
+          </SoftCard>
         ))}
       </View>
     </ScrollView>
@@ -248,173 +258,141 @@ const styles = StyleSheet.create({
   },
   pointsCard: {
     marginTop: 12,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  pointsGradient: {
-    padding: 20,
+    marginBottom: 16,
   },
   pointsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
   },
   pointsLabel: {
+    fontFamily: fonts.mono.semibold,
     fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 1.5,
+    letterSpacing: 1.4,
   },
   pointsValue: {
-    fontSize: 28,
-    fontWeight: '800',
-    marginTop: 4,
+    marginTop: 6,
+    fontFamily: fonts.sans.bold,
+    fontSize: 30,
+    fontWeight: "800",
+    letterSpacing: -0.8,
   },
   pointsUnit: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fonts.mono.semibold,
+    fontSize: 11,
+    letterSpacing: 0.8,
   },
-  tierBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  tierInline: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: radii.pill,
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 7,
   },
   tierText: {
-    fontSize: 9,
-    fontWeight: '700',
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
     letterSpacing: 1,
   },
   divider: {
     height: 1,
-    marginVertical: 15,
+    marginVertical: 16,
   },
   pointsFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 14,
   },
   footerText: {
-    fontSize: 11,
-  },
-  boldText: {
-    fontWeight: '600',
-  },
-  progressText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  categoriesWrapper: {
-    marginVertical: 20,
+    fontFamily: fonts.sans.medium,
+    fontSize: 12,
   },
   categoriesContainer: {
+    gap: 8,
     paddingRight: 20,
-  },
-  categoryPill: {
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderRadius: 24,
-    marginRight: 8,
-    borderWidth: 1,
-  },
-  activePill: {
-  },
-  categoryText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  activeCategoryText: {
-  },
-  listSection: {
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 16,
-  },
-  experienceCard: {
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
-  },
-  cardGradient: {
-    padding: 20,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  iconContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  statusText: {
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  cardDescription: {
-    fontSize: 12,
-    lineHeight: 18,
     marginBottom: 20,
   },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  categoryPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
-  actionButton: {
+  categoryText: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  listSection: {
+    gap: 12,
+  },
+  sectionTitle: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -0.3,
+    marginBottom: 2,
+  },
+  experienceCard: {
+    marginBottom: 2,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  iconCard: {
+    width: 44,
+    height: 44,
+  },
+  iconInner: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardCopy: {
     flex: 1,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
+    minWidth: 0,
   },
-  redeemButton: {
+  cardTitle: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 15,
+    fontWeight: "700",
   },
-  redeemButtonText: {
+  cardDescription: {
+    marginTop: 5,
+    fontFamily: fonts.sans.medium,
     fontSize: 12,
-    fontWeight: '700',
+    lineHeight: 17,
   },
-  vipButton: {
+  cardFooter: {
+    marginTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
   },
-  vipButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
+  costText: {
+    flex: 1,
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
+    letterSpacing: 0.5,
   },
-  actionButtonText: {
-    fontSize: 12,
-    fontWeight: '700',
+  cardActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   shareButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+  },
+  shareInner: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

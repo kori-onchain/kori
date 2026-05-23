@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
-import { 
-  Modal, 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
-  SafeAreaView, 
-  KeyboardAvoidingView,
-  Platform,
+import React, { useRef, useState } from "react";
+import {
   Animated,
-  Share
-} from 'react-native';
-import * as Clipboard from 'expo-clipboard';
-import { Feather } from '../icons';
-import { useTheme } from '../theme/ThemeProvider';
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Share,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as Clipboard from "expo-clipboard";
+import { Feather } from "../icons";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts } from "../theme/tokens";
+import {
+  PaymentActionCard,
+  PaymentCard,
+  PaymentPrimaryButton,
+  PaymentScreenFrame,
+  PaymentToast,
+  SectionTitle,
+} from "./payment/PaymentDS";
 
 interface AddContactModalProps {
   visible: boolean;
@@ -22,171 +30,203 @@ interface AddContactModalProps {
   onSave: (name: string, username: string) => void;
 }
 
-export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClose, onSave }) => {
+type Step = "options" | "add_id";
+
+const Field: React.FC<{
+  label: string;
+  icon: React.ComponentProps<typeof Feather>["name"];
+  value: string;
+  placeholder: string;
+  onChangeText: (value: string) => void;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+}> = ({ label, icon, value, placeholder, onChangeText, autoCapitalize }) => {
   const { t } = useTheme();
-  const [activeTab, setActiveTab] = useState<'options' | 'add_id'>('options');
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
+  return (
+    <View style={styles.field}>
+      <Text style={[styles.fieldLabel, { color: t.inkMute }]}>{label}</Text>
+      <PaymentCard padding={0}>
+        <View style={styles.inputRow}>
+          <Feather name={icon} size={16} color={t.inkMute} />
+          <TextInput
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor={t.inkMute}
+            style={[styles.input, { color: t.ink }]}
+            autoCapitalize={autoCapitalize}
+            autoCorrect={false}
+          />
+        </View>
+      </PaymentCard>
+    </View>
+  );
+};
+
+export const AddContactModal: React.FC<AddContactModalProps> = ({
+  visible,
+  onClose,
+  onSave,
+}) => {
+  const { t } = useTheme();
+  const [step, setStep] = useState<Step>("options");
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastOpacity] = useState(new Animated.Value(0));
+  const toastOpacity = useRef(new Animated.Value(0)).current;
 
   const showToast = (message: string) => {
     setToastMessage(message);
     Animated.sequence([
-      Animated.timing(toastOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.delay(1800),
-      Animated.timing(toastOpacity, { toValue: 0, duration: 300, useNativeDriver: true })
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.delay(1500),
+      Animated.timing(toastOpacity, {
+        toValue: 0,
+        duration: 180,
+        useNativeDriver: true,
+      }),
     ]).start(() => setToastMessage(null));
   };
 
-  const handleCopyLink = async () => {
-    const inviteLink = 'https://kora.app/invite/user_' + Math.random().toString(36).substring(7);
-    await Clipboard.setStringAsync(inviteLink);
-    showToast('Link copiado para a área de transferência!');
-    
-    try {
-      await Share.share({
-        message: `Participe do Kora! Use meu link para se cadastrar: ${inviteLink}`,
-      });
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-    }
-  };
-
-  const handleSave = () => {
-    if (!username.trim()) {
-      showToast('Por favor, informe o ID/Username.');
-      return;
-    }
-    
-    let formattedUsername = username.trim();
-    if (!formattedUsername.startsWith('@')) {
-      formattedUsername = '@' + formattedUsername;
-    }
-
-    const contactName = name.trim() ? name.trim() : null;
-
-    onSave(contactName || '', formattedUsername);
-    showToast('Contato adicionado com sucesso!');
-    
-    setTimeout(() => {
-      setName('');
-      setUsername('');
-      setActiveTab('options');
-      onClose();
-    }, 800);
+  const handleClose = () => {
+    onClose();
+    setTimeout(() => setStep("options"), 300);
   };
 
   const handleBack = () => {
-    if (activeTab === 'add_id') {
-      setActiveTab('options');
-    } else {
-      onClose();
+    if (step === "add_id") {
+      setStep("options");
+      return;
     }
+    handleClose();
+  };
+
+  const handleCopyLink = async () => {
+    const inviteLink = `https://kora.app/invite/user_${Math.random().toString(36).slice(2, 9)}`;
+    await Clipboard.setStringAsync(inviteLink);
+    showToast("Link copiado");
+    await Share.share({
+      message: `Participe do Kora: ${inviteLink}`,
+      url: inviteLink,
+    });
+  };
+
+  const handleSave = () => {
+    const cleanUsername = username.trim();
+    if (!cleanUsername) {
+      showToast("Informe o ID do contato");
+      return;
+    }
+
+    const formattedUsername = cleanUsername.startsWith("@")
+      ? cleanUsername
+      : `@${cleanUsername}`;
+
+    onSave(name.trim(), formattedUsername);
+    showToast("Contato adicionado");
+
+    setTimeout(() => {
+      setName("");
+      setUsername("");
+      handleClose();
+    }, 650);
   };
 
   return (
     <Modal
       visible={visible}
       animationType="slide"
-      transparent={true}
+      transparent
       onRequestClose={handleBack}
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <TouchableOpacity 
-          style={styles.backdropPressable} 
-          activeOpacity={1} 
-          onPress={onClose} 
+        <TouchableOpacity
+          style={styles.backdrop}
+          activeOpacity={1}
+          onPress={handleClose}
         />
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.keyboardContainer}
         >
-          <View style={[styles.modalCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
+          <View
+            style={[
+              styles.drawer,
+              { backgroundColor: t.bg, borderColor: t.line },
+            ]}
+          >
             <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
-            
-            <View style={[styles.header, { borderBottomColor: t.line }]}>
-              <TouchableOpacity onPress={handleBack} style={styles.headerBtn}>
-                <Feather name={activeTab === 'add_id' ? 'arrow-left' : 'x'} size={20} color={t.ink} />
-              </TouchableOpacity>
-              <Text style={[styles.headerTitle, { color: t.ink }]}>
-                {activeTab === 'add_id' ? 'Adicionar por ID' : 'Convidar ou Adicionar'}
-              </Text>
-              <View style={{ width: 24 }} />
-            </View>
-
-            {activeTab === 'options' ? (
-              <View style={styles.optionsContainer}>
-                <Text style={[styles.subTitle, { color: t.inkMute }]}>Escolha como deseja prosseguir:</Text>
-                
-                <TouchableOpacity style={[styles.optionCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={handleCopyLink} activeOpacity={0.7}>
-                  <View style={[styles.iconWrapper, { backgroundColor: t.bg }]}>
-                    <Feather name="share-2" size={22} color={t.orange} />
-                  </View>
-                  <View style={styles.optionText}>
-                    <Text style={[styles.optionTitle, { color: t.ink }]}>Enviar Link de Convite</Text>
-                    <Text style={[styles.optionDesc, { color: t.inkMute }]}>Copia um link exclusivo para compartilhar com um amigo.</Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color={t.inkMute} />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={[styles.optionCard, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]} onPress={() => setActiveTab('add_id')} activeOpacity={0.7}>
-                  <View style={[styles.iconWrapper, { backgroundColor: t.bg }]}>
-                    <Feather name="user-plus" size={22} color={t.orange} />
-                  </View>
-                  <View style={styles.optionText}>
-                    <Text style={[styles.optionTitle, { color: t.ink }]}>Adicionar pelo ID</Text>
-                    <Text style={[styles.optionDesc, { color: t.inkMute }]}>Insira o identificador de usuário para adicioná-lo na hora.</Text>
-                  </View>
-                  <Feather name="chevron-right" size={16} color={t.inkMute} />
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.formContainer}>
-                <Text style={[styles.subTitle, { color: t.inkMute }]}>Preencha as informações do contato:</Text>
-
-                <Text style={[styles.inputLabel, { color: t.ink }]}>ID de Usuário *</Text>
-                <View style={[styles.inputWrapper, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-                  <Feather name="at-sign" size={16} color={t.inkMute} style={{ marginRight: 8 }} />
-                  <TextInput
-                    placeholder="ex: joao_silva"
-                    placeholderTextColor={t.inkMute}
+            <PaymentScreenFrame
+              title={
+                step === "add_id" ? "Adicionar por ID" : "Adicionar contato"
+              }
+              onBack={step === "add_id" ? handleBack : undefined}
+              onClose={handleClose}
+              footer={
+                step === "add_id" ? (
+                  <PaymentPrimaryButton
+                    label="Adicionar contato"
+                    onPress={handleSave}
+                    icon={
+                      <Feather
+                        name="user-plus"
+                        size={16}
+                        color={t.btnPrimaryFg}
+                      />
+                    }
+                  />
+                ) : undefined
+              }
+            >
+              <PaymentToast message={toastMessage} opacity={toastOpacity} />
+              {step === "options" ? (
+                <View style={styles.content}>
+                  <Text style={[styles.subtitle, { color: t.inkMute }]}>
+                    Escolha como deseja adicionar uma pessoa.
+                  </Text>
+                  <PaymentActionCard
+                    title="Enviar convite"
+                    description="Copia um link para compartilhar fora da Kora"
+                    icon="share-2"
+                    onPress={handleCopyLink}
+                    style={styles.action}
+                  />
+                  <PaymentActionCard
+                    title="Adicionar pelo ID"
+                    description="Use o @usuario Kora para salvar o contato"
+                    icon="user-plus"
+                    onPress={() => setStep("add_id")}
+                    style={styles.action}
+                  />
+                </View>
+              ) : (
+                <View style={styles.content}>
+                  <SectionTitle>Dados do contato</SectionTitle>
+                  <Field
+                    label="ID KORA"
+                    icon="at-sign"
                     value={username}
+                    placeholder="ex: joao_silva"
                     onChangeText={setUsername}
-                    style={[styles.input, { color: t.ink }]}
                     autoCapitalize="none"
-                    autoCorrect={false}
                   />
-                </View>
-
-                <Text style={[styles.inputLabel, { color: t.ink }]}>Nome do Contato (Opcional)</Text>
-                <View style={[styles.inputWrapper, { backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
-                  <Feather name="user" size={16} color={t.inkMute} style={{ marginRight: 8 }} />
-                  <TextInput
-                    placeholder="ex: João Silva"
-                    placeholderTextColor={t.inkMute}
+                  <Field
+                    label="NOME"
+                    icon="user"
                     value={name}
+                    placeholder="ex: Joao Silva"
                     onChangeText={setName}
-                    style={[styles.input, { color: t.ink }]}
-                    autoCorrect={false}
+                    autoCapitalize="words"
                   />
                 </View>
-
-                <TouchableOpacity style={[styles.saveBtn, { backgroundColor: t.btnPrimaryBg }]} onPress={handleSave} activeOpacity={0.8}>
-                  <Text style={[styles.saveBtnText, { color: t.btnPrimaryFg }]}>Adicionar e Salvar</Text>
-                </TouchableOpacity>
-              </View>
-            )}
+              )}
+            </PaymentScreenFrame>
           </View>
         </KeyboardAvoidingView>
-
-        {toastMessage && (
-          <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
-            <Feather name="check-circle" size={16} color={t.green} style={{ marginRight: 8 }} />
-            <Text style={[styles.toastText, { color: t.ink }]}>{toastMessage}</Text>
-          </Animated.View>
-        )}
       </View>
     </Modal>
   );
@@ -195,142 +235,67 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({ visible, onClo
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "flex-end",
   },
-  backdropPressable: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
     zIndex: 1,
   },
   keyboardContainer: {
-    width: '100%',
+    width: "100%",
     zIndex: 2,
   },
-  modalCard: {
-    width: '100%',
+  drawer: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
-    paddingBottom: Platform.OS === 'ios' ? 40 : 28,
+    height: "72%",
+    overflow: "hidden",
   },
   handleBar: {
     width: 44,
     height: 4,
     borderRadius: 2,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginTop: 10,
     marginBottom: 6,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderBottomWidth: 1,
+  content: {
+    paddingBottom: 18,
   },
-  headerBtn: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  subTitle: {
+  subtitle: {
+    fontFamily: fonts.sans.medium,
     fontSize: 13,
-    fontWeight: '500',
-    paddingHorizontal: 20,
-    marginTop: 18,
-    marginBottom: 16,
+    lineHeight: 18,
+    textAlign: "center",
+    marginBottom: 18,
   },
-  optionsContainer: {
-    paddingHorizontal: 20,
+  action: {
+    marginBottom: 10,
   },
-  optionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
+  field: {
+    marginBottom: 14,
   },
-  iconWrapper: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
-  optionText: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  optionDesc: {
-    fontSize: 11,
-    fontWeight: '500',
-    lineHeight: 14,
-  },
-  formContainer: {
-    paddingHorizontal: 20,
-  },
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: '700',
+  fieldLabel: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 9,
+    letterSpacing: 1.1,
     marginBottom: 8,
-    marginTop: 6,
   },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: Platform.OS === 'ios' ? 12 : 8,
-    marginBottom: 16,
+  inputRow: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 14,
   },
   input: {
     flex: 1,
+    fontFamily: fonts.sans.medium,
     fontSize: 14,
-    padding: 0,
-  },
-  saveBtn: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  saveBtnText: {
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  toast: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-    borderWidth: 1,
-    borderColor: '#2C2C2C',
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    zIndex: 999,
-  },
-  toastText: {
-    fontSize: 13,
-    fontWeight: '600',
+    paddingVertical: 0,
   },
 });

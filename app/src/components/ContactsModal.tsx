@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
   FlatList,
-  TouchableOpacity,
+  Modal,
+  Platform,
   SafeAreaView,
   StatusBar,
-  Platform,
-} from 'react-native';
-import { Feather, FontAwesome } from '../icons';
-import { useTheme } from '../theme/ThemeProvider';
-import { Contact } from '../data/contacts';
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Feather, FontAwesome } from "../icons";
+import { Contact } from "../data/contacts";
+import { useTheme } from "../theme/ThemeProvider";
+import { fonts, radii } from "../theme/tokens";
+import { SoftCard } from "./ds/SoftCard";
+import { Button } from "./ds/Button";
 
 interface ContactsModalProps {
   visible: boolean;
@@ -23,41 +26,66 @@ interface ContactsModalProps {
   onContactPress?: (contact: Contact) => void;
 }
 
-export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts, onClose, onAddPress, onContactPress }) => {
+export const ContactsModal: React.FC<ContactsModalProps> = ({
+  visible,
+  contacts,
+  onClose,
+  onAddPress,
+  onContactPress,
+}) => {
   const { t } = useTheme();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredContacts = contacts.filter((contact) => {
-    const nameMatch = contact.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const walletMatch = contact.walletId.toLowerCase().includes(searchQuery.toLowerCase());
-    return nameMatch || walletMatch;
+    const query = searchQuery.toLowerCase();
+    return (
+      contact.name?.toLowerCase().includes(query) ||
+      contact.walletId.toLowerCase().includes(query)
+    );
   });
 
   const renderContactItem = ({ item }: { item: Contact }) => (
-    <TouchableOpacity style={[styles.contactRow, { borderBottomColor: t.line }]} activeOpacity={0.7} onPress={() => onContactPress?.(item)}>
-      <View style={[styles.avatar, { backgroundColor: t.bg2 }, item.isFavorite && { borderColor: t.orange, backgroundColor: t.bgElev }]}>
-        <Text style={[styles.avatarText, { color: item.isFavorite ? t.orange : t.ink }]}>
-          {item.initials}
-        </Text>
-        {item.isFavorite && (
-          <View style={[styles.favoriteBadge, { backgroundColor: t.orange, borderColor: t.bg }]}>
-            <FontAwesome name="star" size={9} color={t.btnPrimaryFg} />
-          </View>
-        )}
-      </View>
+    <TouchableOpacity
+      style={[styles.contactRow, { borderBottomColor: t.line }]}
+      activeOpacity={0.75}
+      onPress={() => onContactPress?.(item)}
+    >
+      <SoftCard radius={24} padding={0} flat style={styles.avatarCard}>
+        <View style={styles.avatarInner}>
+          <Text style={[styles.avatarText, { color: t.ink }]}>
+            {item.initials}
+          </Text>
+          {item.isFavorite ? (
+            <View
+              style={[
+                styles.favoriteBadge,
+                { backgroundColor: t.orange, borderColor: t.bg },
+              ]}
+            >
+              <FontAwesome name="star" size={8} color={t.btnPrimaryFg} />
+            </View>
+          ) : null}
+        </View>
+      </SoftCard>
 
       <View style={styles.contactDetails}>
-        <Text style={[styles.contactName, { color: t.ink }]}>
-          {item.name || 'Usuário Sem Nome'}
+        <Text style={[styles.contactName, { color: t.ink }]} numberOfLines={1}>
+          {item.name || "Usuario sem nome"}
         </Text>
-        <Text style={[styles.contactWalletId, { color: t.inkMute }]}>
+        <Text
+          style={[styles.contactWalletId, { color: t.inkMute }]}
+          numberOfLines={1}
+        >
           {item.walletId}
         </Text>
       </View>
 
-      <TouchableOpacity style={[styles.actionBtn, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => onContactPress?.(item)}>
-        <Feather name="send" size={16} color={t.orange} />
-      </TouchableOpacity>
+      <Button
+        label="Enviar"
+        variant="secondary"
+        icon={<Feather name="send" size={14} color={t.ink} />}
+        onPress={() => onContactPress?.(item)}
+      />
     </TouchableOpacity>
   );
 
@@ -70,34 +98,44 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
     >
       <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
         <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} />
-        
+
         <View style={[styles.header, { borderBottomColor: t.line }]}>
-          <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-            <Feather name="arrow-left" size={24} color={t.ink} />
+          <TouchableOpacity onPress={onClose} activeOpacity={0.75}>
+            <SoftCard radius={19} padding={0} flat style={styles.headerButton}>
+              <View style={styles.headerButtonInner}>
+                <Feather name="arrow-left" size={19} color={t.ink} />
+              </View>
+            </SoftCard>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: t.ink }]}>Seus Contatos</Text>
-          <TouchableOpacity style={styles.addBtn} onPress={onAddPress} activeOpacity={0.7}>
-            <Feather name="user-plus" size={22} color={t.orange} />
+          <Text style={[styles.headerTitle, { color: t.ink }]}>Contatos</Text>
+          <TouchableOpacity onPress={onAddPress} activeOpacity={0.75}>
+            <SoftCard radius={19} padding={0} flat style={styles.headerButton}>
+              <View style={styles.headerButtonInner}>
+                <Feather name="user-plus" size={18} color={t.ink} />
+              </View>
+            </SoftCard>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.searchContainer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-          <Feather name="search" size={18} color={t.inkMute} />
-          <TextInput
-            placeholder="Pesquisar por nome ou username..."
-            placeholderTextColor={t.inkMute}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={[styles.searchInput, { color: t.ink }]}
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-          />
-          {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Feather name="x" size={16} color={t.inkMute} />
-            </TouchableOpacity>
-          )}
-        </View>
+        <SoftCard radius={radii.btn} padding={0} style={styles.searchCard}>
+          <View style={styles.searchInner}>
+            <Feather name="search" size={18} color={t.inkMute} />
+            <TextInput
+              placeholder="Pesquisar por nome ou username"
+              placeholderTextColor={t.inkMute}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[styles.searchInput, { color: t.ink }]}
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+            />
+            {searchQuery ? (
+              <TouchableOpacity onPress={() => setSearchQuery("")}>
+                <Feather name="x" size={16} color={t.inkMute} />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </SoftCard>
 
         <FlatList
           data={filteredContacts}
@@ -106,8 +144,15 @@ export const ContactsModal: React.FC<ContactsModalProps> = ({ visible, contacts,
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Feather name="users" size={48} color={t.inkFaint} style={{ marginBottom: 12 }} />
-              <Text style={[styles.emptyText, { color: t.inkMute }]}>Nenhum contato encontrado</Text>
+              <Feather
+                name="users"
+                size={44}
+                color={t.inkFaint}
+                style={styles.emptyIcon}
+              />
+              <Text style={[styles.emptyText, { color: t.inkMute }]}>
+                Nenhum contato encontrado
+              </Text>
             </View>
           }
         />
@@ -121,39 +166,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    height: 64,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    marginTop: Platform.OS === 'android' ? 24 : 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    marginTop: Platform.OS === "android" ? 24 : 0,
   },
-  closeBtn: {
-    padding: 4,
+  headerButton: {
+    width: 38,
+    height: 38,
+  },
+  headerButtonInner: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontFamily: fonts.sans.semibold,
+    fontSize: 17,
+    fontWeight: "700",
   },
-  addBtn: {
-    padding: 4,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 12 : 8,
+  searchCard: {
     marginHorizontal: 20,
     marginTop: 16,
-    marginBottom: 8,
-    borderWidth: 1,
+    marginBottom: 6,
+  },
+  searchInner: {
+    minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 14,
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 15,
+    fontFamily: fonts.sans.medium,
+    fontSize: 14,
+    paddingVertical: 0,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -161,67 +213,63 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   contactRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 12,
   },
-  avatar: {
+  avatarCard: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
   },
-  avatarFavorite: {
+  avatarInner: {
+    width: 48,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  avatarTextFavorite: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 14,
+    fontWeight: "800",
   },
   favoriteBadge: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
+    position: "absolute",
+    bottom: -1,
+    right: -1,
     width: 16,
     height: 16,
     borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
   },
   contactDetails: {
     flex: 1,
-    marginLeft: 12,
+    minWidth: 0,
   },
   contactName: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontFamily: fonts.sans.semibold,
+    fontSize: 14,
+    fontWeight: "700",
   },
   contactWalletId: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  actionBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
+    fontFamily: fonts.mono.medium,
+    fontSize: 11,
+    marginTop: 3,
   },
   emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 80,
   },
+  emptyIcon: {
+    marginBottom: 12,
+  },
   emptyText: {
+    fontFamily: fonts.sans.semibold,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "700",
   },
 });
