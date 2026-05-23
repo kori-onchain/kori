@@ -93,7 +93,8 @@ const MERCHANTS: Merchant[] = [
 export function YieldMap() {
   const [activeId, setActiveId] = useState("1")
   const active = MERCHANTS.find((m) => m.id === activeId) ?? MERCHANTS[0]
-  const riskColor = active.riskTone === "good" ? "var(--green)" : "var(--ink-dim)"
+  const riskColor =
+    active.riskTone === "good" ? "var(--green)" : "var(--ink-dim)"
 
   return (
     <section className="section">
@@ -102,17 +103,21 @@ export function YieldMap() {
       <span className="corner br" />
 
       <div className="sec-head">
-        <div className="sec-tag">Yield Map</div>
+        <div className="sec-tag">Yield</div>
         <h2 className="sec-title">
-          Comércios verificados,
-          <span className="dim">no seu bairro.</span>
+          Empreste pro comércio do bairro.
+          <span className="dim">APR fixo, prazo definido.</span>
         </h2>
+        <p className="section-intro">
+          Risco, retorno e prazo antes de investir. Settlement em USDC. Exemplos
+          de demo.
+        </p>
       </div>
 
       <div className="map-layout">
         <div className="map-canvas">
           <div className="map-overlay tl">SP · ZONA OESTE</div>
-          <div className="map-overlay tr">LIVE</div>
+          <div className="map-overlay tr">DEMO</div>
           <div className="compass">
             <span className="arrow" />
             <span>N</span>
@@ -180,7 +185,11 @@ export function YieldMap() {
               strokeLinecap="round"
             />
 
-            <g stroke="rgba(255,255,255,0.22)" fill="none" strokeLinecap="round">
+            <g
+              stroke="rgba(255,255,255,0.22)"
+              fill="none"
+              strokeLinecap="round"
+            >
               <path d="M120,90 L640,140" strokeWidth="1.8" />
               <path d="M60,260 L500,380" strokeWidth="1.5" />
               <path d="M380,80 L420,500" strokeWidth="1.4" />
@@ -203,9 +212,25 @@ export function YieldMap() {
             </g>
 
             <g opacity="0.3">
-              <circle cx="180" cy="200" r="22" fill="rgba(74, 222, 128, 0.18)" />
-              <circle cx="500" cy="200" r="18" fill="rgba(74, 222, 128, 0.18)" />
-              <ellipse cx="680" cy="380" rx="26" ry="18" fill="rgba(74, 222, 128, 0.15)" />
+              <circle
+                cx="180"
+                cy="200"
+                r="22"
+                fill="rgba(74, 222, 128, 0.18)"
+              />
+              <circle
+                cx="500"
+                cy="200"
+                r="18"
+                fill="rgba(74, 222, 128, 0.18)"
+              />
+              <ellipse
+                cx="680"
+                cy="380"
+                rx="26"
+                ry="18"
+                fill="rgba(74, 222, 128, 0.15)"
+              />
             </g>
 
             <g
@@ -239,7 +264,7 @@ export function YieldMap() {
               return (
                 <g key={`pin-${m.id}`}>
                   <g
-                    className={`pin${isActive ? " active" : ""}`}
+                    className={`pin${isActive ? "active" : ""}`}
                     transform={`translate(${m.pin.x}, ${m.pin.y})`}
                     onClick={() => setActiveId(m.id)}
                     style={{ cursor: "pointer" }}
@@ -249,7 +274,7 @@ export function YieldMap() {
                     <circle className="pin-dot" cx="0" cy="0" r="4" />
                   </g>
                   <text
-                    className={`pin-label${isActive ? " active" : ""}`}
+                    className={`pin-label${isActive ? "active" : ""}`}
                     x={m.pin.x}
                     y={m.pin.labelY}
                     textAnchor="middle"
@@ -310,7 +335,7 @@ export function YieldMap() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") setActiveId(m.id)
                 }}
-                className={`map-row${m.id === activeId ? " active" : ""}`}
+                className={`map-row${m.id === activeId ? "active" : ""}`}
               >
                 <span className="map-row-pin" />
                 <div className="map-row-info">

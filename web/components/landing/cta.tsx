@@ -10,14 +10,15 @@ export function Cta() {
         <span className="dim">pro seu próprio dinheiro.</span>
       </h2>
       <p>
-        Beta aberto. Sem KYC inicial, sem custódia intermediária. Crie sua chave em 30 segundos.
+        Conta self-custody em 30 segundos. Sua chave, seu controle. Demo rodando
+        em Solana Devnet.
       </p>
       <div className="cta-ctas">
         <a href="#" className="btn">
-          Baixar pra iOS
+          Baixar pra Android
         </a>
         <a href="#" className="btn btn-ghost">
-          Baixar pra Android
+          Ver demo
         </a>
       </div>
     </section>

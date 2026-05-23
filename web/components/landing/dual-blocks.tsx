@@ -8,33 +8,33 @@ export function DualBlocks() {
       <span className="corner br" />
 
       <div className="sec-head">
-        <div className="sec-tag">In Action</div>
+        <div className="sec-tag">Conceitos futuros</div>
         <h2 className="sec-title">
-          Cada peça com peso próprio.
-          <span className="dim">Não tem feature de marketing.</span>
+          Cartão e ingressos.
+          <span className="dim">Roadmap, não promessa de demo.</span>
         </h2>
       </div>
 
       <div className="dual-blocks">
         <div className="dual-block left">
-          <span className="block-tag">01 · Cartão</span>
+          <span className="block-tag">ROADMAP · Cartão</span>
           <h3>
-            Black metálico.
+            Cartão Kora.
             <span className="dim">Cashback em USDC.</span>
           </h3>
           <p>
-            Mastercard real, aceito em 200+ países. 1.5% de cashback pago direto na sua carteira em
-            USDC, a cada compra.
+            Cashback em USDC, em desenvolvimento via parceiro emissor. Conceito,
+            não cartão emitido.
           </p>
           <div className="block-meta">
             <span>
-              Cashback <b>1.5%</b>
+              Status <b>em breve</b>
             </span>
             <span>
-              Aceitação <b>200+ países</b>
+              Emissor <b>parceiro</b>
             </span>
             <span>
-              Liquidação <b>2.1s</b>
+              Settlement <b>USDC</b>
             </span>
           </div>
           <div className="block-phone">
@@ -45,14 +45,14 @@ export function DualBlocks() {
         </div>
 
         <div className="dual-block right">
-          <span className="block-tag">02 · Ingressos</span>
+          <span className="block-tag">ROADMAP · Ingressos</span>
           <h3>
             Show vira NFT.
             <span className="dim">Cambista, never again.</span>
           </h3>
           <p>
-            QR rotativo antifraude renova a cada 5 segundos. Revenda P2P direto na blockchain depois
-            de 7 dias do mint.
+            Ingressos NFT antifraude com QR rotativo e revenda P2P onchain.
+            Roadmap.
           </p>
           <div className="block-meta">
             <span>

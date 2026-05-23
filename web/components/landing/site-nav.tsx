@@ -1,8 +1,8 @@
 const links = [
   { label: "App", href: "#" },
-  { label: "Cartão", href: "#" },
   { label: "Yield", href: "#" },
   { label: "Score", href: "#" },
+  { label: "Cartão", href: "#" },
   { label: "Docs", href: "#" },
 ]
 
@@ -24,7 +24,7 @@ export function SiteNav() {
       </ul>
       <div className="nav-right">
         <span className="pill">
-          <span className="dot" /> MAINNET
+          <span className="dot" /> DEVNET · Hackanation 2026
         </span>
         <a href="#" className="nav-social" aria-label="GitHub">
           <svg aria-hidden="true" viewBox="0 0 24 24" role="img">

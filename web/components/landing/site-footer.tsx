@@ -3,28 +3,18 @@ const COLS: { title: string; links: { label: string; href: string }[] }[] = [
     title: "Produto",
     links: [
       { label: "App", href: "#" },
-      { label: "Cartão Black", href: "#" },
       { label: "Yield", href: "#" },
       { label: "Score", href: "#" },
+      { label: "Cartão (roadmap)", href: "#" },
     ],
   },
   {
     title: "Recursos",
-    links: [
-      { label: "Documentação", href: "#" },
-      { label: "Whitepaper", href: "#" },
-      { label: "Auditorias", href: "#" },
-      { label: "Bug Bounty", href: "#" },
-    ],
+    links: [{ label: "Documentação", href: "#" }],
   },
   {
-    title: "Comunidade",
-    links: [
-      { label: "Discord", href: "#" },
-      { label: "Twitter", href: "#" },
-      { label: "GitHub", href: "#" },
-      { label: "Mirror", href: "#" },
-    ],
+    title: "Hackanation",
+    links: [{ label: "GitHub", href: "#" }],
   },
 ]
 
@@ -44,8 +34,8 @@ export function SiteFooter() {
             <span className="word">KORA</span>
           </div>
           <p>
-            Banking onchain pra quem mora no Brasil. Settled on Solana. Open source, governado pela
-            comunidade.
+            Yield local e conta self-custody para o Brasil. Settled on Solana
+            Devnet. Demo Hackanation 2026.
           </p>
         </div>
 
@@ -72,7 +62,7 @@ export function SiteFooter() {
         </span>
         <span>
           <span className="dot" />
-          &nbsp;&nbsp;Mainnet · live
+          &nbsp;&nbsp;Devnet · Hackanation 2026
         </span>
       </div>
     </footer>

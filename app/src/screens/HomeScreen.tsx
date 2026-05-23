@@ -1,31 +1,39 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View, SafeAreaView, ScrollView, Platform, StatusBar, AccessibilityInfo } from 'react-native';
-import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
-import { useTheme } from '../theme/ThemeProvider';
-import { Header } from '../components/Header';
-import { Balance } from '../components/Balance';
-import { CryptoInvestments } from '../components/CryptoInvestments';
-import { NftHoldings } from '../components/NftHoldings';
-import { ContactsModal } from '../components/ContactsModal';
-import { AddContactModal } from '../components/AddContactModal';
-import { TransactionsModal } from '../components/TransactionsModal';
-import { Transactions } from '../components/Transactions';
-import { BottomMenu } from '../components/BottomMenu';
-import { CardsPanel } from '../components/CardsPanel';
-import { InvestmentsPanel } from '../components/InvestmentsPanel';
-import { ExperiencesPanel } from '../components/ExperiencesPanel';
-import { ProfileModal } from '../components/ProfileModal';
-import { SendModal } from '../components/payment/SendModal';
-import { PaymentIntent, PaymentScreen } from '../types/payment';
-import { useContacts } from '../hooks/useContacts';
-import { useModals } from '../hooks/useModals';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  SafeAreaView,
+  ScrollView,
+  Platform,
+  StatusBar,
+  AccessibilityInfo,
+} from "react-native";
+import Animated, { Easing, FadeInDown } from "react-native-reanimated";
+import { useTheme } from "../theme/ThemeProvider";
+import { Header } from "../components/Header";
+import { Balance } from "../components/Balance";
+import { CryptoInvestments } from "../components/CryptoInvestments";
+import { NftHoldings } from "../components/NftHoldings";
+import { ContactsModal } from "../components/ContactsModal";
+import { AddContactModal } from "../components/AddContactModal";
+import { TransactionsModal } from "../components/TransactionsModal";
+import { Transactions } from "../components/Transactions";
+import { BottomMenu } from "../components/BottomMenu";
+import { CardsPanel } from "../components/CardsPanel";
+import { InvestmentsPanel } from "../components/InvestmentsPanel";
+import { ExperiencesPanel } from "../components/ExperiencesPanel";
+import { ProfileModal } from "../components/ProfileModal";
+import { SendModal } from "../components/payment/SendModal";
+import { PaymentIntent, PaymentScreen } from "../types/payment";
+import { useContacts } from "../hooks/useContacts";
+import { useModals } from "../hooks/useModals";
 
 interface HomeScreenProps {
   onLogout?: () => void;
   userName?: string;
   username?: string;
-  accountType?: 'PF' | 'PJ';
-  onSwitchAccount?: (newType: 'PF' | 'PJ') => void;
+  accountType?: "PF" | "PJ";
+  onSwitchAccount?: (newType: "PF" | "PJ") => void;
   onAddAccount?: () => void;
 }
 
@@ -40,10 +48,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const { scheme, t } = useTheme();
   const { contacts, addContact } = useContacts();
   const { modals, open, close } = useModals();
-  const [activeTab, setActiveTab] = useState('inicio');
+  const [activeTab, setActiveTab] = useState("inicio");
   const [sendIntent, setSendIntent] = useState<Partial<PaymentIntent>>({});
-  const [sendInitialScreen, setSendInitialScreen] = useState<PaymentScreen>('scan');
-  const [identity, setIdentity] = useState<'userId' | 'wallet'>('wallet');
+  const [sendInitialScreen, setSendInitialScreen] =
+    useState<PaymentScreen>("scan");
+  const [identity, setIdentity] = useState<"userId" | "wallet">("wallet");
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -54,7 +63,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     });
 
     const subscription = AccessibilityInfo.addEventListener(
-      'reduceMotionChanged',
+      "reduceMotionChanged",
       setReduceMotion,
     );
 
@@ -64,30 +73,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     };
   }, []);
 
-  const walletHashFull = '7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a';
-  const walletHashShort = '7nxB...4X1a';
-  const userHandle = username ? `@${username}` : '@opedrooz';
+  const walletHashFull = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
+  const walletHashShort = "7nxB...4X1a";
+  const userHandle = username ? `@${username}` : "@opedrooz";
 
   const handleContactPress = (contact: any) => {
     setSendIntent({
       recipient: {
-        type: 'id',
-        displayName: contact.name || contact.walletId.replace('@', ''),
+        type: "id",
+        displayName: contact.name || contact.walletId.replace("@", ""),
         userId: contact.walletId,
         isAnonymous: false,
         isFavorite: contact.isFavorite,
         id: contact.id,
       },
-      currency: 'BRL',
+      currency: "BRL",
     });
-    setSendInitialScreen('amount');
-    open('sendPayment');
+    setSendInitialScreen("amount");
+    open("sendPayment");
   };
 
   const handleScanPress = () => {
     setSendIntent({}); // Reset intent para abrir no modo scanner puro
-    setSendInitialScreen('scan');
-    open('sendPayment');
+    setSendInitialScreen("scan");
+    open("sendPayment");
   };
 
   const headerProps = {
@@ -97,7 +106,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     accountType,
     onSwitchAccount,
     onAddAccount,
-    onProfilePress: () => open('profile'),
+    onProfilePress: () => open("profile"),
     onScanPress: handleScanPress,
     identity,
     onSelectIdentity: setIdentity,
@@ -125,21 +134,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           translucent={true}
         />
 
-        {activeTab === 'cartao' ? (
+        {activeTab === "cartao" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
             <View style={styles.headerLayer}>
               <Header {...headerProps} />
             </View>
             <CardsPanel userName={userName} />
           </View>
-        ) : activeTab === 'investimentos' ? (
+        ) : activeTab === "investimentos" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
             <View style={styles.headerLayer}>
               <Header {...headerProps} />
             </View>
             <InvestmentsPanel />
           </View>
-        ) : activeTab === 'experiencias' ? (
+        ) : activeTab === "experiencias" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
             <View style={styles.headerLayer}>
               <Header {...headerProps} />
@@ -167,15 +176,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               actionsEntering={entering(160)}
               onSendPress={() => {
                 setSendIntent({});
-                setSendInitialScreen('manual');
-                open('sendPayment');
+                setSendInitialScreen("manual");
+                open("sendPayment");
               }}
             />
             <Animated.View entering={entering(220)}>
-              <NftHoldings onSeeAll={() => open('contacts')} />
+              <NftHoldings onSeeAll={() => open("contacts")} />
             </Animated.View>
             <Animated.View entering={entering(300)}>
-              <Transactions onSeeAll={() => open('transactions')} />
+              <Transactions onSeeAll={() => open("transactions")} />
             </Animated.View>
             <Animated.View entering={entering(380)}>
               <CryptoInvestments />
@@ -192,35 +201,37 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <ContactsModal
           visible={modals.contacts}
           contacts={contacts}
-          onClose={() => close('contacts')}
-          onAddPress={() => open('addContact')}
+          onClose={() => close("contacts")}
+          onAddPress={() => open("addContact")}
           onContactPress={(contact) => {
-            close('contacts');
+            close("contacts");
             handleContactPress(contact);
           }}
         />
 
         <AddContactModal
           visible={modals.addContact}
-          onClose={() => close('addContact')}
+          onClose={() => close("addContact")}
           onSave={addContact}
         />
 
         <TransactionsModal
           visible={modals.transactions}
-          onClose={() => close('transactions')}
+          onClose={() => close("transactions")}
         />
 
         <ProfileModal
           visible={modals.profile}
-          onClose={() => close('profile')}
+          onClose={() => close("profile")}
+          onLogout={onLogout}
           userName={userName}
+          username={username}
           accountType={accountType}
         />
 
         <SendModal
           visible={modals.sendPayment}
-          onClose={() => close('sendPayment')}
+          onClose={() => close("sendPayment")}
           initialScreen={sendInitialScreen}
           initialIntent={sendIntent}
         />
@@ -235,7 +246,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
   scroller: {
     flex: 1,
@@ -251,7 +262,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   headerLayer: {
-    position: 'relative',
+    position: "relative",
     zIndex: 1000,
     elevation: 1000,
   },

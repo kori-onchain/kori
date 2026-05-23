@@ -9,19 +9,17 @@ export function TrustBar() {
               <use href="#solana" />
             </svg>
             Solana
-            <span className="micro">· Mainnet</span>
+            <span className="micro">· Devnet</span>
           </span>
         </div>
         <div className="trust-item">
-          <span className="lbl">Audited by</span>
-          <span className="val">
-            Trail of Bits<span className="micro">· Spearbit · Zellic</span>
-          </span>
+          <span className="lbl">Demo</span>
+          <span className="val">Hackanation 2026</span>
         </div>
         <div className="trust-item">
-          <span className="lbl">Source</span>
+          <span className="lbl">Status</span>
           <span className="val">
-            Open · MIT<span className="micro">· github.com/kora</span>
+            v1 on Devnet<span className="micro">· roadmap honesto</span>
           </span>
         </div>
       </div>

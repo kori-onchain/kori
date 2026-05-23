@@ -13,36 +13,36 @@ import {
 const STEPS = [
   {
     n: 1,
-    eyebrow: "FEATURE 01",
-    title: "Tudo numa chave só.",
-    titleDim: "Sem 12 abas abertas.",
-    body: "Saldo em BRL, USDC, cashback do cartão, NFTs de evento, stake. Um app, uma seed, zero intermediários.",
+    eyebrow: "SCORE 01",
+    title: "Seu histórico vira reputação.",
+    titleDim: "Pública, portátil, sua.",
+    body: "Pagamentos e contratos cumpridos elevam seu Reputation Token. Sem bureau, sem score caixa-preta.",
     list: [
-      "BRL e USDC nativos",
-      "Cartão Black com cashback em USDC",
-      "NFT holdings (founder, ingressos)",
-      "Transações em tempo real na Solana",
+      "Reputation NFT mintado na sua carteira",
+      "5 tiers (Bronze a Premium)",
+      "Sobe com histórico real",
+      "Base pra desbloquear limites e benefícios futuros",
     ],
   },
   {
     n: 2,
-    eyebrow: "FEATURE 02",
-    title: "Seu score vira NFT.",
-    titleDim: "Público, portável, seu.",
-    body: "Cada pagamento em dia, stake ativo e holding antigo eleva seu Reputation Token. Verificável em qualquer dapp Solana.",
+    eyebrow: "APP 02",
+    title: "Conta self-custody.",
+    titleDim: "Sem seed phrase no onboarding.",
+    body: "Experiência de banco digital, base self-custody em Solana.",
     list: [
-      "Reputation NFT mintado na carteira",
-      "5 tiers (Bronze a Premium)",
-      "Desbloqueia VIP lounges e limites",
-      "Sem bureau, sem score caixa-preta",
+      "Onboarding em 30 segundos",
+      "Transferência P2P em USDC",
+      "Identidade onchain",
+      "Controle na sua chave",
     ],
   },
   {
     n: 3,
-    eyebrow: "FEATURE 03",
-    title: "Renda fixa do bloco.",
+    eyebrow: "YIELD 03",
+    title: "Empreste pro comércio do bairro.",
     titleDim: "APR fixo, prazo definido.",
-    body: "Empreste pra padaria, mercado ou bar do bairro antecipando recebíveis. Settlement em USDC.",
+    body: "Você vê risco, retorno e prazo antes de investir. Settlement em USDC.",
     list: [
       "APR entre 13% e 22% a.a.",
       "Prazos de 30 a 90 dias",
@@ -102,7 +102,7 @@ export function ParallaxFeatures() {
 
   return (
     <section className="section parallax" ref={sectionRef}>
-      <span className="sec-label">S:01 / FEATURES</span>
+      <span className="sec-label">S:06 / SCORE</span>
       <span className="corner bl" />
       <span className="corner br" />
 

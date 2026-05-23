@@ -17,7 +17,7 @@ export function Architecture() {
         <div className="sec-tag">Architecture</div>
         <h2 className="sec-title">
           Como uma transação flui.
-          <span className="dim">Do tap ao settlement em 2.1s.</span>
+          <span className="dim">Do tap ao settlement em Devnet.</span>
         </h2>
       </div>
 
@@ -34,7 +34,11 @@ export function Architecture() {
         </ul>
 
         <div className="arch-canvas">
-          <svg className="arch-svg" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="arch-svg"
+            viewBox="0 0 500 300"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <marker
                 id="arr"
@@ -141,11 +145,27 @@ export function Architecture() {
             </g>
 
             <g fill="none" stroke="#fafafa" strokeWidth="1">
-              <path d="M120,150 L180,70" strokeOpacity="0.30" markerEnd="url(#arr)" />
-              <path d="M120,150 L180,150" strokeOpacity="0.9" markerEnd="url(#arr)" />
-              <path d="M120,150 L180,230" strokeOpacity="0.30" markerEnd="url(#arr)" />
+              <path
+                d="M120,150 L180,70"
+                strokeOpacity="0.30"
+                markerEnd="url(#arr)"
+              />
+              <path
+                d="M120,150 L180,150"
+                strokeOpacity="0.9"
+                markerEnd="url(#arr)"
+              />
+              <path
+                d="M120,150 L180,230"
+                strokeOpacity="0.30"
+                markerEnd="url(#arr)"
+              />
               <path d="M280,70 L340,140" strokeOpacity="0.18" />
-              <path d="M280,150 L340,150" strokeOpacity="0.9" markerEnd="url(#arr)" />
+              <path
+                d="M280,150 L340,150"
+                strokeOpacity="0.9"
+                markerEnd="url(#arr)"
+              />
               <path d="M280,230 L340,160" strokeOpacity="0.18" />
             </g>
           </svg>

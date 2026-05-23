@@ -9,24 +9,24 @@ export function Hero() {
 
       <div className="reveal">
         <div className="eyebrow">
-          <span className="tag">v1.1</span>
-          Beta aberto · 4.200 founders
+          <span className="tag">v1</span>
+          Demo Hackanation 2026 · Devnet
         </div>
       </div>
 
       <h1 className="reveal d1">
-        Banking pra
-        <span className="dim">quem é self-custody.</span>
+        Renda fixa do bairro.
+        <span className="dim">Caixa pro comércio local.</span>
       </h1>
 
       <p className="hero-sub reveal d2">
-        Cartão Black, yield no comércio local, ingresso virando NFT, score onchain. Tudo na sua
-        chave. Settled on Solana.
+        Financie recebíveis locais a partir de R$50. Prazo definido, rendimento
+        claro, settlement em USDC.
       </p>
 
       <div className="hero-ctas reveal d3">
         <a href="#" className="btn">
-          Baixar app →
+          Baixar app Android
         </a>
         <a href="#" className="btn btn-ghost">
           Ver demo

@@ -6,23 +6,23 @@ export function LightSection() {
       <span className="corner br" />
 
       <div className="ls-eyebrow">
-        <span className="tag">BRL</span>
-        Real digital, settled on Solana
+        <span className="tag">Devnet</span>
+        Yield local, settled on Solana
       </div>
 
       <h2>
-        Seu real, agora onchain.
-        <span className="dim">Sem perder o controle.</span>
+        Capital local.
+        <span className="dim">Settlement onchain.</span>
       </h2>
 
       <p className="ls-sub">
-        Gaste em BRL, guarde em USDC, renda em yield. O cartão Kora converte na hora, sem IOF
-        escondido, sem spread surpresa.
+        Conta self-custody, marketplace de recebíveis e transferências P2P em
+        USDC rodando como demonstração em Solana Devnet.
       </p>
 
       <div className="ls-ctas">
         <a href="#" className="btn-dark">
-          Pedir meu cartão →
+          Baixar pra Android →
         </a>
         <a href="#" className="btn-light">
           Como funciona
