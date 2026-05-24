@@ -1,19 +1,19 @@
 const FAQS = [
   {
+    q: "O rendimento é garantido?",
+    a: "Não. A Kora mostra rendimento potencial com base na operação, prazo e risco.",
+  },
+  {
     q: "O que a Kora financia?",
-    a: "Recebíveis de comércios locais: dinheiro que o comércio tem para receber no futuro e quer antecipar hoje.",
+    a: "Recebíveis de pequenos negócios, como vendas a prazo ou valores a receber.",
   },
   {
-    q: "Por que Solana importa aqui?",
-    a: "Porque fracionar uma fatura em vários tickets pequenos gera muitas microtransações. Com taxa alta, o modelo perde sentido.",
+    q: "Por que usar blockchain?",
+    a: "Para tornar custódia, participação e distribuição mais transparentes e automáticas.",
   },
   {
-    q: "O que já está na demo?",
-    a: "Conta self-custody, vitrine de yield, P2P em USDC e Reputation Token. Cartão, BNPL, ingressos e lounges ficam como roadmap.",
-  },
-  {
-    q: "Os comércios da vitrine são reais?",
-    a: "Nesta landing, Padaria Central, Mercado Verde e Bistrô Lisboa são exemplos de demo.",
+    q: "Por que Solana?",
+    a: "Porque ticket baixo depende de transação barata. Se a taxa come o rendimento, o modelo deixa de fazer sentido.",
   },
 ]
 
@@ -27,8 +27,8 @@ export function Faq() {
       <div className="sec-head">
         <div className="sec-tag">FAQ</div>
         <h2 className="sec-title">
-          Sem enrolar.
-          <span className="dim">O que o jurado vai perguntar.</span>
+          Perguntas difíceis,
+          <span className="dim">respostas diretas.</span>
         </h2>
       </div>
 

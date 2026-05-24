@@ -1,31 +1,31 @@
 export function LightSection() {
   return (
     <section className="section light-section">
-      <span className="sec-label">S:04 / ONCHAIN BRL</span>
+      <span className="sec-label">S:03 / PRODUTO</span>
       <span className="corner bl" />
       <span className="corner br" />
 
       <div className="ls-eyebrow">
         <span className="tag">Devnet</span>
-        Yield local, settled on Solana
+        Conta digital + recebíveis locais
       </div>
 
       <h2>
-        Capital local.
-        <span className="dim">Settlement onchain.</span>
+        Uma conta onde o dinheiro
+        <span className="dim">não fica parado.</span>
       </h2>
 
       <p className="ls-sub">
-        Conta self-custody, marketplace de recebíveis e transferências P2P em
-        USDC rodando como demonstração em Solana Devnet.
+        Saldo em stablecoin, oportunidades de recebíveis locais e pagamentos
+        instantâneos em uma experiência simples de conta digital.
       </p>
 
       <div className="ls-ctas">
         <a href="#" className="btn-dark">
-          Baixar pra Android →
+          Ver oportunidades →
         </a>
         <a href="#" className="btn-light">
-          Como funciona
+          Entender a tecnologia
         </a>
       </div>
 

@@ -1,34 +1,34 @@
 const STEPS = [
   {
     step: "01",
-    name: "Intent",
-    detail: "Usuário escolhe valor, destino e tipo de operação.",
-    meta: "mobile",
+    name: "Você investe",
+    detail: "Escolhe uma oportunidade e confirma o aporte.",
+    meta: "app",
     active: true,
   },
   {
     step: "02",
-    name: "Risk check",
-    detail: "Score e regras da conta validam limite, reputação e wallet.",
-    meta: "offchain + onchain",
+    name: "Contrato registra",
+    detail: "Sua participação vira uma cota/token de participação.",
+    meta: "program",
   },
   {
     step: "03",
-    name: "Transaction",
-    detail: "App assina e envia a instrução para Solana Devnet.",
-    meta: "solana",
+    name: "Comércio recebe",
+    detail: "O capital é liberado para antecipar o recebível.",
+    meta: "escrow",
   },
   {
     step: "04",
-    name: "Settlement",
-    detail: "USDC liquida a operação e atualiza os saldos.",
-    meta: "atomic",
+    name: "Recebível liquida",
+    detail: "O pagamento retorna ao contrato.",
+    meta: "USDC",
   },
   {
     step: "05",
-    name: "Reputation",
-    detail: "Histórico entra no Reputation Token para próximos limites.",
-    meta: "profile",
+    name: "Rendimento distribui",
+    detail: "Principal e rendimento são enviados proporcionalmente.",
+    meta: "split",
   },
 ]
 
@@ -41,14 +41,14 @@ const NODES = [
   },
   {
     id: "score",
-    title: "Score Engine",
-    sub: "risco, limite, reputação",
+    title: "Risk Rules",
+    sub: "prazo, risco, elegibilidade",
     position: "node-score",
   },
   {
     id: "program",
     title: "Solana Program",
-    sub: "instruções + escrow",
+    sub: "cotas + escrow",
     position: "node-program",
     featured: true,
   },
@@ -60,8 +60,8 @@ const NODES = [
   },
   {
     id: "rep",
-    title: "Reputation Token",
-    sub: "histórico portátil",
+    title: "Investor Share",
+    sub: "participação da operação",
     position: "node-rep",
   },
 ]
@@ -69,15 +69,15 @@ const NODES = [
 export function Architecture() {
   return (
     <section className="section">
-      <span className="sec-label">S:06 / ARCHITECTURE</span>
+      <span className="sec-label">S:06 / ARQUITETURA</span>
       <span className="corner bl" />
       <span className="corner br" />
 
       <div className="sec-head">
-        <div className="sec-tag">Architecture</div>
+        <div className="sec-tag">Do aporte ao settlement</div>
         <h2 className="sec-title">
-          Como uma transação flui.
-          <span className="dim">Do tap ao settlement em Devnet.</span>
+          Como a operação flui.
+          <span className="dim">Do R$50 ao retorno proporcional.</span>
         </h2>
       </div>
 
@@ -100,7 +100,7 @@ export function Architecture() {
         <div className="arch-canvas">
           <div className="arch-canvas-head">
             <span>Runtime map</span>
-            <b>Devnet transaction path</b>
+            <b>Receivable settlement path</b>
           </div>
 
           <div className="arch-map" aria-label="Diagrama da arquitetura Kora">
@@ -128,7 +128,7 @@ export function Architecture() {
             </div>
             <div>
               <span>settlement</span>
-              <b>USDC + reputation update</b>
+              <b>USDC + investor split</b>
             </div>
           </div>
         </div>

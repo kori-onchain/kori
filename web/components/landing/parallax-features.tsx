@@ -5,49 +5,59 @@ import { useEffect, useRef, useState } from "react"
 import {
   BottomNav,
   PhoneFrame,
-  ScreenHome,
-  ScreenScore,
-  ScreenYield,
+  ScreenInvestmentConfirm,
+  ScreenInvestmentPortfolio,
+  ScreenInvestmentStatus,
+  ScreenYieldMarketplace,
 } from "./phone-screens"
 
 const STEPS = [
   {
     n: 1,
-    eyebrow: "SCORE 01",
-    title: "Seu histórico vira reputação.",
-    titleDim: "Pública, portátil, sua.",
-    body: "Pagamentos e contratos cumpridos elevam seu Reputation Token. Sem bureau, sem score caixa-preta.",
+    eyebrow: "STEP 01",
+    title: "Escolha.",
+    titleDim: "Veja prazo, risco e potencial.",
+    body: "Comércios locais captam capital de giro com dados simples antes do aporte.",
     list: [
-      "Reputation NFT mintado na sua carteira",
-      "5 tiers (Bronze a Premium)",
-      "Sobe com histórico real",
-      "Base pra desbloquear limites e benefícios futuros",
+      "Recebíveis locais",
+      "Mínimo por contrato",
+      "Risco antes de entrar",
     ],
   },
   {
     n: 2,
-    eyebrow: "APP 02",
-    title: "Conta self-custody.",
-    titleDim: "Sem seed phrase no onboarding.",
-    body: "Experiência de banco digital, base self-custody em Solana.",
+    eyebrow: "STEP 02",
+    title: "Invista R$50.",
+    titleDim: "Sua cota fica registrada.",
+    body: "Você define o valor, revisa a estimativa e confirma no app.",
     list: [
-      "Onboarding em 30 segundos",
-      "Transferência P2P em USDC",
-      "Identidade onchain",
-      "Controle na sua chave",
+      "Aporte fracionado",
+      "Estimativa clara",
+      "Liquidação em USDC",
     ],
   },
   {
     n: 3,
-    eyebrow: "YIELD 03",
-    title: "Empreste pro comércio do bairro.",
-    titleDim: "APR fixo, prazo definido.",
-    body: "Você vê risco, retorno e prazo antes de investir. Settlement em USDC.",
+    eyebrow: "STEP 03",
+    title: "O comércio recebe.",
+    titleDim: "Capital de giro mais leve.",
+    body: "A captação libera caixa para o pequeno negócio antecipar o recebível.",
     list: [
-      "APR entre 13% e 22% a.a.",
-      "Prazos de 30 a 90 dias",
-      "Mínimo de R$50 por contrato",
-      "Comércios verificados onchain",
+      "Capital liberado",
+      "Vencimento claro",
+      "Status em tempo real",
+    ],
+  },
+  {
+    n: 4,
+    eyebrow: "STEP 04",
+    title: "Receba.",
+    titleDim: "Principal + rendimento.",
+    body: "No pagamento do recebível, o contrato distribui o retorno proporcional.",
+    list: [
+      "Distribuição automática",
+      "Portfolio atualizado",
+      "Saldo volta pra conta",
     ],
   },
 ] as const
@@ -102,7 +112,7 @@ export function ParallaxFeatures() {
 
   return (
     <section className="section parallax" ref={sectionRef}>
-      <span className="sec-label">S:06 / SCORE</span>
+      <span className="sec-label">S:02 / COMO INVESTIR</span>
       <span className="corner bl" />
       <span className="corner br" />
 
@@ -110,10 +120,11 @@ export function ParallaxFeatures() {
         <div className="parallax-phone">
           <div ref={phoneRef} style={{ willChange: "transform" }}>
             <PhoneFrame>
-              <ScreenHome active={active === 1} dataScreen="1" />
-              <ScreenScore active={active === 2} dataScreen="2" />
-              <ScreenYield active={active === 3} dataScreen="3" />
-              <BottomNav />
+              <ScreenYieldMarketplace active={active === 1} dataScreen="1" />
+              <ScreenInvestmentConfirm active={active === 2} dataScreen="2" />
+              <ScreenInvestmentStatus active={active === 3} dataScreen="3" />
+              <ScreenInvestmentPortfolio active={active === 4} dataScreen="4" />
+              <BottomNav active="yield" />
             </PhoneFrame>
           </div>
         </div>

@@ -7,14 +7,14 @@ export function TrustBar() {
       solana: true,
     },
     {
-      label: "Demo",
-      value: "Hackanation 2026",
-      meta: "v1 pública",
+      label: "Hackanation",
+      value: "2026",
+      meta: "RWA + DeFi",
     },
     {
-      label: "Status",
-      value: "v1 on Devnet",
-      meta: "roadmap honesto",
+      label: "MVP",
+      value: "Android-first",
+      meta: "demo pública",
     },
   ]
 

@@ -2,6 +2,7 @@ import React, { ReactNode, useMemo, useState } from "react";
 import {
   Animated,
   SafeAreaView,
+  StyleSheet,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -14,10 +15,12 @@ import Svg, {
   Path,
   Stop,
 } from "react-native-svg";
-import { LinearGradient } from "expo-linear-gradient";
 
+import { Button } from "../components/ds/Button";
 import { ArrowRightIcon, KoraGlyph, SolanaIcon } from "../components/ds/icons";
+import { SoftCard } from "../components/ds/SoftCard";
 import { useTheme } from "../theme/ThemeProvider";
+import { radii } from "../theme/tokens";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -95,14 +98,14 @@ const PrimaryButton = ({
   onPress: () => void;
   showArrow?: boolean;
 }) => (
-  <TouchableOpacity
-    activeOpacity={0.88}
+  <Button
+    label={label}
     onPress={onPress}
-    className="h-[52px] w-full flex-row items-center justify-center gap-2 rounded-[14px] bg-ink"
-  >
-    <Text className="font-sans-semibold text-[14px] text-bg">{label}</Text>
-    {showArrow && <ArrowRightIcon size={16} color="#0a0a0a" strokeWidth={2} />}
-  </TouchableOpacity>
+    variant="primary"
+    icon={showArrow ? <ArrowRightIcon size={16} color="#0a0a0a" strokeWidth={2} /> : undefined}
+    iconPosition="right"
+    style={styles.ctaButton}
+  />
 );
 
 const SoftButton = ({
@@ -112,22 +115,18 @@ const SoftButton = ({
   label: string;
   onPress: () => void;
 }) => (
-  <TouchableOpacity
-    activeOpacity={0.86}
+  <Button
+    label={label}
     onPress={onPress}
-    className="mt-2 h-[52px] w-full items-center justify-center rounded-[14px] border border-line bg-bg-2"
-  >
-    <Text className="font-sans-semibold text-[14px] text-ink">{label}</Text>
-  </TouchableOpacity>
+    variant="secondary"
+    style={styles.secondaryCtaButton}
+  />
 );
 
 const GlossCard = ({ children }: { children: ReactNode }) => (
-  <LinearGradient
-    colors={["#1e1e23", "#16161a"]}
-    className="w-full rounded-[18px] border border-line p-[18px]"
-  >
+  <SoftCard radius={radii.card} padding={18} strong style={styles.fullWidth}>
     {children}
-  </LinearGradient>
+  </SoftCard>
 );
 
 const TransactionMock = () => (
@@ -330,7 +329,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
 }) => {
   const { t } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
-  const transition = React.useRef(new Animated.Value(1)).current;
+  const slideOpacity = React.useRef(new Animated.Value(1)).current;
+  const slideX = React.useRef(new Animated.Value(0)).current;
   const slide = SLIDES[activeIndex];
   const isLast = activeIndex === SLIDES.length - 1;
 
@@ -344,36 +344,49 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       onComplete();
       return;
     }
-    Animated.timing(transition, {
-      toValue: 0,
-      duration: 130,
-      useNativeDriver: true,
-    }).start(() => {
-      setActiveIndex((current) => current + 1);
-      transition.setValue(0);
-      Animated.timing(transition, {
-        toValue: 1,
-        duration: 260,
+
+    Animated.parallel([
+      Animated.timing(slideX, {
+        toValue: -34,
+        duration: 160,
         useNativeDriver: true,
-      }).start();
+      }),
+      Animated.timing(slideOpacity, {
+        toValue: 0,
+        duration: 130,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setActiveIndex((current) => current + 1);
+      slideX.setValue(34);
+      slideOpacity.setValue(0);
+      Animated.parallel([
+        Animated.timing(slideX, {
+          toValue: 0,
+          duration: 260,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideOpacity, {
+          toValue: 1,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
     });
   };
 
   const animatedStyle = {
-    opacity: transition,
+    opacity: slideOpacity,
     transform: [
       {
-        translateY: transition.interpolate({
-          inputRange: [0, 1],
-          outputRange: [10, 0],
-        }),
+        translateX: slideX,
       },
     ],
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#050505]">
-      <StatusBar barStyle={t.statusBar} backgroundColor="#050505" translucent />
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: t.bg }]}>
+      <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent />
       <ScreenShell key={screenKey}>
         <Animated.View
           style={animatedStyle}
@@ -402,3 +415,21 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  fullWidth: {
+    width: "100%",
+  },
+  ctaButton: {
+    width: "100%",
+    minHeight: 52,
+  },
+  secondaryCtaButton: {
+    width: "100%",
+    minHeight: 52,
+    marginTop: 8,
+  },
+});

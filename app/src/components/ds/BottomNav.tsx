@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    paddingTop: 14,
+    paddingTop: 6,
     paddingBottom: Platform.OS === 'android' ? 14 : 24,
     paddingHorizontal: 8,
     alignItems: 'flex-start',
@@ -118,7 +118,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-end',
     position: 'relative',
-    paddingTop: 4,
   },
   label: {
     fontFamily: fonts.mono.medium,

@@ -8,24 +8,24 @@ export function ProblemSection() {
       <div className="sec-head">
         <div className="sec-tag">O problema</div>
         <h2 className="sec-title">
-          Dois lados,
-          <span className="dim">o mesmo intermediário caro.</span>
+          O banco cobra caro
+          <span className="dim">dos dois lados.</span>
         </h2>
       </div>
 
       <div className="problem-grid">
         <div className="problem-card">
-          <span className="problem-label">A padaria</span>
+          <span className="problem-label">Para o comércio</span>
           <p>
-            Vendeu a prazo. Recebe depois. Precisa de caixa agora. No banco,
-            antecipar custa caro.
+            Vendeu a prazo, mas precisa de caixa hoje. Antecipar no banco custa
+            caro ou nem chega.
           </p>
         </div>
         <div className="problem-card">
-          <span className="problem-label">Você</span>
+          <span className="problem-label">Para você</span>
           <p>
-            Tem dinheiro parado. Quer rendimento melhor, mas os produtos bons
-            não foram feitos pra ticket pequeno.
+            Seu dinheiro fica parado rendendo pouco. Produtos melhores exigem
+            ticket alto e burocracia.
           </p>
         </div>
       </div>

@@ -343,6 +343,240 @@ export function ScreenYield({ active = false, dataScreen }: { active?: boolean; 
   )
 }
 
+export function ScreenYieldMarketplace({ active = false, dataScreen }: { active?: boolean; dataScreen?: string }) {
+  return (
+    <div className={`screen${active ? " active" : ""}`} data-screen={dataScreen}>
+      <ScreenTop word="Recebíveis" icons={[{ id: "i-filter" }]} />
+      <div style={{ padding: "2px 0" }}>
+        <div
+          style={{
+            fontWeight: 700,
+            fontSize: 18,
+            lineHeight: 1.15,
+          }}
+        >
+          Oportunidades
+          <br />
+          locais.
+        </div>
+        <div style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 5, lineHeight: 1.5 }}>
+          Recebíveis com prazo, risco e rendimento potencial.
+        </div>
+      </div>
+      <div className="filter-row">
+        <span className="filter-chip act">Tudo</span>
+        <span className="filter-chip">30d</span>
+        <span className="filter-chip">Baixo risco</span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+        {[
+          {
+            name: "Padaria Central",
+            area: "Vila Mariana",
+            raised: "R$ 8.500 captados",
+            yield: "2,8%",
+            prazo: "30d",
+            risk: "med",
+          },
+          {
+            name: "Mercado Verde",
+            area: "Pinheiros",
+            raised: "R$ 12.200 captados",
+            yield: "3,1%",
+            prazo: "45d",
+            risk: "low",
+          },
+          {
+            name: "Bistrô Lisboa",
+            area: "Higienópolis",
+            raised: "R$ 6.900 captados",
+            yield: "4,7%",
+            prazo: "60d",
+            risk: "med",
+          },
+        ].map((o) => (
+          <div key={o.name} className="opp">
+            <div className="top">
+              <div>
+                <div className="merchant">{o.name}</div>
+                <div className="hash">{o.area} · {o.raised}</div>
+              </div>
+              <span className={`risk ${o.risk}`}>● {o.risk === "low" ? "baixo" : "moderado"}</span>
+            </div>
+            <div className="row-stats">
+              <div className="s">
+                <div className="l">Potencial</div>
+                <div className="v">{o.yield}</div>
+              </div>
+              <div className="s">
+                <div className="l">Prazo</div>
+                <div className="v">{o.prazo}</div>
+              </div>
+              <div className="s">
+                <div className="l">Mín</div>
+                <div className="v">R$50</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function ScreenInvestmentConfirm({ active = false, dataScreen }: { active?: boolean; dataScreen?: string }) {
+  return (
+    <div className={`screen${active ? " active" : ""}`} data-screen={dataScreen}>
+      <ScreenTop word="Investir" icons={[{ id: "i-check" }]} />
+      <div className="score-card">
+        <div className="mono-lbl" style={{ fontSize: 8 }}>
+          PADARIA CENTRAL
+        </div>
+        <div style={{ fontWeight: 800, fontSize: 30, marginTop: 16 }}>R$ 50</div>
+        <div style={{ color: "var(--ink-dim)", fontSize: 11, marginTop: 5 }}>
+          aporte mínimo nesta operação
+        </div>
+        <div className="score-tier">Recebimento estimado: R$ 51,40</div>
+        <div className="score-mint">liquidado em USDC</div>
+      </div>
+      <div className="sec-mini-label">
+        <span className="mono-lbl">Resumo</span>
+        <span style={{ fontFamily: "var(--kora-mono)", fontSize: 8, color: "var(--orange)" }}>
+          confirmar
+        </span>
+      </div>
+      {[
+        ["Prazo", "30 dias"],
+        ["Rendimento potencial", "2,8%"],
+        ["Risco", "Moderado"],
+      ].map(([label, value]) => (
+        <div className="li" key={label}>
+          <div className="info">
+            <div className="ic in">
+              <svg style={{ width: 9, height: 9 }}>
+                <use href="#i-check" />
+              </svg>
+            </div>
+            <div>
+              <div className="nm">{label}</div>
+              <div className="sub">antes da assinatura</div>
+            </div>
+          </div>
+          <span className="v in">{value}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function ScreenInvestmentStatus({ active = false, dataScreen }: { active?: boolean; dataScreen?: string }) {
+  return (
+    <div className={`screen${active ? " active" : ""}`} data-screen={dataScreen}>
+      <ScreenTop word="Operação" icons={[{ id: "i-share" }]} />
+      <div className="score-card">
+        <div className="mono-lbl" style={{ fontSize: 8 }}>
+          CAPITAL LIBERADO
+        </div>
+        <div className="gauge-wrap">
+          <svg viewBox="0 0 110 110" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="55" cy="55" r="48" fill="none" stroke="#202026" strokeWidth="7" />
+            <circle
+              cx="55"
+              cy="55"
+              r="48"
+              fill="none"
+              stroke="#ff6b3d"
+              strokeWidth="7"
+              strokeLinecap="round"
+              strokeDasharray="301"
+              strokeDashoffset="74"
+            />
+          </svg>
+          <div className="gauge-num">
+            30<span className="of">dias</span>
+          </div>
+        </div>
+        <div className="score-tier">Comércio recebeu</div>
+        <div className="score-mint">contrato ativo · vencimento claro</div>
+      </div>
+      {["Aporte registrado", "Capital liberado", "Recebível em aberto"].map((item, i) => (
+        <div className="li" key={item}>
+          <div className="info">
+            <div className="ic in">
+              <svg style={{ width: 9, height: 9 }}>
+                <use href="#i-check" />
+              </svg>
+            </div>
+            <div>
+              <div className="nm">{item}</div>
+              <div className="sub">etapa {i + 1} de 4</div>
+            </div>
+          </div>
+          <span className="v in">ok</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function ScreenInvestmentPortfolio({ active = false, dataScreen }: { active?: boolean; dataScreen?: string }) {
+  return (
+    <div className={`screen${active ? " active" : ""}`} data-screen={dataScreen}>
+      <ScreenTop word="Portfolio" icons={[{ id: "i-search" }]} />
+      <div className="score-card">
+        <div className="mono-lbl" style={{ fontSize: 8 }}>
+          RECEBIDO
+        </div>
+        <div style={{ fontWeight: 800, fontSize: 30, marginTop: 16 }}>R$ 51,40</div>
+        <div className="score-tier">Padaria Central · 30 dias</div>
+        <div className="score-mint">principal + rendimento distribuídos</div>
+      </div>
+      <div className="li">
+        <div className="info">
+          <div className="ic in">
+            <svg style={{ width: 9, height: 9 }}>
+              <use href="#i-arrow-l" />
+            </svg>
+          </div>
+          <div>
+            <div className="nm">Principal</div>
+            <div className="sub">aporte inicial</div>
+          </div>
+        </div>
+        <span className="v in">R$ 50,00</span>
+      </div>
+      <div className="li">
+        <div className="info">
+          <div className="ic in">
+            <svg style={{ width: 9, height: 9 }}>
+              <use href="#i-trend" />
+            </svg>
+          </div>
+          <div>
+            <div className="nm">Rendimento</div>
+            <div className="sub">proporcional</div>
+          </div>
+        </div>
+        <span className="v in">R$ 1,40</span>
+      </div>
+      <div className="li">
+        <div className="info">
+          <div className="ic">
+            <svg style={{ width: 9, height: 9 }}>
+              <use href="#i-card" />
+            </svg>
+          </div>
+          <div>
+            <div className="nm">Saldo Kora</div>
+            <div className="sub">USDC liquidado</div>
+          </div>
+        </div>
+        <span className="v in">+R$ 51,40</span>
+      </div>
+    </div>
+  )
+}
+
 /* ===================================================
    Tela card virtual (dual-block left)
    =================================================== */

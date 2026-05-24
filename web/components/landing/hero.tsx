@@ -22,8 +22,8 @@ export function Hero() {
       </h1>
 
       <p className="hero-sub reveal d2">
-        Financie recebíveis locais a partir de R$50. Prazo definido, rendimento
-        claro, settlement em USDC.
+        Financie recebíveis locais a partir de R$50. Prazo claro, rendimento
+        potencial e liquidação em USDC.
       </p>
 
       <div className="hero-ctas reveal d3">
