@@ -6,14 +6,16 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { fonts } from '../../theme/tokens';
+import { fonts, radii } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
 import {
   HomeIcon,
   CardIcon,
   InvestIcon,
   ExperiencesIcon,
+  QrIcon,
 } from './icons';
+import { SoftCard } from './SoftCard';
 
 export type BottomNavTab =
   | 'inicio'
@@ -24,7 +26,7 @@ export type BottomNavTab =
 interface BottomNavProps {
   activeTab: BottomNavTab;
   onChange: (tab: BottomNavTab) => void;
-  /** Kept for compatibility with older callers. */
+  /** Center scan action. */
   onScanPress?: () => void;
 }
 
@@ -34,20 +36,25 @@ interface TabDef {
   Icon: React.FC<{ size?: number; color?: string; strokeWidth?: number }>;
 }
 
-const TABS: TabDef[] = [
+const LEFT_TABS: TabDef[] = [
   { id: 'inicio', label: 'INICIO', Icon: HomeIcon },
   { id: 'cartao', label: 'CARTAO', Icon: CardIcon },
+];
+
+const RIGHT_TABS: TabDef[] = [
   { id: 'investimentos', label: 'INVEST', Icon: InvestIcon },
   { id: 'experiencias', label: 'EXP', Icon: ExperiencesIcon },
 ];
 
 /**
- * Bottom navigation from the DS: four equal tabs with an orange indicator
- * line above the active icon.
+ * Bottom navigation: 5-column grid with the QR scan FAB anchored in the
+ * center column. 4 nav tabs flank it (2 left, 2 right). The QR slot is not
+ * a tab — it triggers `onScanPress` and has no active state.
  */
 export const BottomNav: React.FC<BottomNavProps> = ({
   activeTab,
   onChange,
+  onScanPress,
 }) => {
   const { t } = useTheme();
 
@@ -61,14 +68,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         activeOpacity={0.7}
         onPress={() => onChange(id)}
       >
-        {isActive ? (
-          <View
-            style={[
-              styles.indicator,
-              { backgroundColor: t.orange, shadowColor: t.orange },
-            ]}
-          />
-        ) : null}
         <Icon size={21} color={tint} strokeWidth={1.7} />
         <Text style={[styles.label, { color: tint }]}>{label}</Text>
       </TouchableOpacity>
@@ -82,38 +81,65 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         { backgroundColor: t.bnavBg, borderTopColor: t.line },
       ]}
     >
-      {TABS.map(renderTab)}
+      {LEFT_TABS.map(renderTab)}
+
+      {/* Center QR FAB — raised, no active state */}
+      <View style={styles.fabSlot}>
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={onScanPress}
+          style={styles.fabTouch}
+        >
+          <SoftCard radius={radii.pill} padding={0}>
+            <View style={styles.fabInner}>
+              <QrIcon size={22} color={t.ink} strokeWidth={1.7} />
+            </View>
+          </SoftCard>
+        </TouchableOpacity>
+      </View>
+
+      {RIGHT_TABS.map(renderTab)}
     </View>
   );
 };
+
+const FAB_SIZE = 52;
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'android' ? 20 : 28,
+    paddingTop: 6,
+    paddingBottom: Platform.OS === 'android' ? 14 : 24,
     paddingHorizontal: 8,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   tab: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     position: 'relative',
-  },
-  indicator: {
-    position: 'absolute',
-    top: -12,
-    width: 26,
-    height: 3,
-    borderRadius: 2,
-    elevation: 6,
   },
   label: {
     fontFamily: fonts.mono.medium,
     fontSize: 8,
     letterSpacing: 0.8,
-    marginTop: 4,
+    marginTop: 6,
+  },
+  fabSlot: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  fabTouch: {
+    // Lifts the QR FAB above the bar so it reads as an action, not a tab.
+    marginTop: -22,
+  },
+  fabInner: {
+    width: FAB_SIZE,
+    height: FAB_SIZE,
+    borderRadius: FAB_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

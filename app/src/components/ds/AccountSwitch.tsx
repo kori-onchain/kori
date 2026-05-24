@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
+import {
+  Animated,
+  Easing,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fonts, radii } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
@@ -27,14 +34,69 @@ interface AccountSwitchProps {
 export const AccountSwitch: React.FC<AccountSwitchProps> = ({
   initials,
   onPress,
+  expanded = false,
   showWalletBadge = true,
   isPJ = false,
 }) => {
   const { t } = useTheme();
+  const openProgress = React.useRef(new Animated.Value(expanded ? 1 : 0)).current;
+  const pressScale = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.timing(openProgress, {
+      toValue: expanded ? 1 : 0,
+      duration: 180,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [expanded, openProgress]);
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(pressScale, {
+        toValue: 0.96,
+        duration: 70,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+      Animated.spring(pressScale, {
+        toValue: 1,
+        speed: 18,
+        bounciness: 5,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    onPress?.();
+  };
+
+  const rotate = openProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const lift = openProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -1],
+  });
 
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
-      <SoftCard radius={radii.pill} padding={0}>
+    <TouchableOpacity activeOpacity={0.9} onPress={handlePress}>
+      <Animated.View
+        style={{
+          transform: [{ scale: pressScale }, { translateY: lift }],
+        }}
+      >
+      <SoftCard
+        radius={radii.pill}
+        padding={0}
+        style={[
+          expanded && {
+            borderColor: t.line2,
+            shadowColor: t.orange,
+            shadowOpacity: 0.18,
+          },
+        ]}
+      >
         <View style={styles.row}>
           <View
             style={[
@@ -66,15 +128,18 @@ export const AccountSwitch: React.FC<AccountSwitchProps> = ({
               </View>
             )}
           </View>
-          <View style={styles.chevron}>
+          <Animated.View
+            style={[styles.chevron, { transform: [{ rotate }] }]}
+          >
             <ChevronDownIcon
               size={13}
               color={t.inkDim}
               strokeWidth={2}
             />
-          </View>
+          </Animated.View>
         </View>
       </SoftCard>
+      </Animated.View>
     </TouchableOpacity>
   );
 };
