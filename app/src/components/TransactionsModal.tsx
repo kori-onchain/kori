@@ -13,7 +13,9 @@ import {
   ScrollView
 } from 'react-native';
 import { Feather } from '../icons';
+import { SoftCard } from './ds/SoftCard';
 import { useTheme } from '../theme/ThemeProvider';
+import { fonts, radii } from '../theme/tokens';
 
 export interface TransactionItem {
   id: string;
@@ -377,13 +379,15 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
 
   const renderTransactionRow = (tx: TransactionItem) => (
     <TouchableOpacity key={tx.id} style={styles.transactionRow} activeOpacity={0.75}>
-      <View style={[styles.iconCircle, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-        {tx.isAnonymous ? (
-          <Feather name="eye-off" size={18} color={t.inkMute} />
-        ) : (
-          <Text style={[styles.avatarText, { color: t.ink }]}>{tx.initials || 'TR'}</Text>
-        )}
-      </View>
+      <SoftCard radius={22} padding={0} flat style={styles.iconCircle}>
+        <View style={styles.iconCircleInner}>
+          {tx.isAnonymous ? (
+            <Feather name="eye-off" size={18} color={t.inkMute} />
+          ) : (
+            <Text style={[styles.avatarText, { color: t.ink }]}>{tx.initials || 'TR'}</Text>
+          )}
+        </View>
+      </SoftCard>
       
       <View style={styles.transactionDetails}>
         <Text style={[styles.transactionTitleText, { color: t.ink }]}>{tx.title}</Text>
@@ -461,23 +465,25 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
         </View>
 
         {/* Barra de Pesquisa */}
-        <View style={[styles.searchBarContainer, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-          <Feather name="search" size={18} color={t.inkMute} style={{ marginRight: 10 }} />
-          <TextInput
-            placeholder="Pesquisar"
-            placeholderTextColor={t.inkMute}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            style={[styles.searchInput, { color: t.ink }]}
-            autoCorrect={false}
-            clearButtonMode="while-editing"
-          />
-          {searchQuery !== '' && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Feather name="x" size={16} color={t.inkMute} />
-            </TouchableOpacity>
-          )}
-        </View>
+        <SoftCard radius={radii.pill} padding={0} flat style={styles.searchCard}>
+          <View style={styles.searchBarContainer}>
+            <Feather name="search" size={18} color={t.inkMute} style={{ marginRight: 10 }} />
+            <TextInput
+              placeholder="Pesquisar"
+              placeholderTextColor={t.inkMute}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              style={[styles.searchInput, { color: t.ink }]}
+              autoCorrect={false}
+              clearButtonMode="while-editing"
+            />
+            {searchQuery !== '' && (
+              <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <Feather name="x" size={16} color={t.inkMute} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </SoftCard>
 
         {/* Seletores Dropdown de Filtros Avançados */}
         <View style={styles.filtersContainer}>
@@ -490,8 +496,8 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                { backgroundColor: activeDropdown === 'month' ? t.bgElev : t.bg2 },
-                activeMonth !== 'todos' && { borderWidth: 1, borderColor: t.green }
+                { backgroundColor: activeDropdown === 'month' ? t.bgElev : t.bg2, borderColor: activeMonth !== 'todos' ? t.green : t.cardBorder },
+                activeMonth !== 'todos' && { borderWidth: 1 }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'month' ? null : 'month')}
               activeOpacity={0.7}
@@ -514,8 +520,8 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                { backgroundColor: activeDropdown === 'category' ? t.bgElev : t.bg2 },
-                activeCategory !== 'todas' && { borderWidth: 1, borderColor: t.green }
+                { backgroundColor: activeDropdown === 'category' ? t.bgElev : t.bg2, borderColor: activeCategory !== 'todas' ? t.green : t.cardBorder },
+                activeCategory !== 'todas' && { borderWidth: 1 }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'category' ? null : 'category')}
               activeOpacity={0.7}
@@ -538,8 +544,8 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
             <TouchableOpacity 
               style={[
                 styles.dropdownTrigger, 
-                { backgroundColor: activeDropdown === 'type' ? t.bgElev : t.bg2 },
-                activeType !== 'todos' && { borderWidth: 1, borderColor: t.green }
+                { backgroundColor: activeDropdown === 'type' ? t.bgElev : t.bg2, borderColor: activeType !== 'todos' ? t.green : t.cardBorder },
+                activeType !== 'todos' && { borderWidth: 1 }
               ]}
               onPress={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')}
               activeOpacity={0.7}
@@ -655,7 +661,6 @@ export const TransactionsModal: React.FC<TransactionsModalProps> = ({ visible, o
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D', // Deep premium dark background
   },
   header: {
     flexDirection: 'row',
@@ -671,9 +676,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerTitleText: {
-    color: '#FFF',
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: fonts.sans.bold,
   },
   headerRight: {
     flexDirection: 'row',
@@ -683,21 +687,19 @@ const styles = StyleSheet.create({
   headerBtn: {
     padding: 4,
   },
+  searchCard: {
+    marginHorizontal: 20,
+    marginTop: 18,
+  },
   searchBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#161616',
-    borderRadius: 24, // Pill shape exactly like image
     paddingHorizontal: 18,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
-    marginHorizontal: 20,
-    marginTop: 18,
-    borderWidth: 1,
-    borderColor: '#262626',
   },
   searchInput: {
     flex: 1,
-    color: '#FFF',
+    fontFamily: fonts.sans.medium,
     fontSize: 14,
     padding: 0,
   },
@@ -716,37 +718,22 @@ const styles = StyleSheet.create({
   dropdownTrigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E1E1E', // Dark capsule bg like mockup
-    borderRadius: 24, // capsule shape exactly
+    borderRadius: radii.pill,
+    borderWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
-  dropdownTriggerActive: {
-    backgroundColor: '#262626',
-  },
-  dropdownTriggerSelected: {
-    backgroundColor: '#1E1E1E',
-    borderWidth: 1,
-    borderColor: 'rgba(0, 208, 158, 0.3)',
-  },
   dropdownTriggerText: {
-    color: '#FFF',
     fontSize: 13,
-    fontWeight: '600',
-  },
-  dropdownTriggerTextSelected: {
-    color: '#00D09E',
+    fontFamily: fonts.sans.semibold,
   },
   optionsOverlay: {
     position: 'absolute',
-    top: 48, // Right below the triggers
+    top: 48,
     width: 220,
-    backgroundColor: '#161616', // Premium dark dropdown
-    borderRadius: 16,
+    borderRadius: radii.card,
     borderWidth: 1,
-    borderColor: '#262626',
     maxHeight: 280,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.6,
     shadowRadius: 10,
@@ -764,19 +751,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#222222',
-  },
-  optionItemActive: {
-    backgroundColor: 'rgba(0, 208, 158, 0.04)',
   },
   optionText: {
-    color: '#8E8E93',
     fontSize: 13.5,
-    fontWeight: '500',
-  },
-  optionTextActive: {
-    color: '#00D09E',
-    fontWeight: '600',
+    fontFamily: fonts.sans.medium,
   },
   listContent: {
     paddingHorizontal: 20,
@@ -787,9 +765,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   monthHeaderTitle: {
-    color: '#FFF',
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: fonts.sans.bold,
     marginBottom: 16,
     marginTop: 6,
   },
@@ -802,18 +779,15 @@ const styles = StyleSheet.create({
   },
   separatorLine: {
     height: 1,
-    backgroundColor: '#262626', // Subtle premium border color matching the design system
     marginVertical: 16,
   },
   dayLabelText: {
-    color: '#8E8E93',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: fonts.mono.medium,
   },
   dayBalanceText: {
-    color: '#8E8E93',
     fontSize: 12.5,
-    fontWeight: '600',
+    fontFamily: fonts.mono.medium,
   },
   transactionsListContainer: {
     gap: 4,
@@ -826,15 +800,16 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: '#1E1E1E', // Matching dark circle
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 14,
   },
+  iconCircleInner: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatarText: {
-    color: '#FFF',
-    fontWeight: '700',
+    fontFamily: fonts.sans.semibold,
     fontSize: 14,
   },
   transactionDetails: {
@@ -842,27 +817,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   transactionTitleText: {
-    color: '#FFF',
     fontSize: 14.5,
-    fontWeight: '700',
+    fontFamily: fonts.sans.semibold,
     marginBottom: 3,
   },
   transactionDescText: {
-    color: '#8E8E93',
     fontSize: 12,
-    fontWeight: '500',
+    fontFamily: fonts.sans.medium,
   },
   amountContainer: {
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   amountText: {
-    color: '#FFF', // Default outflow white
     fontSize: 14,
-    fontWeight: '800',
-  },
-  amountTextInflow: {
-    color: '#34C759', // Inflow green exactly like image
+    fontFamily: fonts.mono.semibold,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -870,9 +839,8 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyText: {
-    color: '#666',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: fonts.sans.semibold,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,

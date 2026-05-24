@@ -17,7 +17,7 @@ import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../theme/ThemeProvider";
 import { Button } from "./ds/Button";
 import { SoftCard } from "./ds/SoftCard";
-import { colors, radii } from "../theme/tokens";
+import { colors, fonts, radii } from "../theme/tokens";
 
 const { width } = Dimensions.get("window");
 
@@ -139,7 +139,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
       >
         <View style={styles.card}>
           <LinearGradient
-            colors={[t.bg2, t.green, t.bg]}
+            colors={[t.orangeDark, t.orange, t.bg2]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFillObject}
@@ -152,7 +152,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
                 <Feather
                   name="shield"
                   size={16}
-                  color={t.green}
+                  color={t.ink}
                   style={{ marginRight: 6 }}
                 />
                 <Text style={styles.brandText}>KORA • VIRTUAL</Text>
@@ -193,10 +193,10 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
                 <Feather
                   name="lock"
                   size={20}
-                  color={t.green}
+                  color={t.orange}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.frozenBadgeText, { color: t.green }]}>
+                <Text style={[styles.frozenBadgeText, { color: t.orange }]}>
                   CONGELADO
                 </Text>
               </View>
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: colors.bg,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
     fontSize: 13,
     textAlign: "center",
   },
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     position: "relative",
     borderWidth: 1,
     borderColor: colors.line2,
-    shadowColor: colors.green,
+    shadowColor: colors.orange,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   brandText: {
     color: colors.ink,
     fontSize: 13.5,
-    fontWeight: "900",
+    fontFamily: fonts.sans.bold,
     letterSpacing: 1.5,
   },
   cardNumberContainer: {
@@ -486,9 +486,8 @@ const styles = StyleSheet.create({
   cardNumberText: {
     color: colors.ink,
     fontSize: 22,
-    fontWeight: "800",
+    fontFamily: fonts.mono.medium,
     letterSpacing: 2,
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
   },
   cardFooter: {
     flexDirection: "row",
@@ -498,14 +497,14 @@ const styles = StyleSheet.create({
   cardHolderLabel: {
     color: colors.inkDim,
     fontSize: 9,
-    fontWeight: "700",
+    fontFamily: fonts.mono.medium,
     letterSpacing: 1,
     marginBottom: 2,
   },
   cardHolderName: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
     letterSpacing: 1,
   },
   circlesContainer: {
@@ -528,19 +527,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.bgElev,
     borderWidth: 1,
-    borderColor: colors.green,
+    borderColor: colors.orange,
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    shadowColor: colors.green,
+    shadowColor: colors.orange,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   frozenBadgeText: {
-    color: colors.green,
-    fontWeight: "800",
+    color: colors.orange,
+    fontFamily: fonts.mono.semibold,
     fontSize: 14,
     letterSpacing: 1,
   },
@@ -561,7 +560,7 @@ const styles = StyleSheet.create({
   detailTitle: {
     color: colors.inkDim,
     fontSize: 10,
-    fontWeight: "700",
+    fontFamily: fonts.mono.medium,
     letterSpacing: 1,
     marginBottom: 6,
   },
@@ -573,7 +572,7 @@ const styles = StyleSheet.create({
   detailValue: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "800",
+    fontFamily: fonts.sans.bold,
   },
   eyeBtn: {
     padding: 4,
@@ -595,7 +594,7 @@ const styles = StyleSheet.create({
   primaryActionText: {
     color: colors.bg,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
   },
   secondaryActionBtn: {
     flex: 1,
@@ -611,12 +610,12 @@ const styles = StyleSheet.create({
   secondaryActionText: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
   },
   sectionHeader: {
     color: colors.inkDim,
     fontSize: 11.5,
-    fontWeight: "800",
+    fontFamily: fonts.mono.semibold,
     letterSpacing: 1.5,
     marginBottom: 12,
   },
@@ -655,7 +654,7 @@ const styles = StyleSheet.create({
   controlTitle: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: fonts.sans.semibold,
     marginBottom: 2,
   },
   statusRow: {
@@ -675,7 +674,7 @@ const styles = StyleSheet.create({
   controlSubtitle: {
     color: colors.inkDim,
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.sans.medium,
   },
   limitHeaderRow: {
     flexDirection: "row",
@@ -684,9 +683,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   editLinkText: {
-    color: colors.green,
+    color: colors.orange,
     fontSize: 12,
-    fontWeight: "700",
+    fontFamily: fonts.sans.semibold,
   },
   limitPanel: {
     backgroundColor: colors.bg2,
@@ -701,11 +700,11 @@ const styles = StyleSheet.create({
   limitUsedText: {
     color: colors.inkDim,
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.sans.medium,
   },
   boldText: {
     color: colors.ink,
-    fontWeight: "800",
+    fontFamily: fonts.sans.bold,
   },
   progressBarBg: {
     height: 8,
@@ -726,7 +725,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontFamily: fonts.sans.semibold,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderWidth: 1,
@@ -743,7 +742,7 @@ const styles = StyleSheet.create({
   },
   limitCancelText: {
     color: colors.inkDim,
-    fontWeight: "700",
+    fontFamily: fonts.sans.semibold,
   },
   limitSaveBtn: {
     backgroundColor: colors.green,
@@ -753,6 +752,6 @@ const styles = StyleSheet.create({
   },
   limitSaveText: {
     color: colors.bg,
-    fontWeight: "800",
+    fontFamily: fonts.sans.bold,
   },
 });

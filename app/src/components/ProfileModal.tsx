@@ -15,7 +15,9 @@ import {
 } from "react-native";
 
 import { Feather, Ionicons } from "../icons";
+import { SoftCard } from "./ds/SoftCard";
 import { ThemePreference, useTheme } from "../theme/ThemeProvider";
+import { fonts, radii } from "../theme/tokens";
 
 interface ProfileModalProps {
   visible: boolean;
@@ -179,17 +181,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-          <View
-            style={[
-              styles.profileCard,
-              {
-                backgroundColor: t.bg2,
-                borderColor: t.cardBorder,
-                shadowColor: "#000",
-                elevation: t.cardElev,
-              },
-            ]}
-          >
+          <SoftCard radius={radii.card} padding={18} strong style={styles.profileCard}>
             <TouchableOpacity
               style={styles.avatarWrap}
               activeOpacity={0.85}
@@ -213,7 +205,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 )}
               </View>
               <View style={[styles.avatarBadge, { backgroundColor: t.orange }]}>
-                <Feather name="camera" size={12} color="#fff" />
+                <Feather name="camera" size={12} color={t.ink} />
               </View>
             </TouchableOpacity>
 
@@ -250,12 +242,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               )}
 
               <View style={styles.metaRow}>
-                <View
-                  style={[
-                    styles.metaPill,
-                    { backgroundColor: t.bgElev, borderColor: t.cardBorder },
-                  ]}
-                >
+                <SoftCard radius={radii.pill} padding={0} flat style={styles.metaPill}>
+                  <View style={styles.metaPillInner}>
                   <Ionicons
                     name={
                       accountType === "PF"
@@ -268,20 +256,18 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   <Text style={[styles.metaText, { color: t.ink }]}>
                     {accountType === "PF" ? "Conta pessoal" : "Conta business"}
                   </Text>
-                </View>
-                <View
-                  style={[
-                    styles.metaPill,
-                    { backgroundColor: t.bgElev, borderColor: t.cardBorder },
-                  ]}
-                >
+                  </View>
+                </SoftCard>
+                <SoftCard radius={radii.pill} padding={0} flat style={styles.metaPill}>
+                  <View style={styles.metaPillInner}>
                   <View
                     style={[styles.statusDot, { backgroundColor: t.green }]}
                   />
                   <Text style={[styles.metaText, { color: t.ink }]}>
                     Devnet
                   </Text>
-                </View>
+                  </View>
+                </SoftCard>
               </View>
             </View>
 
@@ -299,7 +285,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                 {isEditingProfile ? "Salvar" : "Editar"}
               </Text>
             </TouchableOpacity>
-          </View>
+          </SoftCard>
 
           <View style={styles.section}>
             <Text style={[styles.sectionKicker, { color: t.inkMute }]}>
@@ -361,12 +347,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             <Text style={[styles.sectionKicker, { color: t.inkMute }]}>
               CONTA
             </Text>
-            <View
-              style={[
-                styles.actionList,
-                { backgroundColor: t.bg2, borderColor: t.cardBorder },
-              ]}
-            >
+            <SoftCard radius={radii.card} padding={0} flat style={styles.actionList}>
               {profileActions.map((item, index) => {
                 const danger = item.tone === "danger";
                 const color = danger ? t.orange : t.ink;
@@ -411,7 +392,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </TouchableOpacity>
                 );
               })}
-            </View>
+            </SoftCard>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -441,7 +422,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: fonts.sans.bold,
   },
   headerSpacer: {
     width: 40,
@@ -452,12 +433,7 @@ const styles = StyleSheet.create({
     paddingBottom: 44,
   },
   profileCard: {
-    borderWidth: 1,
-    borderRadius: 22,
-    padding: 18,
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
+    borderRadius: radii.card,
   },
   avatarWrap: {
     alignSelf: "flex-start",
@@ -478,7 +454,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 25,
-    fontWeight: "900",
+    fontFamily: fonts.sans.bold,
     letterSpacing: 1,
   },
   avatarBadge: {
@@ -496,12 +472,12 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 25,
-    fontWeight: "900",
+    fontFamily: fonts.sans.bold,
     letterSpacing: -0.4,
   },
   profileHandle: {
     fontSize: 14,
-    fontWeight: "600",
+    fontFamily: fonts.sans.medium,
   },
   metaRow: {
     flexDirection: "row",
@@ -510,17 +486,17 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   metaPill: {
+  },
+  metaPillInner: {
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    borderWidth: 1,
-    borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 7,
   },
   metaText: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
   },
   statusDot: {
     width: 7,
@@ -541,7 +517,7 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
   },
   inputBox: {
     borderWidth: 1,
@@ -552,14 +528,14 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 11,
-    fontWeight: "800",
+    fontFamily: fonts.mono.semibold,
     marginBottom: 6,
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   nameInput: {
     fontSize: 19,
-    fontWeight: "800",
+    fontFamily: fonts.sans.bold,
     padding: 0,
   },
   section: {
@@ -567,7 +543,7 @@ const styles = StyleSheet.create({
   },
   sectionKicker: {
     fontSize: 10,
-    fontWeight: "900",
+    fontFamily: fonts.mono.semibold,
     letterSpacing: 1.6,
     marginBottom: 12,
   },
@@ -590,17 +566,15 @@ const styles = StyleSheet.create({
   },
   themeTitle: {
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: fonts.sans.bold,
     marginBottom: 5,
   },
   themeDescription: {
     fontSize: 10.5,
     lineHeight: 14,
-    fontWeight: "600",
+    fontFamily: fonts.sans.medium,
   },
   actionList: {
-    borderWidth: 1,
-    borderRadius: 20,
     overflow: "hidden",
   },
   actionRow: {
@@ -621,12 +595,12 @@ const styles = StyleSheet.create({
   },
   actionTitle: {
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: fonts.sans.semibold,
     marginBottom: 3,
   },
   actionSubtitle: {
     fontSize: 12,
-    fontWeight: "600",
+    fontFamily: fonts.sans.medium,
     lineHeight: 16,
   },
 });

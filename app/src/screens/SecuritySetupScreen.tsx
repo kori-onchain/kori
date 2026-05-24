@@ -11,7 +11,10 @@ import {
   Platform,
 } from "react-native";
 import { Feather, Ionicons } from "../icons";
+import { Button } from "../components/ds/Button";
+import { SoftCard } from "../components/ds/SoftCard";
 import { useTheme } from "../theme/ThemeProvider";
+import { fonts, radii } from "../theme/tokens";
 
 type SecurityMethod = "digital" | "facial" | "pin";
 
@@ -111,6 +114,71 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
     }
   };
 
+  const renderMethodCard = (
+    method: SecurityMethod,
+    title: string,
+    desc: string,
+    icon: React.ComponentProps<typeof Ionicons>["name"],
+  ) => {
+    const selected = selectedMethod === method;
+
+    return (
+      <TouchableOpacity
+        onPress={() => handleSelectMethod(method)}
+        activeOpacity={0.82}
+      >
+        <SoftCard
+          radius={radii.card}
+          padding={0}
+          flat={!selected}
+          style={[
+            styles.methodCardShell,
+            { borderColor: selected ? t.orange : t.cardBorder },
+          ]}
+        >
+          <View style={styles.methodCard}>
+            <SoftCard
+              radius={radii.cardSm}
+              padding={0}
+              flat
+              style={[
+                styles.cardIconBox,
+                selected && {
+                  backgroundColor: t.btnPrimaryBg,
+                  borderColor: t.btnPrimaryBg,
+                },
+              ]}
+            >
+              <View style={styles.cardIconBoxInner}>
+                <Ionicons
+                  name={icon}
+                  size={24}
+                  color={selected ? t.btnPrimaryFg : t.ink}
+                />
+              </View>
+            </SoftCard>
+            <View style={styles.cardContent}>
+              <Text style={[styles.cardTitle, { color: t.ink }]}>{title}</Text>
+              <Text style={[styles.cardDesc, { color: t.inkMute }]}>
+                {desc}
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.radioOutline,
+                { borderColor: selected ? t.orange : t.line2 },
+              ]}
+            >
+              {selected && (
+                <View style={[styles.radioDot, { backgroundColor: t.orange }]} />
+              )}
+            </View>
+          </View>
+        </SoftCard>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: t.bg }]}>
       <StatusBar barStyle={t.statusBar} backgroundColor={t.bg} translucent={true} />
@@ -131,80 +199,29 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
 
           {/* Vertical Stack of Cards */}
           <View style={styles.optionsStack}>
-            
-            {/* 1. Fingerprint (Digital) */}
-            <TouchableOpacity
-              style={[
-                styles.methodCard,
-                { backgroundColor: t.bg2, borderColor: t.cardBorder },
-                selectedMethod === "digital" && { backgroundColor: t.bgElev, borderColor: t.orange },
-              ]}
-              onPress={() => handleSelectMethod("digital")}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "digital" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
-                <Ionicons name="finger-print-outline" size={24} color={selectedMethod === "digital" ? t.btnPrimaryFg : t.ink} />
-              </View>
-              <View style={styles.cardContent}>
-                <Text style={[styles.cardTitle, { color: t.ink }]}>Biometria Digital</Text>
-                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Utilize sua impressão digital para acessar o app de forma ultra rápida.</Text>
-              </View>
-              <View style={[styles.radioOutline, { borderColor: selectedMethod === "digital" ? t.orange : t.line2 }]}>
-                {selectedMethod === "digital" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
-              </View>
-            </TouchableOpacity>
-
-            {/* 2. Facial Scan */}
-            <TouchableOpacity
-              style={[
-                styles.methodCard,
-                { backgroundColor: t.bg2, borderColor: t.cardBorder },
-                selectedMethod === "facial" && { backgroundColor: t.bgElev, borderColor: t.orange },
-              ]}
-              onPress={() => handleSelectMethod("facial")}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "facial" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
-                <Ionicons name="scan-outline" size={24} color={selectedMethod === "facial" ? t.btnPrimaryFg : t.ink} />
-              </View>
-              <View style={styles.cardContent}>
-                <Text style={[styles.cardTitle, { color: t.ink }]}>Reconhecimento Facial</Text>
-                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Acesse sua conta em segundos apenas olhando para o seu dispositivo.</Text>
-              </View>
-              <View style={[styles.radioOutline, { borderColor: selectedMethod === "facial" ? t.orange : t.line2 }]}>
-                {selectedMethod === "facial" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
-              </View>
-            </TouchableOpacity>
-
-            {/* 3. PIN code */}
-            <TouchableOpacity
-              style={[
-                styles.methodCard,
-                { backgroundColor: t.bg2, borderColor: t.cardBorder },
-                selectedMethod === "pin" && { backgroundColor: t.bgElev, borderColor: t.orange },
-              ]}
-              onPress={() => handleSelectMethod("pin")}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.cardIconBox, { backgroundColor: t.bg, borderColor: t.line }, selectedMethod === "pin" && { backgroundColor: t.btnPrimaryBg, borderColor: t.btnPrimaryBg }]}>
-                <Ionicons name="grid-outline" size={24} color={selectedMethod === "pin" ? t.btnPrimaryFg : t.ink} />
-              </View>
-              <View style={styles.cardContent}>
-                <Text style={[styles.cardTitle, { color: t.ink }]}>PIN de Segurança</Text>
-                <Text style={[styles.cardDesc, { color: t.inkMute }]}>Defina uma senha numérica exclusiva de 5 dígitos para autorizações.</Text>
-              </View>
-              <View style={[styles.radioOutline, { borderColor: selectedMethod === "pin" ? t.orange : t.line2 }]}>
-                {selectedMethod === "pin" && <View style={[styles.radioDot, { backgroundColor: t.orange }]} />}
-              </View>
-            </TouchableOpacity>
-
+            {renderMethodCard(
+              "digital",
+              "Biometria Digital",
+              "Utilize sua impressão digital para acessar o app de forma ultra rápida.",
+              "finger-print-outline",
+            )}
+            {renderMethodCard(
+              "facial",
+              "Reconhecimento Facial",
+              "Acesse sua conta em segundos apenas olhando para o seu dispositivo.",
+              "scan-outline",
+            )}
+            {renderMethodCard(
+              "pin",
+              "PIN de Segurança",
+              "Defina uma senha numérica exclusiva de 5 dígitos para autorizações.",
+              "grid-outline",
+            )}
           </View>
 
           {/* Navigation Action Buttons */}
           <View style={styles.actionsContainer}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: t.btnPrimaryBg }]} onPress={handleNext} activeOpacity={0.9}>
-              <Text style={[styles.primaryButtonText, { color: t.btnPrimaryFg }]}>Configurar Segurança</Text>
-            </TouchableOpacity>
+            <Button label="Configurar Segurança" onPress={handleNext} />
           </View>
         </View>
       )}
@@ -212,20 +229,22 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
       {/* --- SIMULATING DEVICE HARDWARE SCANNING --- */}
       {setupStep === "simulating" && (
         <View style={styles.scanContainer}>
-          <View style={[styles.scanBox, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-            <Ionicons
-              name={selectedMethod === "digital" ? "finger-print-outline" : "scan-outline"}
-              size={80}
-              color={t.ink}
-            />
-            {scanProgress < 1 ? (
-              <ActivityIndicator size="large" color={t.orange} style={{ marginTop: 24 }} />
-            ) : (
-              <View style={[styles.successScanBadge, { backgroundColor: t.green, borderColor: t.bg }]}>
-                <Feather name="check" size={28} color={t.bg} />
-              </View>
-            )}
-          </View>
+          <SoftCard radius={70} padding={0} strong style={styles.scanBox}>
+            <View style={styles.scanBoxInner}>
+              <Ionicons
+                name={selectedMethod === "digital" ? "finger-print-outline" : "scan-outline"}
+                size={80}
+                color={t.ink}
+              />
+              {scanProgress < 1 ? (
+                <ActivityIndicator size="large" color={t.orange} style={{ marginTop: 24 }} />
+              ) : (
+                <View style={[styles.successScanBadge, { backgroundColor: t.green, borderColor: t.bg }]}>
+                  <Feather name="check" size={28} color={t.bg} />
+                </View>
+              )}
+            </View>
+          </SoftCard>
           <Text style={[styles.scanTitle, { color: t.ink }]}>
             {scanProgress < 1 
               ? `Ativando ${selectedMethod === "digital" ? "Touch ID" : "Face ID"}...`
@@ -271,7 +290,7 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
                     styles.pinSlot,
                     { borderColor: t.line2 },
                     hasDigit && { backgroundColor: t.ink, borderColor: t.ink },
-                    pinError && styles.pinSlotError
+                    pinError && { borderColor: t.orangeDark },
                   ]} 
                 />
               );
@@ -285,29 +304,45 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
           <View style={styles.numpad}>
             <View style={styles.numpadRow}>
               {["1", "2", "3"].map((num) => (
-                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                <TouchableOpacity key={num} onPress={() => handleKeyPress(num)} disabled={loading} style={styles.numpadKeyTouch}>
+                  <SoftCard radius={30} padding={0} flat style={styles.numpadKey}>
+                    <View style={styles.numpadKeyInner}>
+                      <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                    </View>
+                  </SoftCard>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               {["4", "5", "6"].map((num) => (
-                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                <TouchableOpacity key={num} onPress={() => handleKeyPress(num)} disabled={loading} style={styles.numpadKeyTouch}>
+                  <SoftCard radius={30} padding={0} flat style={styles.numpadKey}>
+                    <View style={styles.numpadKeyInner}>
+                      <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                    </View>
+                  </SoftCard>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               {["7", "8", "9"].map((num) => (
-                <TouchableOpacity key={num} style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress(num)} disabled={loading}>
-                  <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                <TouchableOpacity key={num} onPress={() => handleKeyPress(num)} disabled={loading} style={styles.numpadKeyTouch}>
+                  <SoftCard radius={30} padding={0} flat style={styles.numpadKey}>
+                    <View style={styles.numpadKeyInner}>
+                      <Text style={[styles.numpadKeyText, { color: t.ink }]}>{num}</Text>
+                    </View>
+                  </SoftCard>
                 </TouchableOpacity>
               ))}
             </View>
             <View style={styles.numpadRow}>
               <View style={styles.numpadKeySpacer} />
-              <TouchableOpacity style={[styles.numpadKey, { backgroundColor: t.bg2, borderColor: t.cardBorder }]} onPress={() => handleKeyPress("0")} disabled={loading}>
-                <Text style={[styles.numpadKeyText, { color: t.ink }]}>0</Text>
+              <TouchableOpacity style={styles.numpadKeyTouch} onPress={() => handleKeyPress("0")} disabled={loading}>
+                <SoftCard radius={30} padding={0} flat style={styles.numpadKey}>
+                  <View style={styles.numpadKeyInner}>
+                    <Text style={[styles.numpadKeyText, { color: t.ink }]}>0</Text>
+                  </View>
+                </SoftCard>
               </TouchableOpacity>
               <TouchableOpacity style={styles.numpadKeyDelete} onPress={handleDelete} disabled={loading}>
                 <Feather name="delete" size={20} color={t.ink} />
@@ -339,7 +374,7 @@ const styles = StyleSheet.create({
   shieldIconContainer: {
     width: 68,
     height: 68,
-    borderRadius: 20,
+    borderRadius: radii.card,
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -347,11 +382,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.bold,
     textAlign: "center",
   },
   subtitle: {
     fontSize: 13,
+    fontFamily: fonts.sans.medium,
     textAlign: "center",
     marginTop: 8,
     lineHeight: 18,
@@ -360,24 +396,23 @@ const styles = StyleSheet.create({
     gap: 16,
     marginVertical: 32,
   },
+  methodCardShell: {
+    borderWidth: 1,
+  },
   methodCard: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-  },
-  methodCardActive: {
   },
   cardIconBox: {
     width: 46,
     height: 46,
-    borderRadius: 12,
-    borderWidth: 1,
+  },
+  cardIconBoxInner: {
+    width: 46,
+    height: 46,
     justifyContent: "center",
     alignItems: "center",
-  },
-  cardIconBoxActive: {
   },
   cardContent: {
     flex: 1,
@@ -386,10 +421,11 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.semibold,
   },
   cardDesc: {
     fontSize: 11,
+    fontFamily: fonts.sans.regular,
     marginTop: 3,
     lineHeight: 14,
   },
@@ -413,13 +449,13 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     height: 52,
-    borderRadius: 12,
+    borderRadius: radii.btn,
     justifyContent: "center",
     alignItems: "center",
   },
   primaryButtonText: {
     fontSize: 15,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.semibold,
   },
   skipButton: {
     height: 48,
@@ -428,7 +464,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontFamily: fonts.sans.semibold,
   },
   scanContainer: {
     flex: 1,
@@ -439,12 +475,14 @@ const styles = StyleSheet.create({
   scanBox: {
     width: 140,
     height: 140,
-    borderRadius: 70,
-    borderWidth: 1,
+    marginBottom: 32,
+  },
+  scanBoxInner: {
+    width: 140,
+    height: 140,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-    marginBottom: 32,
   },
   successScanBadge: {
     position: "absolute",
@@ -459,11 +497,12 @@ const styles = StyleSheet.create({
   },
   scanTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.bold,
     textAlign: "center",
   },
   scanDesc: {
     fontSize: 13,
+    fontFamily: fonts.sans.medium,
     textAlign: "center",
     marginTop: 10,
     lineHeight: 18,
@@ -488,11 +527,12 @@ const styles = StyleSheet.create({
   },
   pinStepTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.bold,
     marginTop: 6,
   },
   pinStepDesc: {
     fontSize: 13,
+    fontFamily: fonts.sans.medium,
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 24,
@@ -513,12 +553,9 @@ const styles = StyleSheet.create({
   },
   pinSlotFilled: {
   },
-  pinSlotError: {
-    borderColor: "#FF3B30",
-  },
   pinErrorText: {
     fontSize: 12,
-    fontWeight: "500",
+    fontFamily: fonts.sans.medium,
     textAlign: "center",
   },
   numpad: {
@@ -532,17 +569,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 16,
   },
-  numpadKey: {
+  numpadKeyTouch: {
     flex: 1,
     height: 60,
+  },
+  numpadKey: {
+    height: 60,
     borderRadius: 30,
-    borderWidth: 1,
+  },
+  numpadKeyInner: {
+    height: 60,
     justifyContent: "center",
     alignItems: "center",
   },
   numpadKeyText: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: fonts.sans.bold,
   },
   numpadKeySpacer: {
     flex: 1,

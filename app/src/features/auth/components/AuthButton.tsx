@@ -7,6 +7,7 @@ import {
   View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../../../theme/ThemeProvider";
 
 type AuthButtonProps = {
   label: string;
@@ -27,6 +28,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
   loading = false,
   disabled = false,
 }) => {
+  const { t } = useTheme();
   const isPrimary = variant === "primary";
   const isGhost = variant === "ghost";
   const textClass = isPrimary
@@ -49,7 +51,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
       {!isGhost && (
         <LinearGradient
           pointerEvents="none"
-          colors={isPrimary ? ["#ffffff", "#f0f0f2"] : ["#1e1e23", "#16161a"]}
+          colors={isPrimary ? [t.btnPrimaryBg, t.btnPrimaryBg] : t.glossy}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -80,7 +82,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
           <View className="absolute inset-0 items-center justify-center">
             <ActivityIndicator
               size="small"
-              color={isPrimary ? "#0a0a0a" : "#fafafa"}
+              color={isPrimary ? t.btnPrimaryFg : t.ink}
             />
           </View>
         ) : null}
