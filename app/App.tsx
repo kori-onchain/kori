@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import "./global.css";
 import {
@@ -19,6 +19,8 @@ import { SecuritySetupScreen } from "./src/screens/SecuritySetupScreen";
 import { SplashScreen } from "./src/screens/SplashScreen";
 import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
+import { useAuth } from "./src/hooks/useAuth";
+import { supabase } from "./src/lib/supabase";
 
 interface UserSession {
   name: string;
@@ -37,14 +39,40 @@ export default function App() {
     GeistMono_500Medium,
     GeistMono_600SemiBold,
   });
+  const { session: supabaseSession, loading: authLoading } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [session, setSession] = useState<UserSession | null>(null);
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (supabaseSession?.user && !session && !tempSession) {
+      supabase
+        .from("profiles")
+        .select("name, username, account_type")
+        .eq("id", supabaseSession.user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setSession({
+              name: data.name || "Usuário",
+              email: supabaseSession.user.email || "",
+              accountType: data.account_type || "PF",
+              username: data.username || "",
+            });
+          }
+          setProfileLoaded(true);
+        });
+    } else if (!supabaseSession) {
+      setSession(null);
+      setProfileLoaded(true);
+    }
+  }, [supabaseSession, authLoading]);
 
   if (!fontsLoaded) {
-    // Keep the screen black while the Geist family is loading — avoids the
-    // brief Roboto/system flash on cold start.
     return <View style={{ flex: 1, backgroundColor: "#0a0a0a" }} />;
   }
 
@@ -83,46 +111,48 @@ export default function App() {
     setTempSession(null);
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setTempSession(null);
+  };
+
   let screen: React.ReactNode;
 
   if (showSplash) {
     screen = <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
   } else if (showOnboarding) {
     screen = <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  } else if (authLoading || (!profileLoaded && supabaseSession)) {
+    screen = <View style={{ flex: 1, backgroundColor: "#0a0a0a" }} />;
   } else if (session) {
-    // If a session is active, go straight to HomeScreen
     screen = (
       <HomeScreen
         userName={session.name}
         username={session.username}
         accountType={session.accountType}
-        onLogout={() => setSession(null)}
+        onLogout={handleLogout}
         onSwitchAccount={handleSwitchAccount}
         onAddAccount={handleAddAccount}
       />
     );
   } else if (tempSession) {
-    // If we just signed up, route through Security Setup onboarding step
     screen = (
       <SecuritySetupScreen
         userName={tempSession.name}
         onComplete={(method) => {
-          // Finalize session upon completing security onboarding
           setSession(tempSession);
           setTempSession(null);
         }}
       />
     );
   } else {
-    // Otherwise, display the main Authentication Screen (Login / Signup)
     screen = (
       <AuthScreen
         onAuthSuccess={(userData, isSignup) => {
           if (isSignup) {
-            // If it was a signup, go to security setup
             setTempSession(userData);
           } else {
-            // If it was a login, go straight to home screen
             setSession(userData);
           }
         }}

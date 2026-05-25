@@ -11,6 +11,7 @@ export const INITIAL_AUTH_FORM: AuthForm = {
   email: "",
   name: "",
   username: "",
+  password: "",
   storeName: "",
   storeUsername: "",
   category: "Design & Digital",

@@ -47,6 +47,15 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
           {isPF ? (
             <>
               <AuthField
+                label="Nome"
+                value={form.name}
+                onChangeText={(value) => onChangeField("name", value)}
+                placeholder="Kauã Miguel"
+                focused={focusedField === "name"}
+                onFocus={() => onFocusField("name")}
+                onBlur={() => onFocusField(null)}
+              />
+              <AuthField
                 label="E-mail"
                 value={form.email}
                 onChangeText={(value) => onChangeField("email", value)}
@@ -66,6 +75,16 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 onFocus={() => onFocusField("username")}
                 onBlur={() => onFocusField(null)}
                 showAvailable={form.username.length >= 3}
+              />
+              <AuthField
+                label="Senha"
+                value={form.password}
+                onChangeText={(value) => onChangeField("password", value)}
+                placeholder="mínimo 6 caracteres"
+                secureTextEntry
+                focused={focusedField === "password"}
+                onFocus={() => onFocusField("password")}
+                onBlur={() => onFocusField(null)}
               />
             </>
           ) : (
@@ -105,6 +124,16 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 keyboardType="email-address"
                 focused={focusedField === "email"}
                 onFocus={() => onFocusField("email")}
+                onBlur={() => onFocusField(null)}
+              />
+              <AuthField
+                label="Senha"
+                value={form.password}
+                onChangeText={(value) => onChangeField("password", value)}
+                placeholder="mínimo 6 caracteres"
+                secureTextEntry
+                focused={focusedField === "password"}
+                onFocus={() => onFocusField("password")}
                 onBlur={() => onFocusField(null)}
               />
             </>

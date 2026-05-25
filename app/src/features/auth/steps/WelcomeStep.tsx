@@ -48,7 +48,7 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
       />
       <Pressable onPress={onPinLogin} className="items-center py-2">
         <Text className="font-mono text-[10px] text-ink-mute">
-          já tem conta? <Text className="text-ink">entrar com PIN</Text>
+          já tem conta? <Text className="text-ink">entrar</Text>
         </Text>
       </Pressable>
     </View>

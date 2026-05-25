@@ -9,6 +9,9 @@ export const validateAuthDetails = (form: AuthForm, accountType: AccountType) =>
     return "Digite um e-mail válido.";
   }
 
+  if (!form.password) return "A senha é obrigatória.";
+  if (form.password.length < 6) return "A senha precisa ter pelo menos 6 caracteres.";
+
   if (accountType === "PF") {
     if (!form.username.trim()) return "Escolha seu @username.";
     if (form.username.trim().length < 3) {
