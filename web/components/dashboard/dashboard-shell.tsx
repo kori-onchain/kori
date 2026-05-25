@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Activity,
   ArrowUpDown,
@@ -12,6 +13,7 @@ import {
   Globe,
   Layers,
   LayoutGrid,
+  LogOut,
   MoreHorizontal,
   Plus,
   Search,
@@ -30,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 
 /* ─── PRICES ─── */
 
@@ -301,7 +304,8 @@ function Ticker({ prices }: { prices: PriceData }) {
 
 /* ─── DASHBOARD ─── */
 
-export function DashboardShell() {
+export function DashboardShell({ userName }: { userName?: string }) {
+  const router = useRouter()
   const prices = usePrices()
   const depositBrl = 500
   const usdcOut = depositBrl / prices.usdcBrl
@@ -346,10 +350,21 @@ export function DashboardShell() {
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-semibold">Kauã Miguel</div>
+              <div className="text-xs font-semibold">{userName || "Usuário"}</div>
               <div className="font-mono text-[8px] text-ds-mute">7nxB...4X1a</div>
             </div>
-            <ChevronDown className="size-[13px] text-ds-dim" />
+            <button
+              aria-label="Sair"
+              onClick={async () => {
+                const supabase = createClient()
+                await supabase.auth.signOut()
+                router.push("/login")
+                router.refresh()
+              }}
+              className="rounded-md p-1 text-ds-mute transition-colors hover:text-ds-red"
+            >
+              <LogOut className="size-[13px]" />
+            </button>
           </div>
         </div>
       </aside>
@@ -359,7 +374,7 @@ export function DashboardShell() {
         {/* TOPBAR */}
         <div className="flex items-center justify-between border-b border-ds-line px-6 py-4">
           <div>
-            <div className="text-lg font-bold tracking-tight">Bom te ver, Kauã</div>
+            <div className="text-lg font-bold tracking-tight">Bom te ver, {userName?.split(" ")[0] || "Investidor"}</div>
             <div className="mt-0.5 font-mono text-[9px] text-ds-mute">último acesso: hoje, 09:12</div>
           </div>
           <div className="flex items-center gap-2.5">
