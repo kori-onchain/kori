@@ -7,6 +7,24 @@
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
+
+  /* DS brand tokens */
+  --color-ds-bg: #0a0a0a;
+  --color-ds-bg-1: #111114;
+  --color-ds-bg-2: #16161a;
+  --color-ds-elev: #202026;
+  --color-ds-ink: #fafafa;
+  --color-ds-dim: #9a9a9e;
+  --color-ds-mute: #5a5a5e;
+  --color-ds-faint: #2f2f33;
+  --color-ds-orange: #ff6b3d;
+  --color-ds-orange-dark: #d94d20;
+  --color-ds-green: #4ade80;
+  --color-ds-red: #f8716a;
+  --color-ds-sol: #9945ff;
+  --color-ds-btc: #f7931a;
+  --color-ds-line: rgba(255, 255, 255, 0.06);
+  --color-ds-line-2: rgba(255, 255, 255, 0.1);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -158,5 +176,36 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/* ─── DS utilities ─── */
+
+@utility soft-card {
+  background: linear-gradient(180deg, #1e1e23 0%, #16161a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 14px -6px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility soft-card-sm {
+  background: linear-gradient(180deg, #1e1e23 0%, #16161a 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 3px 9px -5px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility animate-ticker {
+  animation: ticker-scroll 50s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
