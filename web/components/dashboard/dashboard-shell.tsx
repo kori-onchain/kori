@@ -227,7 +227,7 @@ function NavItem({
       className={cn(
         "flex items-center gap-[11px] py-2.5 px-3 rounded-[9px] text-[13px] font-medium relative no-underline [&_svg]:shrink-0",
         active
-          ? "soft-card-sm text-ds-orange before:content-[''] before:absolute before:-left-3.5 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-5 before:rounded-sm before:bg-ds-orange before:shadow-[0_0_10px_#ff6b3d]"
+          ? "soft-card-sm text-ds-orange"
           : "text-ds-mute hover:text-ds-dim"
       )}
     >
@@ -363,11 +363,11 @@ export function DashboardShell() {
             <div className="mt-0.5 font-mono text-[9px] text-ds-mute">último acesso: hoje, 09:12</div>
           </div>
           <div className="flex items-center gap-2.5">
-            <div className="soft-card-sm flex w-[230px] items-center gap-2 rounded-full px-3.5 py-2">
+            <div className="flex w-[230px] items-center gap-2 rounded-full border border-white/5 bg-ds-bg-2 px-3.5 py-2">
               <Search className="size-3.5 text-ds-mute" />
               <span className="text-xs text-ds-mute">Buscar comércio, tx...</span>
             </div>
-            <Button variant="ghost" size="icon" className="relative size-9 rounded-full soft-card-sm text-ds-dim" aria-label="Notificações">
+            <Button variant="ghost" size="icon" className="relative size-9 rounded-full border border-white/5 bg-ds-bg-2 text-ds-dim" aria-label="Notificações">
               <Bell className="size-[15px]" />
               <span className="absolute top-2 right-[9px] size-1.5 rounded-full border-[1.5px] border-ds-bg bg-ds-orange" />
             </Button>
@@ -382,7 +382,7 @@ export function DashboardShell() {
           {/* COL PRINCIPAL */}
           <div className="flex min-w-0 flex-col gap-[18px]">
             {/* HERO PATRIMÔNIO */}
-            <div className="soft-card grid grid-cols-2 gap-5 rounded-[18px] p-[22px]">
+            <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-white/5 bg-ds-bg-1 p-[22px]">
               <div className="flex flex-col">
                 <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ds-mute">Patrimônio total</span>
                 <div className="mt-2 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
@@ -408,7 +408,7 @@ export function DashboardShell() {
                     <Plus className="size-3.5" />
                     Depositar
                   </Button>
-                  <Button variant="ghost" className="h-auto rounded-[11px] soft-card-sm px-5 py-[11px] text-[13px] font-semibold text-ds-ink">
+                  <Button variant="ghost" className="h-auto rounded-[11px] border border-white/5 bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink">
                     Resgatar
                   </Button>
                 </div>
@@ -418,7 +418,7 @@ export function DashboardShell() {
                   <span className="font-mono text-[9px] text-ds-mute">Evolução do patrimônio</span>
                   <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-[#0e0e11] p-0.5">
                     {["1M", "6M", "Tudo"].map((t) => (
-                      <span key={t} className={cn("rounded-md px-2 py-1 font-mono text-[9px]", t === "6M" ? "soft-card-sm text-ds-ink" : "text-ds-mute")}>{t}</span>
+                      <span key={t} className={cn("rounded-md px-2 py-1 font-mono text-[9px]", t === "6M" ? "border border-white/5 bg-ds-bg-2 text-ds-ink" : "text-ds-mute")}>{t}</span>
                     ))}
                   </div>
                 </div>
@@ -450,7 +450,7 @@ export function DashboardShell() {
                 { label: "Posições ativas", value: "12", detail: "comércios" },
                 { label: "Próx. liquidação", value: "3 dias", detail: "Café Central" },
               ].map((k) => (
-                <div key={k.label} className="soft-card rounded-[14px] p-[15px]">
+                <div key={k.label} className="rounded-[14px] border border-white/5 bg-ds-bg-1 p-[15px]">
                   <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
                   <div className={cn("mt-2 text-[21px] font-bold tracking-tight", k.valueColor)}>{k.value}</div>
                   <div className={cn("mt-[5px] font-mono text-[9px] text-ds-mute", k.detailColor)}>{k.detail}</div>
@@ -459,7 +459,7 @@ export function DashboardShell() {
             </div>
 
             {/* MINHAS POSIÇÕES */}
-            <SoftCard>
+            <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
               <div className="mb-3.5 flex items-center justify-between">
                 <div>
                   <div className="text-base font-bold tracking-tight">Minhas posições</div>
@@ -493,17 +493,17 @@ export function DashboardShell() {
                   ))}
                 </TableBody>
               </Table>
-            </SoftCard>
+            </div>
 
             {/* MARKETPLACE */}
-            <SoftCard>
+            <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
               <div className="mb-3.5 flex items-center justify-between">
                 <div>
                   <div className="text-base font-bold tracking-tight">Explorar mais oportunidades</div>
                   <div className="mt-0.5 font-mono text-[9px] text-ds-mute">recebíveis abertos no marketplace</div>
                 </div>
                 <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-[#0e0e11] p-0.5">
-                  <span className="soft-card-sm rounded-md px-[11px] py-1.5 font-mono text-[10px] text-ds-ink">Risco baixo</span>
+                  <span className="rounded-md border border-white/5 bg-ds-bg-2 px-[11px] py-1.5 font-mono text-[10px] text-ds-ink">Risco baixo</span>
                   <span className="rounded-md px-[11px] py-1.5 font-mono text-[10px] text-ds-mute">Maior APR</span>
                 </div>
               </div>
@@ -535,13 +535,13 @@ export function DashboardShell() {
                         </div>
                       </TableCell>
                       <TableCell className="px-0 py-[11px] text-right">
-                        <Button variant="ghost" size="sm" className="h-auto soft-card-sm rounded-[11px] px-3.5 py-1.5 text-[11px] font-semibold text-ds-ink">Financiar</Button>
+                        <Button variant="ghost" size="sm" className="h-auto rounded-[11px] border border-white/5 bg-ds-bg-1 px-3.5 py-1.5 text-[11px] font-semibold text-ds-ink">Financiar</Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </SoftCard>
+            </div>
           </div>
 
           {/* COL LATERAL */}
