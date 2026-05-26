@@ -20,8 +20,7 @@ import { TransactionsModal } from "../components/TransactionsModal";
 import { Transactions } from "../components/Transactions";
 import { BottomMenu } from "../components/BottomMenu";
 import { CardsPanel } from "../components/CardsPanel";
-import { InvestmentsPanel } from "../components/InvestmentsPanel";
-import { ExperiencesPanel } from "../components/ExperiencesPanel";
+import { InvestPanel } from "../components/InvestPanel";
 import { MerchantPanel } from "../components/MerchantPanel";
 import { ProfileModal } from "../components/ProfileModal";
 import { SendModal } from "../components/payment/SendModal";
@@ -137,31 +136,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
         {activeTab === "cartao" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <View style={styles.headerLayer}>
+            <Animated.View entering={entering(40)} style={styles.headerLayer}>
               <Header {...headerProps} />
-            </View>
-            <CardsPanel userName={userName} />
+            </Animated.View>
+            <Animated.View entering={entering(100)} style={styles.panelFlex}>
+              <CardsPanel userName={userName} />
+            </Animated.View>
           </View>
         ) : activeTab === "loja" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <View style={styles.headerLayer}>
+            <Animated.View entering={entering(40)} style={styles.headerLayer}>
               <Header {...headerProps} />
+            </Animated.View>
+            <View style={styles.panelFlex}>
+              <MerchantPanel />
             </View>
-            <MerchantPanel />
           </View>
         ) : activeTab === "investimentos" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <View style={styles.headerLayer}>
+            <Animated.View entering={entering(40)} style={styles.headerLayer}>
               <Header {...headerProps} />
+            </Animated.View>
+            <View style={styles.panelFlex}>
+              <InvestPanel />
             </View>
-            <InvestmentsPanel />
-          </View>
-        ) : activeTab === "experiencias" ? (
-          <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
-            <View style={styles.headerLayer}>
-              <Header {...headerProps} />
-            </View>
-            <ExperiencesPanel />
           </View>
         ) : (
           <ScrollView
@@ -273,5 +271,8 @@ const styles = StyleSheet.create({
     position: "relative",
     zIndex: 1000,
     elevation: 1000,
+  },
+  panelFlex: {
+    flex: 1,
   },
 });

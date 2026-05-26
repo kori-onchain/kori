@@ -12,7 +12,6 @@ import {
   HomeIcon,
   CardIcon,
   InvestIcon,
-  ExperiencesIcon,
   ShopIcon,
   QrIcon,
 } from './icons';
@@ -22,8 +21,7 @@ export type BottomNavTab =
   | 'inicio'
   | 'cartao'
   | 'loja'
-  | 'investimentos'
-  | 'experiencias';
+  | 'investimentos';
 
 interface BottomNavProps {
   activeTab: BottomNavTab;
@@ -41,12 +39,11 @@ interface TabDef {
 const LEFT_TABS: TabDef[] = [
   { id: 'inicio', label: 'INICIO', Icon: HomeIcon },
   { id: 'cartao', label: 'CARTAO', Icon: CardIcon },
-  { id: 'loja', label: 'LOJA', Icon: ShopIcon },
 ];
 
 const RIGHT_TABS: TabDef[] = [
+  { id: 'loja', label: 'LOJA', Icon: ShopIcon },
   { id: 'investimentos', label: 'INVEST', Icon: InvestIcon },
-  { id: 'experiencias', label: 'EXP', Icon: ExperiencesIcon },
 ];
 
 /**

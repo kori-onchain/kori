@@ -5,21 +5,18 @@ import {
   StyleSheet,
   TouchableOpacity,
   Switch,
-  TextInput,
-  Dimensions,
-  Platform,
   ScrollView,
   Animated,
 } from "react-native";
-import { Feather } from "../icons";
-import { LinearGradient } from "expo-linear-gradient";
 import * as Clipboard from "expo-clipboard";
+import * as LocalAuthentication from "expo-local-authentication";
+import { Feather } from "../icons";
 import { useTheme } from "../theme/ThemeProvider";
+import { PremiumCard } from "./ds/PremiumCard";
 import { Button } from "./ds/Button";
 import { SoftCard } from "./ds/SoftCard";
-import { colors, fonts, radii } from "../theme/tokens";
-
-const { width } = Dimensions.get("window");
+import { CopyIcon, PlusIcon, ChevronRightIcon } from "./ds/icons";
+import { fonts, radii } from "../theme/tokens";
 
 interface CardsPanelProps {
   userName?: string;
@@ -27,22 +24,22 @@ interface CardsPanelProps {
 
 export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
   const { t } = useTheme();
+
   const [cardNumber, setCardNumber] = useState("5421 9843 7261 8294");
   const [expiry] = useState("08/29");
   const [cvv, setCvv] = useState("842");
-  const [isCvvVisible, setIsCvvVisible] = useState(false);
+
+  const [isRevealed, setIsRevealed] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
   const [isOnlineActive, setIsOnlineActive] = useState(true);
-  const [limitUsed] = useState(1842);
-  const [limitTotal, setLimitTotal] = useState(5000);
-  const [isEditingLimit, setIsEditingLimit] = useState(false);
-  const [limitInput, setLimitInput] = useState("5000");
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const toastOpacity = useState(new Animated.Value(0))[0];
-  const cardScale = useState(new Animated.Value(1))[0];
+  const [isInternationalActive, setIsInternationalActive] = useState(true);
 
-  const displayName = (userName || "KAUÃ M.").toUpperCase();
-  const limitPercent = Math.min(1, limitUsed / limitTotal);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastOpacity] = useState(() => new Animated.Value(0));
+  const [cardScale] = useState(() => new Animated.Value(1));
+
+  const displayName = (userName || "KAUÃ MIGUEL").toUpperCase();
+  const last4 = cardNumber.slice(-4);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -61,10 +58,34 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
     ]).start(() => setToastMessage(null));
   };
 
+  const handleReveal = async () => {
+    if (isRevealed) {
+      setIsRevealed(false);
+      return;
+    }
+    const hasHW = await LocalAuthentication.hasHardwareAsync();
+    const enrolled = await LocalAuthentication.isEnrolledAsync();
+    if (!hasHW || !enrolled) {
+      setIsRevealed(true);
+      return;
+    }
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: "Autentique para ver os dados do cartão",
+      fallbackLabel: "Usar PIN",
+    });
+    if (result.success) setIsRevealed(true);
+  };
+
   const handleCopyDetails = async () => {
-    const fullText = `Cartão Kora Virtual\nNome: ${displayName}\nNúmero: ${cardNumber}\nValidade: ${expiry}\nCVV: ${cvv}`;
-    await Clipboard.setStringAsync(fullText);
-    showToast("Dados do cartão copiados!");
+    const text = [
+      "Cartão Kora Virtual",
+      `Nome: ${displayName}`,
+      `Número: ${cardNumber}`,
+      `Validade: ${expiry}`,
+      `CVV: ${cvv}`,
+    ].join("\n");
+    await Clipboard.setStringAsync(text);
+    showToast("Dados copiados!");
   };
 
   const handleGenerateNewCard = () => {
@@ -85,36 +106,26 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
         useNativeDriver: true,
       }),
     ]).start();
-
-    const b1 = Math.floor(1000 + Math.random() * 9000).toString();
-    const b2 = Math.floor(1000 + Math.random() * 9000).toString();
+    const b1 = Math.floor(1000 + Math.random() * 9000);
+    const b2 = Math.floor(1000 + Math.random() * 9000);
     setCardNumber(`5421 ${b1} ${b2} 8294`);
     setCvv(Math.floor(100 + Math.random() * 900).toString());
+    setIsRevealed(false);
     showToast("Novo cartão virtual gerado!");
   };
 
-  const handleSaveLimit = () => {
-    const val = parseInt(limitInput.replace(/[^0-9]/g, ""));
-    if (!isNaN(val) && val > 0) {
-      setLimitTotal(val);
-      setIsEditingLimit(false);
-      showToast(
-        `Limite mensal atualizado para R$ ${val.toLocaleString("pt-BR")}`,
-      );
-    } else {
-      showToast("Por favor, insira um valor válido");
-    }
-  };
+  const toggleTrack = { false: t.inkFaint, true: "rgba(74,222,128,0.25)" };
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: t.bg }]}
+      style={[s.scroller, { backgroundColor: t.bg }]}
       showsVerticalScrollIndicator={false}
     >
+      {/* ── Toast ── */}
       {toastMessage && (
         <Animated.View
           style={[
-            styles.toast,
+            s.toast,
             {
               opacity: toastOpacity,
               backgroundColor: t.bg2,
@@ -128,396 +139,326 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
             color={t.green}
             style={{ marginRight: 8 }}
           />
-          <Text style={[styles.toastText, { color: t.ink }]}>
-            {toastMessage}
-          </Text>
+          <Text style={[s.toastTxt, { color: t.ink }]}>{toastMessage}</Text>
         </Animated.View>
       )}
 
-      <Animated.View
-        style={[styles.cardContainer, { transform: [{ scale: cardScale }] }]}
-      >
-        <View style={styles.card}>
-          <LinearGradient
-            colors={[t.orangeDark, t.orange, t.bg2]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
-          />
-          <View style={styles.cardGridPattern} />
-          <View style={styles.cardContent}>
-            <View style={styles.cardHeader}>
-              <View style={styles.chip} />
-              <View style={styles.brandContainer}>
-                <Feather
-                  name="shield"
-                  size={16}
-                  color={t.ink}
-                  style={{ marginRight: 6 }}
-                />
-                <Text style={styles.brandText}>KORA • VIRTUAL</Text>
-              </View>
-            </View>
-
-            <View style={styles.cardNumberContainer}>
-              <Text style={styles.cardNumberText}>
-                {isFrozen ? "••••  ••••  ••••  ••••" : cardNumber}
-              </Text>
-            </View>
-
-            <View style={styles.cardFooter}>
-              <View>
-                <Text style={styles.cardHolderLabel}>PORTADOR</Text>
-                <Text style={styles.cardHolderName}>{displayName}</Text>
-              </View>
-              <View style={styles.circlesContainer}>
-                <View
-                  style={[
-                    styles.circle,
-                    { backgroundColor: "#FF5F00", marginRight: -8 },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.circle,
-                    { backgroundColor: "#F79E1B", opacity: 0.85 },
-                  ]}
-                />
-              </View>
-            </View>
-          </View>
-
-          {isFrozen && (
-            <View style={styles.frozenOverlay}>
-              <View style={styles.frozenBadge}>
-                <Feather
-                  name="lock"
-                  size={20}
-                  color={t.orange}
-                  style={{ marginRight: 8 }}
-                />
-                <Text style={[styles.frozenBadgeText, { color: t.orange }]}>
-                  CONGELADO
-                </Text>
-              </View>
-            </View>
-          )}
-        </View>
-      </Animated.View>
-
-      <View style={styles.detailsRow}>
-        <SoftCard radius={radii.card} padding={16} style={styles.detailCard}>
-          <Text style={[styles.detailTitle, { color: t.inkMute }]}>
-            VALIDADE
-          </Text>
-          <Text style={[styles.detailValue, { color: t.ink }]}>{expiry}</Text>
-        </SoftCard>
-
-        <SoftCard radius={radii.card} padding={16} style={styles.detailCard}>
-          <Text style={[styles.detailTitle, { color: t.inkMute }]}>CVV</Text>
-          <View style={styles.cvvContainer}>
-            <Text style={[styles.detailValue, { color: t.ink }]}>
-              {isCvvVisible ? cvv : "•••"}
-            </Text>
-            <TouchableOpacity
-              style={styles.eyeBtn}
-              onPress={() => setIsCvvVisible(!isCvvVisible)}
-              activeOpacity={0.7}
-            >
-              <Feather
-                name={isCvvVisible ? "eye-off" : "eye"}
-                size={18}
-                color={t.inkMute}
-              />
-            </TouchableOpacity>
-          </View>
-        </SoftCard>
+      {/* ── 2. Title ── */}
+      <View style={s.titleWrap}>
+        <Text style={[s.title, { color: t.ink }]}>Meu cartão</Text>
+        <Text style={[s.subtitle, { color: t.inkDim }]}>
+          Virtual · Mastercard
+        </Text>
       </View>
 
-      <View style={styles.actionsRow}>
+      {/* ── 3. PremiumCard ── */}
+      <Animated.View
+        style={[s.cardWrap, { transform: [{ scale: cardScale }] }]}
+      >
+        <PremiumCard holder={displayName} last4={last4} isVirtual />
+
+        {isFrozen && (
+          <View style={s.frozenOverlay}>
+            <View
+              style={[
+                s.frozenBadge,
+                { backgroundColor: t.bgElev, borderColor: t.inkMute },
+              ]}
+            >
+              <Feather
+                name="lock"
+                size={18}
+                color={t.ink}
+                style={{ marginRight: 8 }}
+              />
+              <Text style={[s.frozenTxt, { color: t.ink }]}>CONGELADO</Text>
+            </View>
+          </View>
+        )}
+      </Animated.View>
+
+      {/* ── 4. Balance ── */}
+      <SoftCard radius={radii.card} padding={20} style={s.section}>
+        <View style={s.balRow}>
+          <View style={s.balCol}>
+            <Text style={[s.balLbl, { color: t.inkMute }]}>DISPONÍVEL</Text>
+            <Text style={[s.balVal, { color: t.ink }]}>R$ 4.280,00</Text>
+          </View>
+          <View style={[s.balDivider, { backgroundColor: t.line }]} />
+          <View style={s.balCol}>
+            <Text style={[s.balLbl, { color: t.inkMute }]}>GASTO NO MÊS</Text>
+            <Text style={[s.balVal, { color: t.inkDim }]}>R$ 1.720,00</Text>
+          </View>
+        </View>
+      </SoftCard>
+
+      {/* ── 5. Hidden data ── */}
+      <SoftCard radius={radii.card} padding={16} style={s.section}>
+        <View style={s.dataRow}>
+          <View style={s.dataCell}>
+            <Text style={[s.dataLbl, { color: t.inkMute }]}>VALIDADE</Text>
+            <Text style={[s.dataVal, { color: t.ink }]}>{expiry}</Text>
+          </View>
+
+          <View style={s.dataCell}>
+            <Text style={[s.dataLbl, { color: t.inkMute }]}>CVV</Text>
+            <Text style={[s.dataVal, { color: t.ink }]}>
+              {isRevealed ? cvv : "•••"}
+            </Text>
+          </View>
+
+          {isRevealed && (
+            <View style={s.dataCellWide}>
+              <Text style={[s.dataLbl, { color: t.inkMute }]}>NÚMERO</Text>
+              <Text
+                style={[s.dataNumRevealed, { color: t.ink }]}
+                numberOfLines={1}
+              >
+                {cardNumber}
+              </Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={s.revealBtn}
+            onPress={handleReveal}
+            activeOpacity={0.7}
+          >
+            <Feather
+              name={isRevealed ? "eye-off" : "eye"}
+              size={16}
+              color={t.inkDim}
+            />
+            <Text style={[s.revealTxt, { color: t.inkDim }]}>
+              {isRevealed ? "Ocultar" : "Mostrar"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SoftCard>
+
+      {/* ── 6. Actions ── */}
+      <View style={s.actionsRow}>
         <Button
           label="Copiar dados"
           onPress={handleCopyDetails}
           full
-          icon={<Feather name="copy" size={16} color={t.btnPrimaryFg} />}
+          icon={<CopyIcon size={14} color={t.btnPrimaryFg} />}
         />
-
         <Button
           label="Novo virtual"
           variant="secondary"
           onPress={handleGenerateNewCard}
           full
-          icon={<Feather name="plus" size={16} color={t.ink} />}
+          icon={<PlusIcon size={16} color={t.ink} />}
         />
       </View>
 
-      <Text style={[styles.sectionHeader, { color: t.inkMute }]}>
-        CONTROLES
-      </Text>
+      {/* ── 7. Controls ── */}
+      <Text style={[s.sectionTitle, { color: t.inkMute }]}>CONTROLES</Text>
 
-      <SoftCard radius={radii.card} padding={0} style={styles.controlsList}>
-        <View style={[styles.controlRow, { borderBottomColor: t.line }]}>
-          <View style={styles.controlLeft}>
-            <SoftCard
-              radius={radii.cardSm}
-              padding={0}
-              flat
-              style={styles.iconBox}
-            >
-              <View style={styles.iconBoxInner}>
-                <Feather name="globe" size={19} color={t.ink} />
-              </View>
-            </SoftCard>
-            <View>
-              <Text style={[styles.controlTitle, { color: t.ink }]}>
-                Compras online
-              </Text>
-              <View style={styles.statusRow}>
-                <View
-                  style={[
-                    styles.statusDot,
-                    { backgroundColor: isOnlineActive ? t.green : t.inkMute },
-                  ]}
-                />
-                <Text style={[styles.controlSubtitle, { color: t.inkMute }]}>
-                  {isOnlineActive ? "ativo" : "inativo"}
-                </Text>
-              </View>
-            </View>
-          </View>
-          <Switch
-            value={isOnlineActive}
-            onValueChange={setIsOnlineActive}
-            trackColor={{ false: t.inkFaint, true: t.line2 }}
-            thumbColor={isOnlineActive ? t.green : t.inkMute}
-            ios_backgroundColor={t.inkFaint}
-          />
-        </View>
-
-        <View style={[styles.controlRow, { borderBottomColor: t.line }]}>
-          <View style={styles.controlLeft}>
-            <SoftCard
-              radius={radii.cardSm}
-              padding={0}
-              flat
-              style={styles.iconBox}
-            >
-              <View style={styles.iconBoxInner}>
-                <Feather name="pause" size={19} color={t.ink} />
-              </View>
-            </SoftCard>
-            <View>
-              <Text style={[styles.controlTitle, { color: t.ink }]}>
-                Bloqueio temporário
-              </Text>
-              <Text style={[styles.controlSubtitle, { color: t.inkMute }]}>
-                {isFrozen ? "cartão bloqueado" : "tap pra pausar"}
-              </Text>
-            </View>
-          </View>
-          <Switch
-            value={isFrozen}
-            onValueChange={setIsFrozen}
-            trackColor={{ false: t.inkFaint, true: t.line2 }}
-            thumbColor={isFrozen ? t.green : t.inkMute}
-            ios_backgroundColor={t.inkFaint}
-          />
-        </View>
-      </SoftCard>
-
-      <View style={styles.limitHeaderRow}>
-        <Text style={[styles.sectionHeader, { color: t.inkMute }]}>
-          LIMITE MENSAL
-        </Text>
-        <TouchableOpacity
-          onPress={() => setIsEditingLimit(true)}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.editLinkText, { color: t.orange }]}>
-            editar ➔
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <SoftCard radius={radii.card} padding={20} style={styles.limitPanel}>
-        {isEditingLimit ? (
-          <View style={styles.limitEditContainer}>
-            <TextInput
-              style={[
-                styles.limitInput,
-                { backgroundColor: t.bg, borderColor: t.line, color: t.ink },
-              ]}
-              keyboardType="number-pad"
-              value={limitInput}
-              onChangeText={setLimitInput}
-              placeholder="Digite o limite"
-              placeholderTextColor={t.inkMute}
-              autoFocus
-            />
-            <View style={styles.limitEditActions}>
-              <TouchableOpacity
-                style={styles.limitCancelBtn}
-                onPress={() => setIsEditingLimit(false)}
+      <SoftCard radius={radii.card} padding={0}>
+        <View style={s.ctrlList}>
+          {/* Compras online */}
+          <View style={[s.ctrlRow, { borderBottomColor: t.line }]}>
+            <View style={s.ctrlLeft}>
+              <SoftCard
+                radius={radii.cardSm}
+                padding={0}
+                flat
+                style={s.iconBox}
               >
-                <Text style={[styles.limitCancelText, { color: t.inkMute }]}>
-                  Cancelar
+                <View style={s.iconBoxInner}>
+                  <Feather name="globe" size={19} color={t.ink} />
+                </View>
+              </SoftCard>
+              <View>
+                <Text style={[s.ctrlTitle, { color: t.ink }]}>
+                  Compras online
                 </Text>
-              </TouchableOpacity>
-              <Button label="Salvar" onPress={handleSaveLimit} />
+                <View style={s.statusRow}>
+                  <View
+                    style={[
+                      s.statusDot,
+                      {
+                        backgroundColor: isOnlineActive ? t.green : t.inkMute,
+                      },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      s.ctrlSub,
+                      { color: isOnlineActive ? t.green : t.inkMute },
+                    ]}
+                  >
+                    {isOnlineActive ? "ativo" : "inativo"}
+                  </Text>
+                </View>
+              </View>
             </View>
+            <Switch
+              value={isOnlineActive}
+              onValueChange={setIsOnlineActive}
+              trackColor={toggleTrack}
+              thumbColor={isOnlineActive ? t.green : t.inkMute}
+            />
           </View>
-        ) : (
-          <View>
-            <View style={styles.limitValuesRow}>
-              <Text style={[styles.limitUsedText, { color: t.inkMute }]}>
-                Usado{" "}
-                <Text style={[styles.boldText, { color: t.ink }]}>
-                  R$ {limitUsed.toLocaleString("pt-BR")}
-                </Text>{" "}
-                de R$ {limitTotal.toLocaleString("pt-BR")}
-              </Text>
+
+          {/* Bloqueio temporário */}
+          <View style={[s.ctrlRow, { borderBottomColor: t.line }]}>
+            <View style={s.ctrlLeft}>
+              <SoftCard
+                radius={radii.cardSm}
+                padding={0}
+                flat
+                style={s.iconBox}
+              >
+                <View style={s.iconBoxInner}>
+                  <Feather name="pause" size={19} color={t.ink} />
+                </View>
+              </SoftCard>
+              <View>
+                <Text style={[s.ctrlTitle, { color: t.ink }]}>
+                  Bloqueio temporário
+                </Text>
+                <Text style={[s.ctrlSub, { color: t.inkMute }]}>
+                  {isFrozen ? "cartão bloqueado" : "pausa o cartão na hora"}
+                </Text>
+              </View>
             </View>
-            <View
-              style={[styles.progressBarBg, { backgroundColor: t.inkFaint }]}
-            >
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${limitPercent * 100}%`, backgroundColor: t.green },
-                ]}
-              />
-            </View>
+            <Switch
+              value={isFrozen}
+              onValueChange={setIsFrozen}
+              trackColor={toggleTrack}
+              thumbColor={isFrozen ? t.green : t.inkMute}
+            />
           </View>
-        )}
+
+          {/* Compras internacionais */}
+          <View style={[s.ctrlRow, { borderBottomColor: t.line }]}>
+            <View style={s.ctrlLeft}>
+              <SoftCard
+                radius={radii.cardSm}
+                padding={0}
+                flat
+                style={s.iconBox}
+              >
+                <View style={s.iconBoxInner}>
+                  <Feather name="navigation" size={19} color={t.ink} />
+                </View>
+              </SoftCard>
+              <View>
+                <Text style={[s.ctrlTitle, { color: t.ink }]}>
+                  Compras internacionais
+                </Text>
+                <View style={s.statusRow}>
+                  <View
+                    style={[
+                      s.statusDot,
+                      {
+                        backgroundColor: isInternationalActive
+                          ? t.green
+                          : t.inkMute,
+                      },
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      s.ctrlSub,
+                      {
+                        color: isInternationalActive ? t.green : t.inkMute,
+                      },
+                    ]}
+                  >
+                    {isInternationalActive ? "ativo" : "inativo"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Switch
+              value={isInternationalActive}
+              onValueChange={setIsInternationalActive}
+              trackColor={toggleTrack}
+              thumbColor={isInternationalActive ? t.green : t.inkMute}
+            />
+          </View>
+
+          {/* Limite por compra */}
+          <TouchableOpacity
+            style={[s.ctrlRow, { borderBottomWidth: 0 }]}
+            activeOpacity={0.7}
+          >
+            <View style={s.ctrlLeft}>
+              <SoftCard
+                radius={radii.cardSm}
+                padding={0}
+                flat
+                style={s.iconBox}
+              >
+                <View style={s.iconBoxInner}>
+                  <Feather name="sliders" size={19} color={t.ink} />
+                </View>
+              </SoftCard>
+              <View>
+                <Text style={[s.ctrlTitle, { color: t.ink }]}>
+                  Limite por compra
+                </Text>
+                <Text style={[s.ctrlSub, { color: t.inkMute }]}>
+                  R$ 2.000,00
+                </Text>
+              </View>
+            </View>
+            <ChevronRightIcon size={16} color={t.inkMute} />
+          </TouchableOpacity>
+        </View>
       </SoftCard>
 
-      <View style={{ height: 60 }} />
+      {/* Bottom nav clearance */}
+      <View style={s.bottomSpacer} />
     </ScrollView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.bg,
-  },
+const s = StyleSheet.create({
+  scroller: { flex: 1 },
+
+  /* Toast */
   toast: {
     position: "absolute",
     top: 10,
-    left: 20,
-    right: 20,
-    backgroundColor: colors.green,
+    left: 0,
+    right: 0,
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 20,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 9999,
+    borderWidth: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
     elevation: 8,
   },
-  toastText: {
-    color: colors.bg,
-    fontFamily: fonts.sans.semibold,
-    fontSize: 13,
-    textAlign: "center",
-  },
-  cardContainer: {
-    alignItems: "center",
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  card: {
-    width: "100%",
-    height: 210,
-    borderRadius: 24,
-    backgroundColor: colors.bgElev,
-    overflow: "hidden",
-    position: "relative",
-    borderWidth: 1,
-    borderColor: colors.line2,
-    shadowColor: colors.orange,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  cardGridPattern: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.04,
-    borderWidth: 1,
-    borderColor: colors.ink,
-    borderStyle: "dashed",
-  },
-  cardContent: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "space-between",
-    zIndex: 2,
-  },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  chip: {
-    width: 38,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: colors.inkDim,
-    opacity: 0.8,
-  },
-  brandContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  brandText: {
-    color: colors.ink,
-    fontSize: 13.5,
+  toastTxt: { fontFamily: fonts.sans.semibold, fontSize: 13 },
+
+  /* Title */
+  titleWrap: { marginTop: 8, marginBottom: 18 },
+  title: {
     fontFamily: fonts.sans.bold,
-    letterSpacing: 1.5,
+    fontSize: 19,
+    letterSpacing: -0.4,
+    marginBottom: 4,
   },
-  cardNumberContainer: {
-    marginVertical: 14,
-  },
-  cardNumberText: {
-    color: colors.ink,
-    fontSize: 22,
-    fontFamily: fonts.mono.medium,
-    letterSpacing: 2,
-  },
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-  },
-  cardHolderLabel: {
-    color: colors.inkDim,
-    fontSize: 9,
-    fontFamily: fonts.mono.medium,
-    letterSpacing: 1,
-    marginBottom: 2,
-  },
-  cardHolderName: {
-    color: colors.ink,
-    fontSize: 13,
-    fontFamily: fonts.sans.semibold,
-    letterSpacing: 1,
-  },
-  circlesContainer: {
-    flexDirection: "row",
-  },
-  circle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
+  subtitle: { fontFamily: fonts.sans.medium, fontSize: 13 },
+
+  /* Card wrapper */
+  cardWrap: { marginBottom: 20, position: "relative" },
   frozenOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(13, 13, 13, 0.82)",
+    backgroundColor: "rgba(12,12,13,0.82)",
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
@@ -525,233 +466,97 @@ const styles = StyleSheet.create({
   frozenBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.bgElev,
     borderWidth: 1,
-    borderColor: colors.orange,
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    shadowColor: colors.orange,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
     elevation: 4,
   },
-  frozenBadgeText: {
-    color: colors.orange,
+  frozenTxt: {
     fontFamily: fonts.mono.semibold,
     fontSize: 14,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
   },
-  detailsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 20,
-  },
-  detailCard: {
-    flex: 1,
-    backgroundColor: colors.bg2,
-    borderWidth: 1,
-    borderColor: colors.inkFaint,
-    borderRadius: 16,
-    padding: 16,
-    justifyContent: "center",
-  },
-  detailTitle: {
-    color: colors.inkDim,
-    fontSize: 10,
+
+  /* Balance */
+  section: { marginBottom: 12 },
+  balRow: { flexDirection: "row", alignItems: "center" },
+  balCol: { flex: 1 },
+  balDivider: { width: 1, height: 38, marginHorizontal: 16 },
+  balLbl: {
     fontFamily: fonts.mono.medium,
-    letterSpacing: 1,
+    fontSize: 9,
+    letterSpacing: 1.2,
     marginBottom: 6,
   },
-  cvvContainer: {
+  balVal: { fontFamily: fonts.sans.bold, fontSize: 17, letterSpacing: -0.4 },
+
+  /* Hidden data */
+  dataRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 20,
   },
-  detailValue: {
-    color: colors.ink,
-    fontSize: 18,
-    fontFamily: fonts.sans.bold,
+  dataCell: {},
+  dataCellWide: { flexShrink: 1 },
+  dataLbl: {
+    fontFamily: fonts.mono.medium,
+    fontSize: 9,
+    letterSpacing: 1.2,
+    marginBottom: 4,
   },
-  eyeBtn: {
-    padding: 4,
+  dataVal: { fontFamily: fonts.mono.medium, fontSize: 15 },
+  dataNumRevealed: {
+    fontFamily: fonts.mono.regular,
+    fontSize: 12,
+    letterSpacing: 0.5,
   },
-  actionsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 26,
-  },
-  primaryActionBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.green,
-    borderRadius: 14,
-    paddingVertical: 14,
-  },
-  primaryActionText: {
-    color: colors.bg,
-    fontSize: 14,
-    fontFamily: fonts.sans.semibold,
-  },
-  secondaryActionBtn: {
-    flex: 1,
+  revealBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.bg2,
-    borderWidth: 1,
-    borderColor: colors.inkFaint,
-    borderRadius: 14,
-    paddingVertical: 14,
+    marginLeft: "auto",
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
-  secondaryActionText: {
-    color: colors.ink,
-    fontSize: 14,
-    fontFamily: fonts.sans.semibold,
-  },
-  sectionHeader: {
-    color: colors.inkDim,
-    fontSize: 11.5,
+  revealTxt: { fontFamily: fonts.sans.semibold, fontSize: 12 },
+
+  /* Actions */
+  actionsRow: { flexDirection: "row", gap: 12, marginBottom: 26 },
+
+  /* Controls */
+  sectionTitle: {
     fontFamily: fonts.mono.semibold,
+    fontSize: 11.5,
     letterSpacing: 1.5,
     marginBottom: 12,
   },
-  controlsList: {
-    backgroundColor: colors.bg2,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.inkFaint,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    marginBottom: 26,
-  },
-  controlRow: {
+  ctrlList: { paddingHorizontal: 16, paddingVertical: 6 },
+  ctrlRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingVertical: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.line,
   },
-  controlLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-  },
+  ctrlLeft: { flexDirection: "row", alignItems: "center", gap: 14, flex: 1 },
+  iconBox: { width: 44, height: 44 },
   iconBoxInner: {
     width: 44,
     height: 44,
     alignItems: "center",
     justifyContent: "center",
   },
-  controlTitle: {
-    color: colors.ink,
-    fontSize: 14,
+  ctrlTitle: {
     fontFamily: fonts.sans.semibold,
+    fontSize: 14,
     marginBottom: 2,
   },
-  statusRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.inkDim,
-  },
-  statusDotActive: {
-    backgroundColor: colors.green,
-  },
-  controlSubtitle: {
-    color: colors.inkDim,
-    fontSize: 12,
-    fontFamily: fonts.sans.medium,
-  },
-  limitHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  editLinkText: {
-    color: colors.orange,
-    fontSize: 12,
-    fontFamily: fonts.sans.semibold,
-  },
-  limitPanel: {
-    backgroundColor: colors.bg2,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.inkFaint,
-    padding: 20,
-  },
-  limitValuesRow: {
-    marginBottom: 12,
-  },
-  limitUsedText: {
-    color: colors.inkDim,
-    fontSize: 13,
-    fontFamily: fonts.sans.medium,
-  },
-  boldText: {
-    color: colors.ink,
-    fontFamily: fonts.sans.bold,
-  },
-  progressBarBg: {
-    height: 8,
-    backgroundColor: colors.inkFaint,
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: colors.green,
-    borderRadius: 4,
-  },
-  limitEditContainer: {
-    gap: 12,
-  },
-  limitInput: {
-    backgroundColor: colors.inkFaint,
-    borderRadius: 12,
-    color: colors.ink,
-    fontSize: 16,
-    fontFamily: fonts.sans.semibold,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: colors.line2,
-  },
-  limitEditActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-  },
-  limitCancelBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  limitCancelText: {
-    color: colors.inkDim,
-    fontFamily: fonts.sans.semibold,
-  },
-  limitSaveBtn: {
-    backgroundColor: colors.green,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  limitSaveText: {
-    color: colors.bg,
-    fontFamily: fonts.sans.bold,
-  },
+  statusRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
+  ctrlSub: { fontFamily: fonts.sans.medium, fontSize: 12 },
+
+  /* Spacer */
+  bottomSpacer: { height: 80 },
 });

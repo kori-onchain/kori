@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { Feather } from "../icons";
 import { useTheme } from "../theme/ThemeProvider";
 import { fonts, radii } from "../theme/tokens";
 import { Button } from "./ds/Button";
 import { SoftCard } from "./ds/SoftCard";
 import { TicketIcon } from "./ds/icons";
+import { useFadeUp } from "../hooks/useFadeUp";
 
 type Category = "tudo" | "viagem" | "estilo" | "beneficio";
 
@@ -84,6 +86,7 @@ const FILTERS: Array<{ id: Category; label: string }> = [
 export const ExperiencesPanel: React.FC = () => {
   const { t } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState<Category>("tudo");
+  const entering = useFadeUp();
   const userPoints = "24.850";
 
   const filteredExperiences =
@@ -103,151 +106,157 @@ export const ExperiencesPanel: React.FC = () => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
     >
-      <SoftCard
-        radius={radii.card}
-        padding={20}
-        strong
-        style={styles.pointsCard}
-      >
-        <View style={styles.pointsRow}>
-          <View>
-            <Text style={[styles.pointsLabel, { color: t.inkMute }]}>
-              REPUTATION POINTS
-            </Text>
-            <Text style={[styles.pointsValue, { color: t.ink }]}>
-              {userPoints}
-              <Text style={[styles.pointsUnit, { color: t.inkMute }]}>
-                {" "}
-                PTS
+      <Animated.View entering={entering(60)}>
+        <SoftCard
+          radius={radii.card}
+          padding={20}
+          strong
+          style={styles.pointsCard}
+        >
+          <View style={styles.pointsRow}>
+            <View>
+              <Text style={[styles.pointsLabel, { color: t.inkMute }]}>
+                REPUTATION POINTS
               </Text>
+              <Text style={[styles.pointsValue, { color: t.ink }]}>
+                {userPoints}
+                <Text style={[styles.pointsUnit, { color: t.inkMute }]}>
+                  {" "}
+                  PTS
+                </Text>
+              </Text>
+            </View>
+            <View style={[styles.tierInline, { borderColor: t.line2 }]}>
+              <TicketIcon size={14} color={t.orange} />
+              <Text style={[styles.tierText, { color: t.orange }]}>BLACK</Text>
+            </View>
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: t.line }]} />
+
+          <View style={styles.pointsFooter}>
+            <Text style={[styles.footerText, { color: t.inkMute }]}>
+              Próximo nível: <Text style={{ color: t.ink }}>Kora Private</Text>
+            </Text>
+            <Text style={[styles.footerText, { color: t.inkMute }]}>
+              faltam 5.150 pts
             </Text>
           </View>
-          <View style={[styles.tierInline, { borderColor: t.line2 }]}>
-            <TicketIcon size={14} color={t.orange} />
-            <Text style={[styles.tierText, { color: t.orange }]}>BLACK</Text>
-          </View>
-        </View>
+        </SoftCard>
+      </Animated.View>
 
-        <View style={[styles.divider, { backgroundColor: t.line }]} />
+      <Animated.View entering={entering(140)}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoriesContainer}
+        >
+          {FILTERS.map((filter) => {
+            const active = selectedCategory === filter.id;
+            return (
+              <TouchableOpacity
+                key={filter.id}
+                activeOpacity={0.75}
+                onPress={() => setSelectedCategory(filter.id)}
+              >
+                <SoftCard radius={radii.pill} padding={0} flat>
+                  <View style={styles.categoryPill}>
+                    <Text
+                      style={[
+                        styles.categoryText,
+                        { color: active ? t.ink : t.inkMute },
+                      ]}
+                    >
+                      {filter.label}
+                    </Text>
+                  </View>
+                </SoftCard>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </Animated.View>
 
-        <View style={styles.pointsFooter}>
-          <Text style={[styles.footerText, { color: t.inkMute }]}>
-            Próximo nível: <Text style={{ color: t.ink }}>Kora Private</Text>
+      <Animated.View entering={entering(220)}>
+        <View style={styles.listSection}>
+          <Text style={[styles.sectionTitle, { color: t.ink }]}>
+            Experiências disponíveis
           </Text>
-          <Text style={[styles.footerText, { color: t.inkMute }]}>
-            faltam 5.150 pts
-          </Text>
-        </View>
-      </SoftCard>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoriesContainer}
-      >
-        {FILTERS.map((filter) => {
-          const active = selectedCategory === filter.id;
-          return (
-            <TouchableOpacity
-              key={filter.id}
-              activeOpacity={0.75}
-              onPress={() => setSelectedCategory(filter.id)}
+          {filteredExperiences.map((item) => (
+            <SoftCard
+              key={item.id}
+              radius={radii.card}
+              padding={16}
+              style={styles.experienceCard}
             >
-              <SoftCard radius={radii.pill} padding={0} flat>
-                <View style={styles.categoryPill}>
-                  <Text
-                    style={[
-                      styles.categoryText,
-                      { color: active ? t.ink : t.inkMute },
-                    ]}
-                  >
-                    {filter.label}
+              <View style={styles.cardHeader}>
+                <SoftCard
+                  radius={radii.cardSm}
+                  padding={0}
+                  flat
+                  style={styles.iconCard}
+                >
+                  <View style={styles.iconInner}>
+                    <Feather
+                      name={item.icon}
+                      size={19}
+                      color={item.status === "vip" ? t.orange : t.ink}
+                    />
+                  </View>
+                </SoftCard>
+                <View style={styles.cardCopy}>
+                  <Text style={[styles.cardTitle, { color: t.ink }]}>
+                    {item.title}
+                  </Text>
+                  <Text style={[styles.cardDescription, { color: t.inkMute }]}>
+                    {item.description}
                   </Text>
                 </View>
-              </SoftCard>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      <View style={styles.listSection}>
-        <Text style={[styles.sectionTitle, { color: t.ink }]}>
-          Experiências disponíveis
-        </Text>
-
-        {filteredExperiences.map((item) => (
-          <SoftCard
-            key={item.id}
-            radius={radii.card}
-            padding={16}
-            style={styles.experienceCard}
-          >
-            <View style={styles.cardHeader}>
-              <SoftCard
-                radius={radii.cardSm}
-                padding={0}
-                flat
-                style={styles.iconCard}
-              >
-                <View style={styles.iconInner}>
-                  <Feather
-                    name={item.icon}
-                    size={19}
-                    color={item.status === "vip" ? t.orange : t.ink}
-                  />
-                </View>
-              </SoftCard>
-              <View style={styles.cardCopy}>
-                <Text style={[styles.cardTitle, { color: t.ink }]}>
-                  {item.title}
-                </Text>
-                <Text style={[styles.cardDescription, { color: t.inkMute }]}>
-                  {item.description}
-                </Text>
               </View>
-            </View>
 
-            <View style={styles.cardFooter}>
-              <Text
-                style={[
-                  styles.costText,
-                  { color: item.status === "vip" ? t.orange : t.inkMute },
-                ]}
-              >
-                {item.costPoints}
-              </Text>
-              <View style={styles.cardActions}>
-                <Button
-                  label={item.status === "vip" ? "Ver" : "Resgatar"}
-                  variant={item.status === "vip" ? "secondary" : "primary"}
-                  icon={
-                    <Feather
-                      name="arrow-right"
-                      size={14}
-                      color={item.status === "vip" ? t.ink : t.btnPrimaryFg}
-                    />
-                  }
-                />
-                <TouchableOpacity
-                  activeOpacity={0.75}
-                  onPress={() => handleShareBenefit(item.title)}
+              <View style={styles.cardFooter}>
+                <Text
+                  style={[
+                    styles.costText,
+                    { color: item.status === "vip" ? t.orange : t.inkMute },
+                  ]}
                 >
-                  <SoftCard
-                    radius={radii.btn}
-                    padding={0}
-                    flat
-                    style={styles.shareButton}
+                  {item.costPoints}
+                </Text>
+                <View style={styles.cardActions}>
+                  <Button
+                    label={item.status === "vip" ? "Ver" : "Resgatar"}
+                    variant={item.status === "vip" ? "secondary" : "primary"}
+                    icon={
+                      <Feather
+                        name="arrow-right"
+                        size={14}
+                        color={item.status === "vip" ? t.ink : t.btnPrimaryFg}
+                      />
+                    }
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.75}
+                    onPress={() => handleShareBenefit(item.title)}
                   >
-                    <View style={styles.shareInner}>
-                      <Feather name="share-2" size={17} color={t.inkMute} />
-                    </View>
-                  </SoftCard>
-                </TouchableOpacity>
+                    <SoftCard
+                      radius={radii.btn}
+                      padding={0}
+                      flat
+                      style={styles.shareButton}
+                    >
+                      <View style={styles.shareInner}>
+                        <Feather name="share-2" size={17} color={t.inkMute} />
+                      </View>
+                    </SoftCard>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </SoftCard>
-        ))}
-      </View>
+            </SoftCard>
+          ))}
+        </View>
+      </Animated.View>
     </ScrollView>
   );
 };

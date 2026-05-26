@@ -1,19 +1,13 @@
 import React, { useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { useTheme } from "../theme/ThemeProvider";
 import { fonts } from "../theme/tokens";
 import { useFadeUp } from "../hooks/useFadeUp";
-import { SalesReports } from "./merchant/SalesReports";
-import { EcommercePanel } from "./merchant/EcommercePanel";
+import { InvestmentsPanel } from "./InvestmentsPanel";
+import { ExperiencesPanel } from "./ExperiencesPanel";
 
-type SubView = "dashboard" | "ecommerce";
+type SubView = "portfolio" | "experiencias";
 
 const TabStrip: React.FC<{
   view: SubView;
@@ -21,8 +15,8 @@ const TabStrip: React.FC<{
 }> = ({ view, onChange }) => {
   const { t } = useTheme();
   const tabs: { id: SubView; label: string }[] = [
-    { id: "dashboard", label: "Dashboard" },
-    { id: "ecommerce", label: "Vitrine" },
+    { id: "portfolio", label: "Portfólio" },
+    { id: "experiencias", label: "Experiências" },
   ];
 
   return (
@@ -47,9 +41,7 @@ const TabStrip: React.FC<{
             <View
               style={[
                 styles.tabUnderline,
-                {
-                  backgroundColor: active ? t.orange : "transparent",
-                },
+                { backgroundColor: active ? t.orange : "transparent" },
               ]}
             />
           </TouchableOpacity>
@@ -59,44 +51,24 @@ const TabStrip: React.FC<{
   );
 };
 
-export const MerchantPanel: React.FC = () => {
+export const InvestPanel: React.FC = () => {
   const { t } = useTheme();
-  const [view, setView] = useState<SubView>("dashboard");
+  const [view, setView] = useState<SubView>("portfolio");
   const entering = useFadeUp();
 
-  if (view === "ecommerce") {
-    return (
-      <View style={{ flex: 1, backgroundColor: t.bg }}>
-        <Animated.View entering={entering(60)}>
-          <TabStrip view={view} onChange={setView} />
-        </Animated.View>
-        <Animated.View entering={entering(140)} style={{ flex: 1 }}>
-          <EcommercePanel />
-        </Animated.View>
-      </View>
-    );
-  }
-
   return (
-    <ScrollView
-      style={{ backgroundColor: t.bg }}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
-    >
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
       <Animated.View entering={entering(60)}>
         <TabStrip view={view} onChange={setView} />
       </Animated.View>
-      <Animated.View entering={entering(140)}>
-        <SalesReports />
-      </Animated.View>
-    </ScrollView>
+      <View style={{ flex: 1 }}>
+        {view === "portfolio" ? <InvestmentsPanel /> : <ExperiencesPanel />}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 40,
-  },
   tabStrip: {
     flexDirection: "row",
     gap: 24,
