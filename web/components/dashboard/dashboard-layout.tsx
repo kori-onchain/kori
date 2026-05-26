@@ -2,17 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation"
 import {
-  Activity,
   Bell,
   CreditCard,
-  CircleDollarSign,
-  FileText,
-  Globe,
   Layers,
   LayoutGrid,
   LogOut,
   Search,
-  Settings,
   Store,
 } from "lucide-react"
 
@@ -20,16 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import {
-  usePrices,
-  fmtUsd,
-  fmtBrl,
-  fmtPct,
-  SolanaLogo,
-  BitcoinLogo,
-  UsdcLogo,
-  EthereumLogo,
-} from "./shared"
+import { SolanaLogo } from "./shared"
 
 /* ─── NAV ─── */
 
@@ -65,54 +51,10 @@ function NavItem({
   )
 }
 
-/* ─── TICKER ─── */
-
-function TickerItem({ logo, name, price, change, up }: { logo: React.ReactNode; name: string; price: string; change: string; up: boolean }) {
-  return (
-    <div className="flex items-center gap-[9px] whitespace-nowrap border-r border-ds-line px-[18px] py-2.5">
-      {logo}
-      <span className="font-mono text-[10px] text-ds-dim">{name}</span>
-      <span className="font-mono text-[11px] font-semibold">{price}</span>
-      <span className={cn("font-mono text-[9px]", up ? "text-ds-green" : "text-ds-red")}>{change}</span>
-    </div>
-  )
-}
-
-function FundIcon({ icon: Icon }: { icon: typeof Activity }) {
-  return (
-    <span className="flex size-[18px] shrink-0 items-center justify-center rounded-full bg-ds-orange/10 text-ds-orange">
-      <Icon className="size-[11px]" />
-    </span>
-  )
-}
-
-function Ticker({ prices }: { prices: ReturnType<typeof usePrices> }) {
-  const items = [
-    { id: "sol", logo: <SolanaLogo size={18} />, name: "SOL/USD", price: fmtUsd(prices.solUsd), change: fmtPct(prices.solChange), up: prices.solChange >= 0 },
-    { id: "usdc", logo: <UsdcLogo size={18} />, name: "USDC/BRL", price: fmtBrl(prices.usdcBrl), change: fmtPct(prices.usdcChange), up: prices.usdcChange >= 0 },
-    { id: "tvl", logo: <FundIcon icon={CircleDollarSign} />, name: "TVL DO FUNDO", price: "R$ 1,82M", change: "+4,2%", up: true },
-    { id: "btc", logo: <BitcoinLogo size={18} />, name: "BTC/USD", price: fmtUsd(prices.btcUsd), change: fmtPct(prices.btcChange), up: prices.btcChange >= 0 },
-    { id: "apr", logo: <FundIcon icon={Activity} />, name: "APR MÉDIO", price: "14,8%", change: "+0,3%", up: true },
-    { id: "eth", logo: <EthereumLogo size={18} />, name: "ETH/USD", price: fmtUsd(prices.ethUsd), change: fmtPct(prices.ethChange), up: prices.ethChange >= 0 },
-    { id: "comercios", logo: <FundIcon icon={Store} />, name: "COMÉRCIOS ATIVOS", price: "42", change: "+3 esta semana", up: true },
-    { id: "recebiveis", logo: <FundIcon icon={FileText} />, name: "RECEBÍVEIS POOL", price: "R$ 890K", change: "12 abertos", up: true },
-  ]
-
-  return (
-    <div className="relative overflow-hidden border-b border-ds-line before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-10 before:bg-gradient-to-r before:from-ds-bg before:to-transparent before:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:z-10 after:w-10 after:bg-gradient-to-l after:from-ds-bg after:to-transparent after:content-['']">
-      <div className="flex w-max animate-ticker hover:[animation-play-state:paused]">
-        {items.map((t) => <TickerItem key={t.id} {...t} />)}
-        {items.map((t) => <TickerItem key={`d-${t.id}`} {...t} />)}
-      </div>
-    </div>
-  )
-}
-
 /* ─── LAYOUT ─── */
 
 export function DashboardLayout({ userName, children }: { userName?: string; children: React.ReactNode }) {
   const router = useRouter()
-  const prices = usePrices()
 
   return (
     <main className="grid min-h-svh grid-cols-[224px_1fr] bg-ds-bg text-ds-ink">
@@ -138,12 +80,6 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
 
         <div className="mb-[7px] mt-4 px-2.5 font-mono text-[8px] uppercase tracking-[0.15em] text-ds-faint">Operação</div>
         <NavItem href="/dashboard/loja" icon={Store} label="Comércios" badge="42" />
-        <NavItem href="#" icon={FileText} label="Recebíveis" />
-        <NavItem href="#" icon={Activity} label="Transações" />
-        <NavItem href="#" icon={Globe} label="Explorer" />
-
-        <div className="mb-[7px] mt-4 px-2.5 font-mono text-[8px] uppercase tracking-[0.15em] text-ds-faint">Outros</div>
-        <NavItem href="#" icon={Settings} label="Ajustes" />
 
         <div className="mt-auto">
           <div className="soft-card-sm flex items-center gap-[9px] rounded-[11px] p-2.5">
@@ -191,8 +127,6 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
             </Button>
           </div>
         </div>
-
-        <Ticker prices={prices} />
 
         {children}
       </div>

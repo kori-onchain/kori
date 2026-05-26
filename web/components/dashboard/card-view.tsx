@@ -69,17 +69,29 @@ function ChipEMV() {
   return (
     <svg width={46} height={35} viewBox="0 0 46 35" fill="none">
       <defs>
-        <linearGradient id="chip-grad" x1="0" y1="0" x2="46" y2="35" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#b0b0b0" />
-          <stop offset="50%" stopColor="#d4d4d4" />
-          <stop offset="100%" stopColor="#8a8a8a" />
+        <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#d4d4d4" />
+          <stop offset="30%" stopColor="#9a9a9a" />
+          <stop offset="55%" stopColor="#c8c8c8" />
+          <stop offset="100%" stopColor="#787878" />
+        </linearGradient>
+        <linearGradient id="ch" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="white" stopOpacity="0.32" />
+          <stop offset="50%" stopColor="white" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <rect x="0.5" y="0.5" width="45" height="34" rx="5" fill="url(#chip-grad)" stroke="rgba(255,255,255,0.12)" strokeWidth="0.5" />
-      <line x1="0" y1="12" x2="46" y2="12" stroke="rgba(0,0,0,0.15)" strokeWidth="0.7" />
-      <line x1="0" y1="23" x2="46" y2="23" stroke="rgba(0,0,0,0.15)" strokeWidth="0.7" />
-      <line x1="15" y1="0" x2="15" y2="35" stroke="rgba(0,0,0,0.12)" strokeWidth="0.7" />
-      <line x1="31" y1="0" x2="31" y2="35" stroke="rgba(0,0,0,0.12)" strokeWidth="0.7" />
+      <rect width="46" height="35" rx="5" fill="url(#cg)" />
+      <line x1="0" y1="12" x2="46" y2="12" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <line x1="0" y1="23" x2="46" y2="23" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <line x1="14" y1="0" x2="14" y2="12" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <line x1="32" y1="0" x2="32" y2="12" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <line x1="14" y1="23" x2="14" y2="35" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <line x1="32" y1="23" x2="32" y2="35" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <rect x="10" y="13" width="26" height="9" rx="1.5" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" fill="none" />
+      <line x1="10" y1="17.5" x2="36" y2="17.5" stroke="rgba(0,0,0,0.28)" strokeWidth="0.8" />
+      <rect x="0" y="14" width="3" height="7" rx="1" fill="rgba(0,0,0,0.12)" />
+      <rect width="46" height="17" rx="5" fill="url(#ch)" />
     </svg>
   )
 }
@@ -88,10 +100,10 @@ function ChipEMV() {
 
 function ContactlessIcon() {
   return (
-    <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
-      <path d="M8.5 16.5a5 5 0 010-9" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M5.5 19.5a9 9 0 010-15" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M11.5 13.5a1 1 0 010-3" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width={22} height={22} viewBox="0 0 24 24" fill="none">
+      <path d="M5 19Q5 5 19 5" stroke="#c4c4c4" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M8 19Q8 8 19 8" stroke="#c4c4c4" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M11 19Q11 11 19 11" stroke="#c4c4c4" strokeWidth="1.5" strokeLinecap="round" fill="none" />
     </svg>
   )
 }
@@ -100,9 +112,9 @@ function ContactlessIcon() {
 
 function MastercardMono() {
   return (
-    <svg width={42} height={26} viewBox="0 0 42 26" fill="none">
-      <circle cx="15" cy="13" r="12" fill="rgba(180,180,180,0.25)" />
-      <circle cx="27" cy="13" r="12" fill="rgba(140,140,140,0.2)" />
+    <svg width={38} height={25} viewBox="0 0 40 26" fill="none">
+      <circle cx="14" cy="13" r="11" fill="#8a8a8e" opacity="0.55" />
+      <circle cx="26" cy="13" r="11" fill="#b4b4b8" opacity="0.4" />
     </svg>
   )
 }
@@ -111,14 +123,8 @@ function MastercardMono() {
 
 function KoraKGlyph() {
   return (
-    <svg width={50} height={55} viewBox="0 0 50 55" fill="none">
-      <path
-        d="M8 8v39M8 27.5L30 8M8 27.5L30 47M30 8l12 12M30 47l12-12"
-        stroke="#d6d6d6"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg width={46} height={55} className="text-[#d6d6d6]">
+      <use href="#kora-k" />
     </svg>
   )
 }
@@ -145,27 +151,27 @@ function PremiumCard({ holder, last4 }: { holder: string; last4: string }) {
           }}
         />
         <div className="absolute inset-x-0 top-0 h-px bg-white/[0.08]" />
-        <div className="relative z-10 flex size-full flex-col justify-between p-[22px] pb-[24px]">
+        <div className="relative z-10 flex size-full flex-col justify-between px-[24px] py-[22px]">
           <div className="flex items-start justify-between">
             <ChipEMV />
             <div className="flex flex-col items-end gap-1">
               <ContactlessIcon />
-              <span className="font-mono text-[8px] text-[#707070]">Virtual</span>
+              <span className="font-mono text-[8px] tracking-[1.2px] text-[#9a9a9e]">Virtual</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <KoraKGlyph />
-            <span className="text-[16px] font-bold tracking-[8px] text-[#d6d6d6]">
+            <span className="mt-1 text-[16px] font-bold tracking-[8px] text-[#d6d6d6]">
               KORA
             </span>
           </div>
           <div className="flex items-end justify-between">
             <div>
-              <div className="font-mono text-[7px] uppercase tracking-[0.08em] text-[#606060]">
+              <div className="mb-0.5 font-mono text-[8px] uppercase tracking-[1.2px] text-[#5a5a5e]">
                 PORTADOR
               </div>
-              <div className="mt-0.5 text-[14px] font-bold text-white">{holder}</div>
-              <div className="mt-0.5 font-mono text-[11px] text-[#606060]">
+              <div className="mb-1 text-[14px] font-bold tracking-[0.5px] text-[#fafafa]">{holder}</div>
+              <div className="font-mono text-[12px] tracking-[1.5px] text-[#9a9a9e]">
                 {"•••• •••• •••• "}
                 {last4}
               </div>

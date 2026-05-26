@@ -5,7 +5,6 @@ import {
   Package,
   Search,
   SlidersHorizontal,
-  TrendingUp,
   Zap,
 } from "lucide-react"
 
@@ -87,192 +86,263 @@ function SalesDashboard() {
   const [period, setPeriod] = useState<Period>("7d")
 
   return (
-    <div className="flex flex-col gap-[18px] p-5 px-6">
-      {/* REVENUE CARD */}
-      <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[22px]">
-        <div className="flex items-start justify-between">
-          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
-            Receita no per&iacute;odo
-          </span>
-          <div className="flex gap-0.5 rounded-[10px] border border-ds-line bg-[#0e0e11] p-0.5">
-            {periods.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setPeriod(p.id)}
-                className={cn(
-                  "rounded-[7px] px-[11px] py-[7px] text-[11px] font-semibold transition-colors",
-                  period === p.id
-                    ? "soft-card-sm text-ds-ink"
-                    : "text-ds-mute"
-                )}
-              >
-                {p.label}
-              </button>
-            ))}
+    <div className="grid grid-cols-[1fr_318px] gap-[18px] p-5 px-6">
+      {/* COL PRINCIPAL */}
+      <div className="flex min-w-0 flex-col gap-[18px]">
+        {/* HERO RECEITA */}
+        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-white/5 bg-ds-bg-1 p-[22px]">
+          <div className="flex flex-col">
+            <div className="flex items-start justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ds-mute">
+                Receita no período
+              </span>
+              <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-[#0e0e11] p-0.5">
+                {periods.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPeriod(p.id)}
+                    className={cn(
+                      "rounded-[7px] px-[11px] py-[5px] font-mono text-[9px] font-semibold transition-colors",
+                      period === p.id
+                        ? "border border-white/5 bg-ds-bg-2 text-ds-ink"
+                        : "text-ds-mute"
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-3 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
+              R$ 12.840<span className="text-2xl text-ds-mute">,00</span>
+            </div>
+            <span className="mt-2.5 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
+              ↑ +18,2% vs período anterior
+            </span>
+
+            <div className="mt-[18px] flex">
+              {[
+                { label: "Vendas", value: "84", detail: "+12" },
+                { label: "Ticket médio", value: "R$ 152,86" },
+                { label: "Conversão", value: "3,8%", detail: "↑ 0,4%" },
+              ].map((b, i, arr) => (
+                <div
+                  key={b.label}
+                  className={cn(
+                    "pr-5 mr-5",
+                    i < arr.length - 1 && "border-r border-ds-line"
+                  )}
+                >
+                  <div className="font-mono text-[8px] uppercase tracking-[0.05em] text-ds-mute">
+                    {b.label}
+                  </div>
+                  <div className="mt-[5px] text-base font-bold">{b.value}</div>
+                  {b.detail && (
+                    <div className="mt-px font-mono text-[9px] text-ds-green">
+                      {b.detail}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="mb-2 font-mono text-[9px] text-ds-mute">
+              Evolução de receita
+            </span>
+            <div className="relative min-h-[150px] flex-1">
+              <svg viewBox="0 0 400 150" preserveAspectRatio="none" className="size-full">
+                <defs>
+                  <linearGradient id="revenue-grad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stopColor="#4ade80" stopOpacity="0.28" />
+                    <stop offset="100%" stopColor="#4ade80" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[40, 80, 120].map((y) => (
+                  <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(255,255,255,0.04)" strokeDasharray="2 6" />
+                ))}
+                <path
+                  d="M0 120 L57 112 L114 100 L171 90 L228 68 L285 55 L342 38 L400 28"
+                  stroke="#4ade80"
+                  strokeWidth="2.4"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M0 120 L57 112 L114 100 L171 90 L228 68 L285 55 L342 38 L400 28 L400 150 L0 150 Z"
+                  fill="url(#revenue-grad)"
+                />
+                <circle cx="400" cy="28" r="4.5" fill="#4ade80" />
+              </svg>
+            </div>
+            <div className="mt-1.5 flex justify-between font-mono text-[8px] text-ds-mute">
+              {["seg", "ter", "qua", "qui", "sex", "sáb", "dom"].map((d) => (
+                <span key={d}>{d}</span>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 text-[32px] font-extrabold tracking-[-0.04em]">
-          R$ 12.840<span className="text-xl text-ds-mute">,00</span>
+        {/* KPIs */}
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { label: "Vendas no período", value: "84", detail: "↑ +12 vs anterior", valueColor: "text-ds-green", detailColor: "text-ds-green" },
+            { label: "Ticket médio", value: "R$ 152", detail: "por compra" },
+            { label: "Taxa de conversão", value: "3,8%", detail: "↑ +0,4%", detailColor: "text-ds-green" },
+            { label: "Produtos ativos", value: "6", detail: "na vitrine" },
+          ].map((k) => (
+            <div key={k.label} className="rounded-[14px] border border-white/5 bg-ds-bg-1 p-[15px]">
+              <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
+              <div className={cn("mt-2 text-[21px] font-bold tracking-tight", k.valueColor)}>{k.value}</div>
+              <div className={cn("mt-[5px] font-mono text-[9px] text-ds-mute", k.detailColor)}>{k.detail}</div>
+            </div>
+          ))}
         </div>
 
-        <span className="mt-2 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
-          +18,2% vs per&iacute;odo anterior
-        </span>
-
-        {/* MINI CHART */}
-        <div className="relative mt-4 h-[100px]">
-          <svg viewBox="0 0 400 100" preserveAspectRatio="none" className="size-full">
-            <defs>
-              <linearGradient id="revenue-grad" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="#4ade80" stopOpacity="0.28" />
-                <stop offset="100%" stopColor="#4ade80" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {[25, 50, 75].map((y) => (
-              <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(255,255,255,0.04)" strokeDasharray="2 6" />
-            ))}
-            <path
-              d="M0 78 L57 72 L114 65 L171 58 L228 42 L285 35 L342 24 L400 18"
-              stroke="#4ade80"
-              strokeWidth="2.4"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M0 78 L57 72 L114 65 L171 58 L228 42 L285 35 L342 24 L400 18 L400 100 L0 100 Z"
-              fill="url(#revenue-grad)"
-            />
-            <circle cx="400" cy="18" r="4" fill="#4ade80" />
-          </svg>
-        </div>
-
-        {/* STATS GRID */}
-        <div className="mt-4 grid grid-cols-3 border-t border-ds-line pt-4">
-          <div>
-            <div className="font-mono text-[8px] uppercase tracking-[0.05em] text-ds-mute">Vendas</div>
-            <div className="mt-[5px] text-[18px] font-bold">84</div>
-            <span className="font-mono text-[9px] text-ds-green">+12</span>
+        {/* MAIS VENDIDOS */}
+        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
+          <div className="mb-3.5 flex items-center justify-between">
+            <div>
+              <div className="text-base font-bold tracking-tight">Mais vendidos</div>
+              <div className="mt-0.5 font-mono text-[9px] text-ds-mute">
+                ranking de produtos no período
+              </div>
+            </div>
+            <span className="font-mono text-[9px] text-ds-mute">
+              ver tudo <span className="text-ds-orange">&rarr;</span>
+            </span>
           </div>
-          <div>
-            <div className="font-mono text-[8px] uppercase tracking-[0.05em] text-ds-mute">Ticket m&eacute;dio</div>
-            <div className="mt-[5px] text-[18px] font-bold">R$ 152,86</div>
-          </div>
-          <div>
-            <div className="font-mono text-[8px] uppercase tracking-[0.05em] text-ds-mute">Convers&atilde;o</div>
-            <div className="mt-[5px] text-[18px] font-bold">3,8%</div>
-            <span className="font-mono text-[9px] text-ds-green">&uarr; 0,4%</span>
-          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="border-ds-line hover:bg-transparent">
+                {["#", "Produto", "Vendas", "Receita"].map((h) => (
+                  <TableHead
+                    key={h}
+                    className="h-auto px-0 pb-3 font-mono text-[9px] font-normal uppercase tracking-[0.08em] text-ds-mute"
+                  >
+                    {h}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {topSelling.map((p) => (
+                <TableRow key={p.rank} className="border-ds-line hover:bg-white/[0.02]">
+                  <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">
+                    {p.rank}
+                  </TableCell>
+                  <TableCell className="px-0 py-[11px]">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="size-[18px] shrink-0 rounded"
+                        style={{ backgroundColor: p.color }}
+                      />
+                      <span className="text-[13px] font-semibold">{p.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">
+                    {p.sales}
+                  </TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold">
+                    {p.revenue}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
-      {/* TWO CARDS SIDE BY SIDE */}
-      <div className="grid grid-cols-2 gap-[18px]">
-        {/* CASH FLOW */}
-        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
-          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">A receber</span>
+      {/* COL LATERAL */}
+      <div className="flex flex-col gap-[18px]">
+        {/* A RECEBER */}
+        <SoftCard>
+          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+            A receber
+          </span>
           <div className="mt-2 text-[21px] font-bold">R$ 8.420,00</div>
-          <div className="mt-1 font-mono text-[9px] text-ds-mute">pr&oacute;xima entrada: 28 mai</div>
+          <div className="mt-1 font-mono text-[9px] text-ds-mute">
+            próxima entrada: 28 mai
+          </div>
           <Button
             variant="ghost"
-            className="mt-4 h-auto gap-[7px] rounded-[11px] border border-white/5 bg-ds-bg-1 px-4 py-[9px] text-[12px] font-semibold text-ds-ink"
+            className="mt-4 h-auto w-full gap-[7px] rounded-[11px] border border-white/5 bg-ds-bg-1 px-4 py-[9px] text-[12px] font-semibold text-ds-ink"
           >
             <Zap className="size-3.5" />
             Antecipar
           </Button>
-        </div>
+        </SoftCard>
 
-        {/* BUSINESS HEALTH / ON-CHAIN SCORE */}
-        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
-          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">Score on-chain</span>
+        {/* SCORE ON-CHAIN */}
+        <SoftCard>
+          <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+            Score on-chain
+          </span>
           <div className="mt-2 flex items-baseline gap-1">
             <span className="text-[28px] font-bold leading-none">782</span>
             <span className="text-sm text-ds-mute">/900</span>
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ds-bg-2">
-            <div className="h-full rounded-full bg-ds-green" style={{ width: "87%" }} />
+            <div
+              className="h-full rounded-full bg-ds-green"
+              style={{ width: "87%" }}
+            />
           </div>
-          <div className="mt-2 flex items-center justify-between">
-            <Badge variant="secondary" className="h-auto border-0 bg-ds-green/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-ds-green">
+          <div className="mt-2">
+            <Badge
+              variant="secondary"
+              className="h-auto border-0 bg-ds-green/10 px-2 py-0.5 font-mono text-[9px] font-semibold text-ds-green"
+            >
               Excelente
             </Badge>
           </div>
-          <div className="mt-3 flex flex-col gap-1">
-            <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="text-ds-mute">Taxa descontada</span>
-              <span className="font-semibold text-ds-green">1,2%</span>
-            </div>
-            <div className="flex items-center justify-between font-mono text-[10px]">
-              <span className="text-ds-mute">Taxa base</span>
-              <span className="text-ds-mute">2,8%</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* TOP SELLING */}
-      <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
-        <div className="mb-3.5 flex items-center justify-between">
-          <div className="text-base font-bold tracking-tight">Mais vendidos</div>
-          <span className="font-mono text-[9px] text-ds-mute">
-            ver tudo <span className="text-ds-orange">&rarr;</span>
-          </span>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-ds-line hover:bg-transparent">
-              {["#", "Produto", "Vendas", "Receita"].map((h) => (
-                <TableHead
-                  key={h}
-                  className="h-auto px-0 pb-3 font-mono text-[9px] font-normal uppercase tracking-[0.08em] text-ds-mute"
+          <div className="mt-3 border-t border-ds-line pt-3">
+            {[
+              { label: "Taxa descontada", value: "1,2%", green: true },
+              { label: "Taxa base", value: "2,8%" },
+            ].map((item, i) => (
+              <div
+                key={item.label}
+                className={cn(
+                  "flex items-center justify-between py-1.5",
+                  i > 0 && "border-t border-ds-line"
+                )}
+              >
+                <span className="font-mono text-[10px] text-ds-mute">
+                  {item.label}
+                </span>
+                <span
+                  className={cn(
+                    "font-mono text-[11px] font-semibold",
+                    item.green ? "text-ds-green" : "text-ds-mute"
+                  )}
                 >
-                  {h}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {topSelling.map((p) => (
-              <TableRow key={p.rank} className="border-ds-line hover:bg-white/[0.02]">
-                <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">
-                  {p.rank}
-                </TableCell>
-                <TableCell className="px-0 py-[11px]">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className="size-[18px] shrink-0 rounded"
-                      style={{ backgroundColor: p.color }}
-                    />
-                    <span className="text-[13px] font-semibold">{p.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="px-0 py-[11px] font-mono text-xs">
-                  {p.sales}
-                </TableCell>
-                <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold">
-                  {p.revenue}
-                </TableCell>
-              </TableRow>
+                  {item.value}
+                </span>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </div>
+          </div>
+        </SoftCard>
 
-      {/* RECENT SALES */}
-      <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
-        <div className="mb-3.5 flex items-center justify-between">
-          <div className="text-base font-bold tracking-tight">Vendas recentes</div>
-          <span className="font-mono text-[9px] text-ds-mute">
-            ver tudo <span className="text-ds-orange">&rarr;</span>
-          </span>
-        </div>
-        <div className="flex flex-col">
+        {/* VENDAS RECENTES */}
+        <SoftCard>
+          <div className="mb-2 flex items-center justify-between">
+            <div className="text-base font-bold tracking-tight">
+              Vendas recentes
+            </div>
+            <span className="font-mono text-[9px] text-ds-mute">
+              ver tudo <span className="text-ds-orange">&rarr;</span>
+            </span>
+          </div>
+
           {recentSales.map((s, i) => (
             <div
               key={s.name}
               className={cn(
-                "flex items-center gap-3 py-3",
+                "flex items-center gap-[11px] py-3",
                 i > 0 && "border-t border-ds-line"
               )}
             >
@@ -281,22 +351,16 @@ function SalesDashboard() {
               </div>
               <div className="flex-1">
                 <div className="text-[13px] font-semibold">{s.name}</div>
-                <div className="mt-px font-mono text-[9px] text-ds-mute">
+                <div className="mt-px font-mono text-[8px] text-ds-mute">
                   {s.items} {s.items === 1 ? "item" : "itens"}
                 </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <span className="text-[13px] font-semibold text-ds-green">{s.amount}</span>
-                <Badge
-                  variant="secondary"
-                  className="h-auto border-0 bg-ds-bg-2 px-2 py-0.5 font-mono text-[8px] uppercase text-ds-dim"
-                >
-                  {s.method}
-                </Badge>
+              <div className="text-[13px] font-semibold text-ds-green">
+                {s.amount}
               </div>
             </div>
           ))}
-        </div>
+        </SoftCard>
       </div>
     </div>
   )
@@ -318,165 +382,254 @@ function VitrinePanel() {
   })
 
   return (
-    <div className="flex flex-col gap-[18px] p-5 px-6">
-      {/* SEARCH BAR */}
-      <div className="flex items-center gap-2 rounded-full border border-white/5 bg-ds-bg-2 px-4 py-2.5">
-        <Search className="size-4 shrink-0 text-ds-mute" />
-        <input
-          type="text"
-          placeholder="Buscar produto..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-transparent text-[13px] text-ds-ink placeholder:text-ds-mute outline-none"
-        />
-        <button className="rounded-lg border border-white/5 bg-ds-bg-1 p-1.5 text-ds-mute transition-colors hover:text-ds-dim">
-          <SlidersHorizontal className="size-3.5" />
-        </button>
-      </div>
+    <div className="grid grid-cols-[1fr_318px] gap-[18px] p-5 px-6">
+      {/* COL PRINCIPAL */}
+      <div className="flex min-w-0 flex-col gap-[18px]">
+        {/* SEARCH + CATEGORIES */}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-1 items-center gap-2 rounded-full border border-white/5 bg-ds-bg-2 px-4 py-2.5">
+            <Search className="size-4 shrink-0 text-ds-mute" />
+            <input
+              type="text"
+              placeholder="Buscar produto..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent text-[13px] text-ds-ink placeholder:text-ds-mute outline-none"
+            />
+            <button className="rounded-lg border border-white/5 bg-ds-bg-1 p-1.5 text-ds-mute transition-colors hover:text-ds-dim">
+              <SlidersHorizontal className="size-3.5" />
+            </button>
+          </div>
+          <div className="flex gap-2">
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCategory(c.id)}
+                className={cn(
+                  "soft-card-sm whitespace-nowrap rounded-full px-4 py-2 text-[12px] font-semibold transition-colors",
+                  category === c.id ? "text-ds-ink" : "text-ds-mute"
+                )}
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* CATEGORY PILLS */}
-      <div className="flex gap-2">
-        {categories.map((c) => (
-          <button
-            key={c.id}
-            onClick={() => setCategory(c.id)}
-            className={cn(
-              "soft-card-sm rounded-full px-4 py-2 text-[12px] font-semibold transition-colors",
-              category === c.id ? "text-ds-ink" : "text-ds-mute"
+        {/* EMPTY STATE */}
+        {filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Package className="mb-3 size-10 text-ds-mute" />
+            <span className="text-sm text-ds-mute">
+              Nenhum produto encontrado
+            </span>
+          </div>
+        )}
+
+        {/* PRODUCT GRID (BENTO) */}
+        {filtered.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {filtered[0] && (
+              <div className="col-span-2 row-span-2 relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Package className="size-20 text-ds-mute/20" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-ds-bg via-ds-bg/60 to-transparent" />
+                <div className="relative z-10 p-5">
+                  {filtered[0].discount && (
+                    <span className="mb-2 inline-block rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
+                      {filtered[0].discount}
+                    </span>
+                  )}
+                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+                    {filtered[0].brand}
+                  </div>
+                  <div className="mt-1 text-lg font-bold">
+                    {filtered[0].name}
+                  </div>
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="text-[21px] font-bold">
+                      {fmtBrl(filtered[0].price)}
+                    </span>
+                    {filtered[0].oldPrice && (
+                      <span className="font-mono text-[11px] text-ds-mute line-through">
+                        {fmtBrl(filtered[0].oldPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             )}
-          >
-            {c.label}
-          </button>
-        ))}
+
+            {filtered.slice(1, 3).map((p) => (
+              <div
+                key={p.id}
+                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
+              >
+                <div className="mb-auto flex items-center justify-center py-6">
+                  <Package className="size-10 text-ds-mute/20" />
+                </div>
+                {p.discount && (
+                  <span className="mb-2 inline-block w-fit rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
+                    {p.discount}
+                  </span>
+                )}
+                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+                  {p.brand}
+                </div>
+                <div className="mt-0.5 text-[13px] font-semibold leading-tight">
+                  {p.name}
+                </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
+                  {p.oldPrice && (
+                    <span className="font-mono text-[10px] text-ds-mute line-through">
+                      {fmtBrl(p.oldPrice)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {filtered[3] && (
+              <div className="col-span-3 flex items-center gap-5 overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4">
+                <div className="flex size-[80px] shrink-0 items-center justify-center rounded-xl bg-ds-bg-1">
+                  <Package className="size-8 text-ds-mute/20" />
+                </div>
+                <div className="flex-1">
+                  {filtered[3].discount && (
+                    <span className="mb-1 inline-block rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
+                      {filtered[3].discount}
+                    </span>
+                  )}
+                  <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+                    {filtered[3].brand}
+                  </div>
+                  <div className="mt-0.5 text-[14px] font-semibold">
+                    {filtered[3].name}
+                  </div>
+                  <div className="mt-1 flex items-baseline gap-2">
+                    <span className="text-base font-bold">
+                      {fmtBrl(filtered[3].price)}
+                    </span>
+                    {filtered[3].oldPrice && (
+                      <span className="font-mono text-[11px] text-ds-mute line-through">
+                        {fmtBrl(filtered[3].oldPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {filtered.slice(4).map((p) => (
+              <div
+                key={p.id}
+                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
+              >
+                <div className="mb-auto flex items-center justify-center py-6">
+                  <Package className="size-10 text-ds-mute/20" />
+                </div>
+                {p.discount && (
+                  <span className="mb-2 inline-block w-fit rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
+                    {p.discount}
+                  </span>
+                )}
+                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
+                  {p.brand}
+                </div>
+                <div className="mt-0.5 text-[13px] font-semibold leading-tight">
+                  {p.name}
+                </div>
+                <div className="mt-1 flex items-baseline gap-1.5">
+                  <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
+                  {p.oldPrice && (
+                    <span className="font-mono text-[10px] text-ds-mute line-through">
+                      {fmtBrl(p.oldPrice)}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* EMPTY STATE */}
-      {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Package className="mb-3 size-10 text-ds-mute" />
-          <span className="text-sm text-ds-mute">Nenhum produto encontrado</span>
-        </div>
-      )}
+      {/* COL LATERAL */}
+      <div className="flex flex-col gap-[18px]">
+        {/* RESUMO DA VITRINE */}
+        <SoftCard>
+          <div className="mb-3 text-base font-bold tracking-tight">
+            Resumo da vitrine
+          </div>
 
-      {/* PRODUCT GRID (BENTO) */}
-      {filtered.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
-          {/* HERO CARD - first product, col-span-2 row-span-2 */}
-          {filtered[0] && (
-            <div className="col-span-2 row-span-2 relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Package className="size-20 text-ds-mute/20" />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-ds-bg via-ds-bg/60 to-transparent" />
-              <div className="relative z-10 p-5">
-                {filtered[0].discount && (
-                  <span className="mb-2 inline-block rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
-                    {filtered[0].discount}
-                  </span>
-                )}
-                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
-                  {filtered[0].brand}
-                </div>
-                <div className="mt-1 text-lg font-bold">{filtered[0].name}</div>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="text-[21px] font-bold">{fmtBrl(filtered[0].price)}</span>
-                  {filtered[0].oldPrice && (
-                    <span className="font-mono text-[11px] text-ds-mute line-through">
-                      {fmtBrl(filtered[0].oldPrice)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* SMALL CELLS - products 2 and 3 */}
-          {filtered.slice(1, 3).map((p) => (
+          {[
+            { label: "Total de produtos", value: `${mockProducts.length}` },
+            { label: "Com desconto", value: `${mockProducts.filter((p) => p.discount).length}` },
+            { label: "Preço médio", value: `R$ ${Math.round(mockProducts.reduce((a, p) => a + p.price, 0) / mockProducts.length).toLocaleString("pt-BR")}` },
+            { label: "Maior desconto", value: "-30%" },
+          ].map((item, i) => (
             <div
-              key={p.id}
-              className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
-            >
-              <div className="mb-auto flex items-center justify-center py-6">
-                <Package className="size-10 text-ds-mute/20" />
-              </div>
-              {p.discount && (
-                <span className="mb-2 inline-block w-fit rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
-                  {p.discount}
-                </span>
+              key={item.label}
+              className={cn(
+                "flex items-center justify-between py-2.5",
+                i > 0 && "border-t border-ds-line"
               )}
-              <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
-                {p.brand}
-              </div>
-              <div className="mt-0.5 text-[13px] font-semibold leading-tight">{p.name}</div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
-                {p.oldPrice && (
-                  <span className="font-mono text-[10px] text-ds-mute line-through">
-                    {fmtBrl(p.oldPrice)}
-                  </span>
-                )}
-              </div>
+            >
+              <span className="font-mono text-[10px] text-ds-mute">
+                {item.label}
+              </span>
+              <span className="font-mono text-[11px] font-semibold text-ds-dim">
+                {item.value}
+              </span>
             </div>
           ))}
+        </SoftCard>
 
-          {/* WIDE CARD - product 4 (col-span-3, horizontal) */}
-          {filtered[3] && (
-            <div className="col-span-3 flex items-center gap-5 overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4">
-              <div className="flex size-[80px] shrink-0 items-center justify-center rounded-xl bg-ds-bg-1">
-                <Package className="size-8 text-ds-mute/20" />
-              </div>
-              <div className="flex-1">
-                {filtered[3].discount && (
-                  <span className="mb-1 inline-block rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
-                    {filtered[3].discount}
-                  </span>
-                )}
-                <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
-                  {filtered[3].brand}
-                </div>
-                <div className="mt-0.5 text-[14px] font-semibold">{filtered[3].name}</div>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <span className="text-base font-bold">{fmtBrl(filtered[3].price)}</span>
-                  {filtered[3].oldPrice && (
-                    <span className="font-mono text-[11px] text-ds-mute line-through">
-                      {fmtBrl(filtered[3].oldPrice)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+        {/* POR CATEGORIA */}
+        <SoftCard>
+          <div className="mb-2 text-base font-bold tracking-tight">
+            Por categoria
+          </div>
 
-          {/* REMAINING SMALL CELLS - products 5 and 6 */}
-          {filtered.slice(4).map((p) => (
+          {[
+            { name: "Smartphones", count: 2, color: "#3b82f6" },
+            { name: "Kitchen", count: 2, color: "#f59e0b" },
+            { name: "Game Consoles", count: 2, color: "#8b5cf6" },
+          ].map((cat, i) => (
             <div
-              key={p.id}
-              className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
-            >
-              <div className="mb-auto flex items-center justify-center py-6">
-                <Package className="size-10 text-ds-mute/20" />
-              </div>
-              {p.discount && (
-                <span className="mb-2 inline-block w-fit rounded bg-ds-green/10 px-1.5 py-0.5 font-mono text-[8px] font-semibold text-ds-green">
-                  {p.discount}
-                </span>
+              key={cat.name}
+              className={cn(
+                "flex items-center gap-[11px] py-3",
+                i > 0 && "border-t border-ds-line"
               )}
-              <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
-                {p.brand}
+            >
+              <div
+                className="size-[10px] shrink-0 rounded-[3px]"
+                style={{ backgroundColor: cat.color }}
+              />
+              <div className="flex-1 text-[13px] font-semibold">
+                {cat.name}
               </div>
-              <div className="mt-0.5 text-[13px] font-semibold leading-tight">{p.name}</div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
-                {p.oldPrice && (
-                  <span className="font-mono text-[10px] text-ds-mute line-through">
-                    {fmtBrl(p.oldPrice)}
-                  </span>
-                )}
-              </div>
+              <span className="font-mono text-[11px] text-ds-mute">
+                {cat.count} produtos
+              </span>
             </div>
           ))}
-        </div>
-      )}
+        </SoftCard>
+
+        {/* AÇÃO RÁPIDA */}
+        <SoftCard>
+          <div className="text-sm font-semibold">Adicionar produto</div>
+          <div className="mt-[3px] mb-3.5 font-mono text-[9px] text-ds-mute">
+            cadastre novos itens na vitrine
+          </div>
+          <Button className="h-auto w-full gap-2 rounded-xl border-0 bg-gradient-to-b from-white to-[#f0f0f2] py-3 text-[13px] font-semibold text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+            <Package className="size-3.5" />
+            Novo produto
+          </Button>
+        </SoftCard>
+      </div>
     </div>
   )
 }
@@ -489,11 +642,15 @@ export function MerchantView() {
   return (
     <div>
       {/* TAB STRIP */}
-      <div className="flex gap-6 border-b border-ds-line px-6 pt-1">
+      <div className="flex gap-6 border-b border-ds-line px-6 pt-3">
         {tabs.map((tab) => {
           const active = view === tab.id
           return (
-            <button key={tab.id} onClick={() => setView(tab.id)} className="pb-0 pt-1">
+            <button
+              key={tab.id}
+              onClick={() => setView(tab.id)}
+              className="pb-0 pt-1"
+            >
               <span
                 className={cn(
                   "block pb-2.5 text-[14px] font-semibold",
