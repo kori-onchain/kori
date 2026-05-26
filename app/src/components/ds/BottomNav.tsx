@@ -13,6 +13,7 @@ import {
   CardIcon,
   InvestIcon,
   ExperiencesIcon,
+  ShopIcon,
   QrIcon,
 } from './icons';
 import { SoftCard } from './SoftCard';
@@ -20,6 +21,7 @@ import { SoftCard } from './SoftCard';
 export type BottomNavTab =
   | 'inicio'
   | 'cartao'
+  | 'loja'
   | 'investimentos'
   | 'experiencias';
 
@@ -39,6 +41,7 @@ interface TabDef {
 const LEFT_TABS: TabDef[] = [
   { id: 'inicio', label: 'INICIO', Icon: HomeIcon },
   { id: 'cartao', label: 'CARTAO', Icon: CardIcon },
+  { id: 'loja', label: 'LOJA', Icon: ShopIcon },
 ];
 
 const RIGHT_TABS: TabDef[] = [

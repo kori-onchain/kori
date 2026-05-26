@@ -22,6 +22,7 @@ import { BottomMenu } from "../components/BottomMenu";
 import { CardsPanel } from "../components/CardsPanel";
 import { InvestmentsPanel } from "../components/InvestmentsPanel";
 import { ExperiencesPanel } from "../components/ExperiencesPanel";
+import { MerchantPanel } from "../components/MerchantPanel";
 import { ProfileModal } from "../components/ProfileModal";
 import { SendModal } from "../components/payment/SendModal";
 import { PaymentIntent, PaymentScreen } from "../types/payment";
@@ -140,6 +141,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Header {...headerProps} />
             </View>
             <CardsPanel userName={userName} />
+          </View>
+        ) : activeTab === "loja" ? (
+          <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>
+            <View style={styles.headerLayer}>
+              <Header {...headerProps} />
+            </View>
+            <MerchantPanel />
           </View>
         ) : activeTab === "investimentos" ? (
           <View style={[styles.panelWrapper, { backgroundColor: t.bg }]}>

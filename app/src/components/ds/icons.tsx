@@ -168,6 +168,27 @@ export const InvestIcon: React.FC<IconProps> = ({
   </Svg>
 );
 
+export const ShopIcon: React.FC<IconProps> = ({
+  size = 21,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M4 8 H20 L19 20 A1 1 0 0 1 18 21 H6 A1 1 0 0 1 5 20 Z"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M9 8 V6 A3 3 0 0 1 15 6 V8"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+    />
+  </Svg>
+);
+
 export const ExperiencesIcon: React.FC<IconProps> = ({
   size = 21,
   color = defaults.color,

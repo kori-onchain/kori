@@ -21,6 +21,7 @@ import { OnboardingScreen } from "./src/screens/OnboardingScreen";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { useAuth } from "./src/hooks/useAuth";
 import { supabase } from "./src/lib/supabase";
+import { MOCK_AUTH, MOCK_SESSION } from "./src/constants/devConfig";
 
 interface UserSession {
   name: string;
@@ -40,13 +41,16 @@ export default function App() {
     GeistMono_600SemiBold,
   });
   const { session: supabaseSession, loading: authLoading } = useAuth();
-  const [showSplash, setShowSplash] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(true);
-  const [session, setSession] = useState<UserSession | null>(null);
+  const [showSplash, setShowSplash] = useState(!MOCK_AUTH);
+  const [showOnboarding, setShowOnboarding] = useState(!MOCK_AUTH);
+  const [session, setSession] = useState<UserSession | null>(
+    MOCK_AUTH ? MOCK_SESSION : null,
+  );
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
-  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(MOCK_AUTH);
 
   useEffect(() => {
+    if (MOCK_AUTH) return;
     if (authLoading) return;
 
     if (supabaseSession?.user && !session && !tempSession) {
@@ -112,7 +116,9 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (!MOCK_AUTH) {
+      await supabase.auth.signOut();
+    }
     setSession(null);
     setTempSession(null);
   };
