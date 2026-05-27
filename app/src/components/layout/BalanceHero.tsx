@@ -64,7 +64,7 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
   walletHash,
   walletKind = "sol",
   onCopyWallet,
-  label = "TOTAL BALANCE",
+  label = "SALDO TOTAL",
   balanceEntering,
   actionsEntering,
   accountType = "PF",
@@ -221,7 +221,7 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
             </View>
             <View style={styles.identityText}>
               <Text style={[styles.identityLabel, { color: activeIdentity === "userId" ? t.orange : t.inkMute }]}>
-                USER ID
+                IDENTIDADE
               </Text>
               <Text
                 style={[styles.identityValue, { color: t.ink }]}
@@ -267,7 +267,7 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
             </View>
             <View style={styles.identityText}>
               <Text style={[styles.identityLabel, { color: activeIdentity === "wallet" ? t.orange : t.inkMute }]}>
-                WALLET
+                CARTEIRA
               </Text>
               <Text
                 style={[styles.identityValue, { color: t.ink }]}
@@ -296,65 +296,42 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
       </Animated.View>
 
       <Animated.View entering={actionsEntering} style={styles.actionsRow}>
-        {/* Enviar Button */}
+        {/* Enviar — primary colors, pill shape */}
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={onSendPress}
           style={[
-            styles.customActionBtn,
+            styles.pillBtn,
             {
-              backgroundColor: scheme === "dark" ? "#1A1A1E" : "#101012",
+              backgroundColor: t.btnPrimaryBg,
+              shadowColor: "#000",
+              elevation: t.cardElev,
             },
           ]}
         >
-          <View style={styles.customActionCircleLeft}>
-            <Feather
-              name="arrow-up"
-              size={16}
-              color={scheme === "dark" ? "#1A1A1E" : "#101012"}
-            />
+          <View style={[styles.pillCircleLeft, { backgroundColor: t.btnPrimaryFg }]}>
+            <Feather name="arrow-up" size={16} color={t.btnPrimaryBg} />
           </View>
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              paddingLeft: 32,
-            }}
-          >
-            <Text style={styles.customActionText}>Send</Text>
+          <View style={styles.pillTextWrapLeft}>
+            <Text style={[styles.pillLabel, { color: t.btnPrimaryFg }]}>Enviar</Text>
           </View>
         </TouchableOpacity>
 
-        {/* Receber Button */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={onReceivePress}
-          style={[
-            styles.customActionBtn,
-            {
-              backgroundColor: scheme === "dark" ? "#1A1A1E" : "#101012",
-            },
-          ]}
-        >
-          <View
-            style={{
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              paddingRight: 32,
-            }}
+        {/* Receber — secondary/SoftCard colors, pill shape */}
+        <SoftCard radius={25} padding={0}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={onReceivePress}
+            style={styles.pillBtnInner}
           >
-            <Text style={styles.customActionText}>Receive</Text>
-          </View>
-          <View style={styles.customActionCircleRight}>
-            <Feather
-              name="arrow-down"
-              size={16}
-              color={scheme === "dark" ? "#1A1A1E" : "#101012"}
-            />
-          </View>
-        </TouchableOpacity>
+            <View style={styles.pillTextWrapRight}>
+              <Text style={[styles.pillLabel, { color: t.ink }]}>Receber</Text>
+            </View>
+            <View style={[styles.pillCircleRight, { backgroundColor: t.ink }]}>
+              <Feather name="arrow-down" size={16} color={t.bg2} />
+            </View>
+          </TouchableOpacity>
+        </SoftCard>
       </Animated.View>
     </View>
   );
@@ -483,36 +460,53 @@ const styles = StyleSheet.create({
     marginTop: 22,
     width: "100%",
   },
-  customActionBtn: {
+  pillBtn: {
     width: 145,
     height: 50,
     borderRadius: 25,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 5 },
   },
-  customActionCircleLeft: {
+  pillBtnInner: {
+    width: 145,
+    height: 50,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  pillCircleLeft: {
     position: "absolute",
     left: 7,
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
-  customActionCircleRight: {
+  pillCircleRight: {
     position: "absolute",
     right: 7,
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
-  customActionText: {
-    color: "#FFFFFF",
+  pillTextWrapLeft: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: 32,
+  },
+  pillTextWrapRight: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: 32,
+  },
+  pillLabel: {
     fontFamily: fonts.sans.semibold,
     fontSize: 14,
     fontWeight: "600",

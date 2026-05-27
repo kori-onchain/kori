@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "rgba(255,255,255,0.04)",
+    borderTopColor: "rgba(255,255,255,0.06)",
   },
   txLabel: {
     fontFamily: fonts.sans.medium,

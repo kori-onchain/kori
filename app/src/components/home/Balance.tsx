@@ -69,6 +69,6 @@ export const Balance: React.FC<BalanceProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: 24,
   },
 });

@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 11,
+    paddingVertical: 12,
     borderBottomWidth: 1,
   },
   rowLast: {

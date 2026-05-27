@@ -14,6 +14,7 @@ import { Feather } from "@/icons";
 import { KoriGlyph } from "@components/layout/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
+import { SoftCard } from "@components/layout/SoftCard";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 68;
@@ -118,19 +119,7 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
 
   const displayHolderName = userName || "Leonardo Vasconselos";
 
-  // Theme-dependent colors for the buttons and blocks
-  const walletBtnBg =
-    scheme === "dark" ? "rgba(254, 246, 225, 0.08)" : "#FEF6E1";
-  const walletBtnText = scheme === "dark" ? "#FFD470" : "#855F1B";
-  const walletBtnBorder =
-    scheme === "dark" ? "rgba(255, 212, 112, 0.15)" : "transparent";
-
-  const invoicePillBg =
-    scheme === "dark" ? "rgba(129, 140, 248, 0.15)" : "rgba(79, 70, 229, 0.08)";
-  const invoicePillText = scheme === "dark" ? "#818CF8" : "#4F46E5";
-
-  const invoiceIconBg =
-    scheme === "dark" ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)";
+  const invoiceIconBg = t.line;
 
   return (
     <View style={styles.container}>
@@ -288,85 +277,56 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
         })}
       </ScrollView>
 
-      {/* Lock/Unlock Card button */}
+      {/* Invoice Block */}
       {!minimal && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={handleToggleLock}
-          style={[
-            styles.walletButton,
-            {
-              backgroundColor: walletBtnBg,
-              borderColor: walletBtnBorder,
-              borderWidth: walletBtnBorder !== "transparent" ? 1 : 0,
-            },
-          ]}
-        >
-          <Feather
-            name={activeCard.isFrozen ? "unlock" : "lock"}
-            size={14}
-            color={walletBtnText}
-            style={{ marginRight: 8 }}
-          />
-          <Text style={[styles.walletButtonText, { color: walletBtnText }]}>
-            {activeCard.isFrozen ? "Desbloquear" : "Bloquear"}
-          </Text>
-        </TouchableOpacity>
-      )}
-
-      {/* June Invoice Block */}
-      {!minimal && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={onInvoicePress}
-          style={[
-            styles.invoiceContainer,
-            {
-              backgroundColor: t.bg2,
-            },
-          ]}
-        >
-          <View style={styles.invoiceLeft}>
-            <View
-              style={[
-                styles.invoiceIconCircle,
-                { backgroundColor: invoiceIconBg },
-              ]}
-            >
-              <Feather name="credit-card" size={16} color={t.inkMute} />
-            </View>
-            <View style={styles.invoiceDetails}>
-              <Text style={[styles.invoiceLabel, { color: t.inkMute }]}>
-                Fatura de Junho
-              </Text>
-              <Text style={[styles.invoiceAmount, { color: t.ink }]}>
-                R$ 1.482,90
-              </Text>
-              <Text style={[styles.invoiceDate, { color: t.inkMute }]}>
-                Fecha em 24/07
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.invoiceRight}>
-            <View
-              style={[styles.statusBadge, { backgroundColor: invoicePillBg }]}
-            >
+        <SoftCard radius={radii.card} padding={0} style={styles.invoiceCard}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={onInvoicePress}
+            style={styles.invoiceContainer}
+          >
+            <View style={styles.invoiceLeft}>
               <View
-                style={[styles.statusDot, { backgroundColor: invoicePillText }]}
-              />
-              <Text style={[styles.statusText, { color: invoicePillText }]}>
-                Em aberto
-              </Text>
+                style={[
+                  styles.invoiceIconCircle,
+                  { backgroundColor: invoiceIconBg },
+                ]}
+              >
+                <Feather name="credit-card" size={16} color={t.inkMute} />
+              </View>
+              <View style={styles.invoiceDetails}>
+                <Text style={[styles.invoiceLabel, { color: t.inkMute }]}>
+                  Fatura de Junho
+                </Text>
+                <Text style={[styles.invoiceAmount, { color: t.ink }]}>
+                  R$ 1.482,90
+                </Text>
+                <Text style={[styles.invoiceDate, { color: t.inkMute }]}>
+                  Fecha em 24/07
+                </Text>
+              </View>
             </View>
-            <Feather
-              name="chevron-right"
-              size={14}
-              color={t.inkDim}
-              style={{ marginLeft: 8 }}
-            />
-          </View>
-        </TouchableOpacity>
+
+            <View style={styles.invoiceRight}>
+              <View
+                style={[styles.statusBadge, { backgroundColor: `${t.orange}1A` }]}
+              >
+                <View
+                  style={[styles.statusDot, { backgroundColor: t.orange }]}
+                />
+                <Text style={[styles.statusText, { color: t.orange }]}>
+                  Em aberto
+                </Text>
+              </View>
+              <Feather
+                name="chevron-right"
+                size={14}
+                color={t.inkDim}
+                style={{ marginLeft: 8 }}
+              />
+            </View>
+          </TouchableOpacity>
+        </SoftCard>
       )}
     </View>
   );
@@ -374,14 +334,13 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 6,
     marginBottom: 24,
   },
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "baseline",
-    marginBottom: 14,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontFamily: fonts.sans.semibold,
@@ -514,13 +473,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sans.semibold,
     fontSize: 13.5,
   },
+  invoiceCard: {
+    marginTop: 12,
+  },
   invoiceContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderRadius: 22,
     padding: 16,
-    marginTop: 12,
   },
   invoiceLeft: {
     flexDirection: "row",

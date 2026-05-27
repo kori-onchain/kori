@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Animated } from "react-native";
+import { Animated, Easing } from "react-native";
 import { Slide } from "@hooks/useOnboardingData";
 
 interface UseOnboardingLogicParams {
@@ -13,7 +13,7 @@ export const useOnboardingLogic = ({
 }: UseOnboardingLogicParams) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const slideOpacity = useRef(new Animated.Value(1)).current;
-  const slideX = useRef(new Animated.Value(0)).current;
+  const slideY = useRef(new Animated.Value(0)).current;
 
   const currentSlide = slides[activeIndex] || slides[0];
   const isLast = activeIndex >= slides.length - 1;
@@ -30,14 +30,15 @@ export const useOnboardingLogic = ({
     }
 
     Animated.parallel([
-      Animated.timing(slideX, {
-        toValue: -34,
-        duration: 160,
+      Animated.timing(slideY, {
+        toValue: -12,
+        duration: 180,
+        easing: Easing.in(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(slideOpacity, {
         toValue: 0,
-        duration: 130,
+        duration: 180,
         useNativeDriver: true,
       }),
     ]).start(() => {
@@ -45,17 +46,19 @@ export const useOnboardingLogic = ({
         if (current >= slides.length - 1) return current;
         return current + 1;
       });
-      slideX.setValue(34);
+      slideY.setValue(20);
       slideOpacity.setValue(0);
       Animated.parallel([
-        Animated.timing(slideX, {
+        Animated.timing(slideY, {
           toValue: 0,
-          duration: 260,
+          duration: 450,
+          easing: Easing.bezier(0.16, 1, 0.3, 1),
           useNativeDriver: true,
         }),
         Animated.timing(slideOpacity, {
           toValue: 1,
-          duration: 220,
+          duration: 380,
+          easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
       ]).start();
@@ -64,11 +67,7 @@ export const useOnboardingLogic = ({
 
   const animatedStyle = {
     opacity: slideOpacity,
-    transform: [
-      {
-        translateX: slideX,
-      },
-    ],
+    transform: [{ translateY: slideY }],
   };
 
   return {

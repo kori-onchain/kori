@@ -108,7 +108,6 @@ export const NftHoldings: React.FC<NftHoldingsProps> = ({ onSeeAll }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 14,
     marginBottom: 24,
   },
   headerRow: {

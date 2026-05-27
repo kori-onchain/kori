@@ -6,7 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { colors, fonts } from "@theme/tokens";
+import { fonts } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
 import { Contact } from "@/data/contacts";
 import { PlusIcon } from "@components/layout/icons";
 
@@ -22,66 +23,82 @@ export const RecentContacts: React.FC<RecentContactsProps> = ({
   onSeeAll,
   onInvite,
   onContactPress,
-}) => (
-  <View style={styles.container}>
-    <View style={styles.headerRow}>
-      <Text style={styles.sectionTitle}>CONTATOS</Text>
-      <TouchableOpacity
-        style={styles.seeMoreBtn}
-        activeOpacity={0.7}
-        onPress={onSeeAll}
-      >
-        <Text style={styles.seeMoreText}>Ver mais</Text>
-        <Text style={styles.seeMoreArrow}> →</Text>
-      </TouchableOpacity>
-    </View>
+}) => {
+  const { t } = useTheme();
 
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      {contacts.map((contact) => (
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <Text style={[styles.sectionTitle, { color: t.inkMute }]}>
+          CONTATOS
+        </Text>
         <TouchableOpacity
-          key={contact.id}
-          style={styles.contactItem}
+          style={styles.seeMoreBtn}
           activeOpacity={0.7}
-          onPress={() => onContactPress?.(contact)}
+          onPress={onSeeAll}
         >
-          <View
-            style={[styles.avatar, contact.isFavorite && styles.avatarFavorite]}
+          <Text style={[styles.seeMoreText, { color: t.inkMute }]}>
+            Ver mais
+          </Text>
+          <Text style={[styles.seeMoreArrow, { color: t.orange }]}> →</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {contacts.map((contact) => (
+          <TouchableOpacity
+            key={contact.id}
+            style={styles.contactItem}
+            activeOpacity={0.7}
+            onPress={() => onContactPress?.(contact)}
           >
-            <Text
+            <View
               style={[
-                styles.avatarText,
-                contact.isFavorite && styles.avatarTextFavorite,
+                styles.avatar,
+                { backgroundColor: t.bgElev, borderColor: t.line },
+                contact.isFavorite && { borderColor: t.line2 },
               ]}
             >
-              {contact.initials}
+              <Text
+                style={[styles.avatarText, { color: t.ink }]}
+              >
+                {contact.initials}
+              </Text>
+              {contact.isFavorite && (
+                <View
+                  style={[
+                    styles.favoriteDot,
+                    { backgroundColor: t.orange, borderColor: t.bg },
+                  ]}
+                />
+              )}
+            </View>
+            <Text style={[styles.contactName, { color: t.inkDim }]} numberOfLines={1}>
+              {contact.name || contact.walletId}
             </Text>
-            {contact.isFavorite && <View style={styles.favoriteDot} />}
+          </TouchableOpacity>
+        ))}
+
+        <TouchableOpacity
+          style={styles.contactItem}
+          activeOpacity={0.7}
+          onPress={onInvite}
+        >
+          <View style={[styles.inviteAvatar, { borderColor: t.inkFaint }]}>
+            <PlusIcon size={22} color={t.inkDim} strokeWidth={1.6} />
           </View>
-          <Text style={styles.contactName} numberOfLines={1}>
-            {contact.name || contact.walletId}
+          <Text style={[styles.contactName, { color: t.inkDim }]} numberOfLines={1}>
+            Convidar
           </Text>
         </TouchableOpacity>
-      ))}
-
-      <TouchableOpacity
-        style={styles.contactItem}
-        activeOpacity={0.7}
-        onPress={onInvite}
-      >
-        <View style={styles.inviteAvatar}>
-          <PlusIcon size={22} color={colors.inkDim} strokeWidth={1.6} />
-        </View>
-        <Text style={styles.contactName} numberOfLines={1}>
-          Convidar
-        </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  </View>
-);
+      </ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -94,7 +111,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 10,
     letterSpacing: 1.5,
@@ -107,13 +123,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   seeMoreText: {
-    color: colors.inkMute,
     fontFamily: fonts.mono.medium,
     fontSize: 9,
     letterSpacing: 0.5,
   },
   seeMoreArrow: {
-    color: colors.orange,
     fontFamily: fonts.mono.semibold,
     fontSize: 11,
   },
@@ -129,15 +143,10 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: colors.bgElev,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: colors.line,
-  },
-  avatarFavorite: {
-    borderColor: colors.line2,
   },
   inviteAvatar: {
     width: 52,
@@ -148,7 +157,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
     borderWidth: 1.2,
-    borderColor: colors.inkFaint,
     borderStyle: "dashed",
   },
   favoriteDot: {
@@ -158,21 +166,14 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.orange,
     borderWidth: 1.5,
-    borderColor: colors.bg,
   },
   avatarText: {
-    color: colors.ink,
     fontFamily: fonts.sans.semibold,
     fontWeight: "600",
     fontSize: 15,
   },
-  avatarTextFavorite: {
-    color: colors.ink,
-  },
   contactName: {
-    color: colors.inkDim,
     fontFamily: fonts.sans.medium,
     fontSize: 11,
     textAlign: "center",

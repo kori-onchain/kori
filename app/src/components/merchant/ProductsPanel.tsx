@@ -84,7 +84,7 @@ export const ProductsPanel: React.FC<ProductsPanelProps> = ({
                     juros
                   </Text>
 
-                  <View style={styles.cashbackRow}>
+                  <View style={[styles.cashbackRow, { backgroundColor: `${t.green}26` }]}>
                     <Feather name="refresh-ccw" size={12} color={t.green} />
                     <Text style={[styles.cashbackAmount, { color: t.green }]}>
                       Até R${" "}
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     padding: 12,
     position: "relative",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
+    borderBottomColor: "transparent",
   },
   badge: {
     position: "absolute",
@@ -217,7 +217,6 @@ const styles = StyleSheet.create({
   cashbackRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(74, 222, 128, 0.15)",
     alignSelf: "flex-start",
     paddingHorizontal: 6,
     paddingVertical: 4,

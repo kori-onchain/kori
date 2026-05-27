@@ -1,6 +1,5 @@
 import React from "react";
 import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
-import { colors } from "@theme/tokens";
 
 type IconProps = {
   size?: number;
@@ -10,7 +9,7 @@ type IconProps = {
 
 const defaults = {
   size: 20,
-  color: colors.ink,
+  color: "#fafafa",
   strokeWidth: 1.7,
 };
 
@@ -402,5 +401,158 @@ export const KoriGlyph: React.FC<IconProps> = ({
       d="M534.163 269.695C535.193 272.855 535.005 300.957 535.035 306.33C535.232 347.907 535.157 389.485 534.81 431.061C499.36 468.415 464.208 506.052 429.359 543.968C427.97 541.752 428.245 525.221 428.252 521.631L428.336 488.556L428.251 378.795C444.034 361.651 460.488 345.217 476.753 328.524L534.163 269.695Z"
       fill={color}
     />
+  </Svg>
+);
+
+export const GiftIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="3" y="8" width="18" height="4" rx="1" stroke={color} strokeWidth={strokeWidth} strokeLinejoin="round" />
+    <Path d="M12 8V21" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M3 12H21V20A1 1 0 0 1 20 21H4A1 1 0 0 1 3 20V12Z" stroke={color} strokeWidth={strokeWidth} strokeLinejoin="round" />
+    <Path d="M7.5 8C7.5 8 7.5 4 12 4C12 4 12 8 12 8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M16.5 8C16.5 8 16.5 4 12 4C12 4 12 8 12 8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+  </Svg>
+);
+
+export const FireIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M12 2C12 2 6 8.5 6 14A6 6 0 0 0 18 14C18 8.5 12 2 12 2Z" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 22C14.2 22 16 20.2 16 18C16 15 12 12 12 12C12 12 8 15 8 18C8 20.2 9.8 22 12 22Z" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const HouseIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M3 11L12 4L21 11V20A1 1 0 0 1 20 21H4A1 1 0 0 1 3 20V11Z" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M9 21V14H15V21" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const SuitcaseIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="3" y="8" width="18" height="13" rx="2" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M8 8V6A2 2 0 0 1 10 4H14A2 2 0 0 1 16 6V8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M3 13H21" stroke={color} strokeWidth={strokeWidth} />
+  </Svg>
+);
+
+export const CarIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M5 17H3V13L5 7H19L21 13V17H19" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Circle cx="7" cy="17" r="2" stroke={color} strokeWidth={strokeWidth} />
+    <Circle cx="17" cy="17" r="2" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M9 17H15" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M3 13H21" stroke={color} strokeWidth={strokeWidth} />
+  </Svg>
+);
+
+export const PassportIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="4" y="2" width="16" height="20" rx="2" stroke={color} strokeWidth={strokeWidth} />
+    <Circle cx="12" cy="10" r="3" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M8 18H16" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+  </Svg>
+);
+
+export const PiggyBankIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M19 10C19 6.13 15.87 3 12 3C8.13 3 5 6.13 5 10C5 12.38 6.19 14.47 8 15.74V18A1 1 0 0 0 9 19H15A1 1 0 0 0 16 18V15.74C17.81 14.47 19 12.38 19 10Z" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 3V1" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M9 19V21" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M15 19V21" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+  </Svg>
+);
+
+export const BuildingIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="4" y="2" width="16" height="20" rx="1" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M9 6H11" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M13 6H15" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M9 10H11" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M13 10H15" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M9 14H11" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M13 14H15" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M10 22V18H14V22" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+  </Svg>
+);
+
+export const BriefcaseIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="2" y="7" width="20" height="14" rx="2" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M16 7V5A2 2 0 0 0 14 3H10A2 2 0 0 0 8 5V7" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M12 12V14" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    <Path d="M2 12H22" stroke={color} strokeWidth={strokeWidth} />
+  </Svg>
+);
+
+export const BanknoteIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="2" y="6" width="20" height="12" rx="2" stroke={color} strokeWidth={strokeWidth} />
+    <Circle cx="12" cy="12" r="3" stroke={color} strokeWidth={strokeWidth} />
+    <Path d="M6 12H6.01" stroke={color} strokeWidth={strokeWidth + 0.5} strokeLinecap="round" />
+    <Path d="M18 12H18.01" stroke={color} strokeWidth={strokeWidth + 0.5} strokeLinecap="round" />
+  </Svg>
+);
+
+export const MoneyBagIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M9 3H15L13 7H11L9 3Z" stroke={color} strokeWidth={strokeWidth} strokeLinejoin="round" />
+    <Path d="M12 7C7 7 3 12 3 17C3 19.76 5.24 22 8 22H16C18.76 22 21 19.76 21 17C21 12 17 7 12 7Z" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M12 12V17M10 14.5H14" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+  </Svg>
+);
+
+export const TrendUpIcon: React.FC<IconProps> = ({
+  size = defaults.size,
+  color = defaults.color,
+  strokeWidth = defaults.strokeWidth,
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Path d="M3 17L9 11L13 15L21 7" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    <Path d="M15 7H21V13" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
   </Svg>
 );

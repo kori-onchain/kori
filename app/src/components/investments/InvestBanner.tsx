@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { fonts, radii } from "@theme/tokens";
 import { useTheme } from "@theme/ThemeProvider";
+import { HouseIcon, SuitcaseIcon, CarIcon, PassportIcon, PiggyBankIcon } from "@components/layout/icons";
 
 export const InvestBanner: React.FC = () => {
   const { t } = useTheme();
@@ -19,7 +20,7 @@ export const InvestBanner: React.FC = () => {
         <View
           style={[styles.badge, { backgroundColor: "rgba(255,165,0,0.15)" }]}
         >
-          <Text style={[styles.badgeText, { color: "#F59E0B" }]}>
+          <Text style={[styles.badgeText, { color: t.orange }]}>
             Não tenha dúvidas!
           </Text>
         </View>
@@ -44,27 +45,24 @@ export const InvestBanner: React.FC = () => {
 
       {/* Right card — decorative piggy */}
       <LinearGradient
-        colors={["#F59E0B", "#E67E22"]}
+        colors={[t.orange, t.orangeDark]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.rightCard}
       >
-        {/* Floating decorative items */}
         <View style={styles.decoTopRight}>
-          <Text style={styles.decoEmoji}>🏠</Text>
+          <HouseIcon size={20} color="rgba(255,255,255,0.7)" />
         </View>
         <View style={styles.decoTopLeft}>
-          <Text style={styles.decoEmoji}>🧳</Text>
+          <SuitcaseIcon size={20} color="rgba(255,255,255,0.7)" />
         </View>
         <View style={styles.decoBottomLeft}>
-          <Text style={styles.decoEmoji}>🚗</Text>
+          <CarIcon size={20} color="rgba(255,255,255,0.7)" />
         </View>
         <View style={styles.decoBottomRight}>
-          <Text style={styles.decoEmoji}>🛂</Text>
+          <PassportIcon size={20} color="rgba(255,255,255,0.7)" />
         </View>
-
-        {/* Central piggy */}
-        <Text style={styles.piggy}>🐷</Text>
+        <PiggyBankIcon size={64} color="rgba(255,255,255,0.9)" />
       </LinearGradient>
     </View>
   );

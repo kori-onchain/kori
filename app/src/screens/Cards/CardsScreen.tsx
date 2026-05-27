@@ -19,8 +19,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
 }) => {
   return (
     <View style={styles.panelWrapper}>
-      <View style={styles.headerLayer}>
-        <Header {...headerProps} />
+      <View style={styles.headerWrap}>
+        <View style={styles.headerLayer}>
+          <Header {...headerProps} />
+        </View>
       </View>
       <CardsPanel userName={userName} cardsState={cardsState} />
     </View>
@@ -30,8 +32,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({
 const styles = StyleSheet.create({
   panelWrapper: {
     flex: 1,
-    paddingHorizontal: 12,
     paddingTop: 12,
+  },
+  headerWrap: {
+    paddingHorizontal: 20,
   },
   headerLayer: {
     position: "relative",

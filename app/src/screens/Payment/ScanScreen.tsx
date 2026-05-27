@@ -235,7 +235,7 @@ const CORNER_COLOR = "rgba(255,255,255,0.55)";
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: "#0a0a0a",
   },
 
   /* Header */

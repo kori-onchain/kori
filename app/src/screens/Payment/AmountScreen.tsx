@@ -61,12 +61,12 @@ export const AmountScreen: React.FC<AmountScreenProps> = ({
 
   const displayAmount = raw ? `R$ ${raw}` : "R$ 0";
 
-  const keyBg = scheme === "dark" ? "#1a1a1e" : "#e4e4e8";
-  const keyBgDelete = scheme === "dark" ? "#111114" : "#d4d4d8";
+  const keyBg = t.bg2;
+  const keyBgDelete = t.bgElev;
 
   const presetActiveBg = t.btnPrimaryBg;
   const presetActiveText = t.btnPrimaryFg;
-  const presetInactiveBg = scheme === "dark" ? "#1a1a1e" : "#e4e4e8";
+  const presetInactiveBg = t.bg2;
   const presetInactiveText = t.inkDim;
 
   return (

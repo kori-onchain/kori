@@ -161,10 +161,10 @@ const OnboardingSlideBody: React.FC<{
             {slide.eyebrow}
           </Text>
         )}
-        <Text className="mt-2.5 font-sans-bold text-[27px] leading-[31px] tracking-[-0.8px] text-ink">
+        <Text className="mt-4 font-sans-bold text-[30px] leading-[34px] tracking-[-1px] text-ink">
           {slide.title}
         </Text>
-        <Text className="mt-3 font-sans text-[13px] leading-5 text-ink-dim">
+        <Text className="mt-3.5 font-sans text-[14px] leading-[22px] text-ink-dim">
           {slide.body}
         </Text>
       </View>

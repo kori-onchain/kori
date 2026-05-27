@@ -15,6 +15,8 @@ import { ProductHeroCard } from "@components/merchant/product-cards/ProductHeroC
 import { ProductCell } from "@components/merchant/product-cards/ProductCell";
 import { ProductWideCard } from "@components/merchant/product-cards/ProductWideCard";
 import { AddProductModal } from "@components/merchant/AddProductModal";
+import { Button } from "@components/layout/Button";
+import { SoftCard } from "@components/layout/SoftCard";
 
 const CATEGORIES = [
   "Tudo",
@@ -82,42 +84,33 @@ export const EcommercePanel: React.FC = () => {
       {/* Title and Add Button Row */}
       <View style={styles.titleRow}>
         <Text style={[styles.titleText, { color: t.ink }]}>Vitrine de Produtos</Text>
-        <TouchableOpacity
-          style={[styles.addNewBtn, { backgroundColor: t.orange }]}
-          activeOpacity={0.8}
+        <Button
+          label="Cadastrar"
+          variant="primary"
           onPress={() => setAddModalVisible(true)}
-        >
-          <Feather name="plus" size={16} color="#FFF" style={{ marginRight: 4 }} />
-          <Text style={styles.addNewBtnText}>Cadastrar</Text>
-        </TouchableOpacity>
+          icon={<Feather name="plus" size={16} color={t.btnPrimaryFg} />}
+        />
       </View>
 
       {/* Search row */}
       <View style={styles.searchRow}>
-        <View
-          style={[
-            styles.searchInputWrap,
-            { backgroundColor: t.bg2, borderColor: t.cardBorder },
-          ]}
-        >
-          <Feather name="search" size={18} color={t.inkMute} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Buscar produtos"
-            placeholderTextColor={t.inkMute}
-            style={[styles.searchInput, { color: t.ink }]}
-          />
-        </View>
-        <TouchableOpacity
-          style={[
-            styles.filterBtn,
-            { backgroundColor: t.bg2, borderColor: t.cardBorder },
-          ]}
-          activeOpacity={0.8}
-        >
-          <Feather name="sliders" size={18} color={t.ink} />
-        </TouchableOpacity>
+        <SoftCard radius={radii.pill} padding={0} style={styles.searchCardWrap}>
+          <View style={styles.searchInputWrap}>
+            <Feather name="search" size={18} color={t.inkMute} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Buscar produtos"
+              placeholderTextColor={t.inkMute}
+              style={[styles.searchInput, { color: t.ink }]}
+            />
+          </View>
+        </SoftCard>
+        <SoftCard radius={radii.pill} padding={0}>
+          <TouchableOpacity style={styles.filterBtn} activeOpacity={0.8}>
+            <Feather name="sliders" size={18} color={t.ink} />
+          </TouchableOpacity>
+        </SoftCard>
       </View>
 
       {/* Category chips */}
@@ -242,12 +235,12 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 14,
   },
-  searchInputWrap: {
+  searchCardWrap: {
     flex: 1,
+  },
+  searchInputWrap: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: radii.pill,
-    borderWidth: 1,
     paddingHorizontal: 14,
     height: 44,
     gap: 10,
@@ -261,8 +254,6 @@ const styles = StyleSheet.create({
   filterBtn: {
     width: 44,
     height: 44,
-    borderRadius: radii.pill,
-    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
   },

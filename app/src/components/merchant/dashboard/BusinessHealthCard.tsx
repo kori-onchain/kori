@@ -33,7 +33,7 @@ export const BusinessHealthCard: React.FC<BusinessHealthCardProps> = ({
         <View
           style={[
             styles.tag,
-            { backgroundColor: "rgba(74,222,128,0.14)" },
+            { backgroundColor: `${t.green}24` },
           ]}
         >
           <Text style={[styles.tagText, { color: t.green }]}>↑ {trending}</Text>

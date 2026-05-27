@@ -16,7 +16,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "@theme/ThemeProvider";
 import { CreditCardSection } from "@components/home/CreditCardSection";
-import { fonts } from "@theme/tokens";
+import { Button } from "@components/layout/Button";
+import { SoftCard } from "@components/layout/SoftCard";
+import { fonts, radii } from "@theme/tokens";
 import Svg, {
   Path,
   Defs,
@@ -502,7 +504,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
         {/* Custom Header for Detail Screen */}
         <View style={styles.detailHeader}>
           <TouchableOpacity
-            style={styles.detailBackBtn}
+            style={[styles.detailBackBtn, { backgroundColor: t.line }]}
             onPress={() => {
               setActiveDetailCard(null);
               setIsFlipped(false);
@@ -515,7 +517,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           <View style={{ width: 44 }} />
         </View>
 
-        <View style={{ flex: 1, paddingHorizontal: 16 }}>
+        <View style={{ flex: 1, paddingHorizontal: 20 }}>
           {/* Card swiper on detail screen */}
           <View style={styles.detailCardWrapper}>
             <CreditCardSection
@@ -533,37 +535,20 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
 
           {/* Action Buttons */}
           <View style={styles.detailActionsRow}>
-            <TouchableOpacity
-              style={[styles.primaryActionBtn, { backgroundColor: t.orange }]}
+            <Button
+              label={isFrozen ? "Desbloquear" : "Bloquear"}
+              variant="primary"
               onPress={toggleFreezeAction}
-              activeOpacity={0.8}
-            >
-              <Feather
-                name={isFrozen ? "unlock" : "lock"}
-                size={16}
-                color="#FFF"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={[styles.primaryActionText, { color: "#FFF" }]}>
-                {isFrozen ? "Desbloquear" : "Bloquear"}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.primaryActionBtn, { backgroundColor: t.orange }]}
+              full
+              icon={<Feather name={isFrozen ? "unlock" : "lock"} size={16} color={t.btnPrimaryFg} />}
+            />
+            <Button
+              label={`${isFlipped ? "Ocultar" : "Mostrar"} dados`}
+              variant="secondary"
               onPress={() => setIsFlipped(!isFlipped)}
-              activeOpacity={0.8}
-            >
-              <Feather
-                name={isFlipped ? "eye-off" : "eye"}
-                size={16}
-                color="#FFF"
-                style={{ marginRight: 8 }}
-              />
-              <Text style={[styles.primaryActionText, { color: "#FFF" }]}>
-                {isFlipped ? "Ocultar" : "Mostrar"} dados
-              </Text>
-            </TouchableOpacity>
+              full
+              icon={<Feather name={isFlipped ? "eye-off" : "eye"} size={16} color={t.ink} />}
+            />
           </View>
 
           {/* Gated option list */}
@@ -632,7 +617,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: t.bg }]}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
+      contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40 }}
       showsVerticalScrollIndicator={false}
     >
       {toastMessage && (
@@ -648,9 +633,8 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
         </Animated.View>
       )}
 
-      {/* Reference-exact Invoice + Limit Card */}
-      <View style={[styles.refCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-        {/* Top section */}
+      {/* Invoice + Limit Card */}
+      <SoftCard radius={20} padding={0} style={styles.refCard}>
         <View style={styles.refTop}>
           <Text style={[styles.refLabel, { color: t.inkDim }]}>Total da fatura este mês</Text>
           <Text style={[styles.refAmount, { color: t.ink }]}>{cardVals.utilized}</Text>
@@ -659,17 +643,16 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
             <Text style={[styles.refSubAmountBold, { color: t.orange }]}>{cardVals.total}</Text>
           </Text>
 
-          {/* Progress bar with 3 dots */}
+          {/* Progress bar */}
           <View style={styles.refBarWrap}>
-            <View style={[styles.refBarTrack, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)" }]}>
-              <View style={[styles.refBarFill, { width: cardVals.progressWidth, backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.22)" : "rgba(99,102,241,0.30)" }]} />
+            <View style={[styles.refBarTrack, { backgroundColor: t.line }]}>
+              <View style={[styles.refBarFill, { width: cardVals.progressWidth, backgroundColor: t.inkFaint }]} />
             </View>
-            {/* 3 dots on the bar */}
             <View style={styles.refDots}>
-              <View style={[styles.refDot, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.35)" : "#818CF8" }]} />
-              <View style={[styles.refDot, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.35)" : "#818CF8" }]} />
-              <View style={[styles.refDotLarge, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.55)" : "#4F46E5" }]} />
-              <View style={[styles.refDotSmall, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)" }]} />
+              <View style={[styles.refDot, { backgroundColor: t.inkMute }]} />
+              <View style={[styles.refDot, { backgroundColor: t.inkMute }]} />
+              <View style={[styles.refDotLarge, { backgroundColor: t.inkDim }]} />
+              <View style={[styles.refDotSmall, { backgroundColor: t.line2, borderColor: t.line }]} />
             </View>
           </View>
 
@@ -680,29 +663,28 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           </View>
 
           {/* Pay invoice button */}
-          <TouchableOpacity
-            activeOpacity={0.8}
+          <Button
+            label="Pagar fatura"
+            variant="secondary"
             onPress={() => showToast("Abrindo pagamento de fatura...")}
-            style={[styles.refPayBtn, { backgroundColor: scheme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)", borderColor: scheme === "dark" ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.08)" }]}
-          >
-            <Feather name="arrow-up-circle" size={15} color={t.inkDim} style={{ marginRight: 7 }} />
-            <Text style={[styles.refPayBtnText, { color: t.inkDim }]}>Pagar fatura</Text>
-          </TouchableOpacity>
+            icon={<Feather name="arrow-up-circle" size={15} color={t.ink} />}
+            full
+          />
         </View>
 
         {/* Savings streak banner */}
-        <View style={styles.refBanner}>
-          <Text style={styles.refBannerText}>
+        <View style={[styles.refBanner, { backgroundColor: t.sol }]}>
+          <Text style={[styles.refBannerText, { color: "rgba(255,255,255,0.85)" }]}>
             Você economizou{" "}
-            <Text style={styles.refBannerBold}>R$ 1.200</Text>
+            <Text style={[styles.refBannerBold, { color: "#FFFFFF" }]}>R$ 1.200</Text>
             {" "}este mês
           </Text>
           <View style={styles.refBannerBadge}>
-            <Text style={styles.refBannerEmoji}>🔥</Text>
-            <Text style={styles.refBannerStreak}> x 3</Text>
+            <Feather name="trending-up" size={15} color="#FFFFFF" />
+            <Text style={[styles.refBannerStreak, { color: "#FFFFFF" }]}> x 3</Text>
           </View>
         </View>
-      </View>
+      </SoftCard>
 
       {/* CreditCardSection from components/home */}
       <CreditCardSection
@@ -715,7 +697,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           setActiveDetailCard(card);
         }}
         minimal={true}
-        horizontalBleed={16}
+        horizontalBleed={20}
         initialActiveIndex={mainActiveIndex}
         onActiveIndexChange={(index) => {
           setMainActiveIndex(index);
@@ -773,14 +755,12 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0D0D0D",
   },
   toast: {
     position: "absolute",
     top: 10,
     left: 20,
     right: 20,
-    backgroundColor: "#00D09E",
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 20,
@@ -794,7 +774,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   toastText: {
-    color: "#0D0D0D",
     fontFamily: fonts.sans.bold,
     fontSize: 13,
     textAlign: "center",
@@ -983,7 +962,6 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   frozenBadgeText: {
-    color: "#00D09E",
     fontFamily: fonts.sans.bold,
     fontSize: 14,
     letterSpacing: 1,
@@ -1010,14 +988,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#161616",
     borderWidth: 1,
-    borderColor: "#262626",
     borderRadius: 14,
     paddingVertical: 14,
   },
   secondaryActionText: {
-    color: "#FFF",
     fontSize: 14,
     fontFamily: fonts.sans.bold,
   },
@@ -1126,10 +1101,7 @@ const styles = StyleSheet.create({
   },
   /* ── Reference card styles ─────────────────────── */
   refCard: {
-    borderRadius: 20,
-    marginTop: 8,
-    marginBottom: 12,
-    borderWidth: 1,
+    marginBottom: 24,
     overflow: "hidden",
   },
   refTop: {
@@ -1230,7 +1202,6 @@ const styles = StyleSheet.create({
   },
   /* savings banner */
   refBanner: {
-    backgroundColor: "#3730A3",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -1238,13 +1209,11 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   refBannerText: {
-    color: "rgba(255,255,255,0.85)",
     fontSize: 13,
     fontFamily: fonts.sans.medium,
     flex: 1,
   },
   refBannerBold: {
-    color: "#FFFFFF",
     fontFamily: fonts.sans.bold,
   },
   refBannerBadge: {
@@ -1255,7 +1224,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   refBannerStreak: {
-    color: "#FFFFFF",
     fontFamily: fonts.sans.bold,
     fontSize: 14,
   },
@@ -1265,7 +1233,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingTop: Platform.OS === "ios" ? 10 : 20,
     paddingBottom: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   detailBackBtn: {
     width: 44,
@@ -1273,7 +1241,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.03)",
   },
   detailHeaderTitle: {
     fontSize: 18,
@@ -1290,14 +1257,14 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   purchasesContainer: {
-    marginTop: 4,
-    marginBottom: 40,
+    marginTop: 12,
+    marginBottom: 24,
   },
   purchaseRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
   },
   purchaseLeft: {

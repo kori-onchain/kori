@@ -10,8 +10,11 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from "react-native";
-import { colors, fonts, radii } from "@theme/tokens";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
 import { SoftCard } from "@components/layout/SoftCard";
+import { Button } from "@components/layout/Button";
+import { GiftIcon } from "@components/layout/icons";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const BANNER_WIDTH = SCREEN_WIDTH - 48;
@@ -36,53 +39,56 @@ const BannerShell: React.FC<BannerShellProps> = ({
   ctaVariant = "white",
   onPress,
   decoration,
-}) => (
-  <View style={styles.bannerOuter}>
-    <SoftCard radius={radii.card} padding={0}>
-      <View style={styles.bannerInner}>
-        <View style={styles.content}>
-          <View
-            style={[styles.badge, badgeTone === "reward" && styles.badgeReward]}
-          >
-            <Text
+}) => {
+  const { t } = useTheme();
+
+  return (
+    <View style={styles.bannerOuter}>
+      <SoftCard radius={radii.card} padding={0}>
+        <View style={styles.bannerInner}>
+          <View style={styles.content}>
+            <View
               style={[
-                styles.badgeText,
-                badgeTone === "reward" && styles.badgeTextReward,
+                styles.badge,
+                { backgroundColor: t.line2 },
+                badgeTone === "reward" && {
+                  backgroundColor: `${t.orange}29`,
+                },
               ]}
             >
-              {badgeLabel}
+              <Text
+                style={[
+                  styles.badgeText,
+                  { color: t.ink },
+                  badgeTone === "reward" && { color: t.orange },
+                ]}
+              >
+                {badgeLabel}
+              </Text>
+            </View>
+
+            <Text style={[styles.title, { color: t.ink }]}>{title}</Text>
+            <Text style={[styles.subtitle, { color: t.inkDim }]}>
+              {subtitle}
             </Text>
+
+            <View style={styles.ctaWrap}>
+              <Button
+                label={cta}
+                variant={ctaVariant === "white" ? "primary" : "ghost"}
+                onPress={onPress}
+                style={styles.cta}
+                labelStyle={styles.ctaLabel}
+              />
+            </View>
           </View>
 
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
-
-          <TouchableOpacity
-            activeOpacity={0.85}
-            onPress={onPress}
-            style={[
-              styles.cta,
-              ctaVariant === "white" && styles.ctaWhite,
-              ctaVariant === "outlineOrange" && styles.ctaOutlineOrange,
-            ]}
-          >
-            <Text
-              style={[
-                styles.ctaText,
-                ctaVariant === "white" && styles.ctaTextDark,
-                ctaVariant === "outlineOrange" && styles.ctaTextOrange,
-              ]}
-            >
-              {cta}
-            </Text>
-          </TouchableOpacity>
+          {decoration && <View style={styles.decor}>{decoration}</View>}
         </View>
-
-        {decoration && <View style={styles.decor}>{decoration}</View>}
-      </View>
-    </SoftCard>
-  </View>
-);
+      </SoftCard>
+    </View>
+  );
+};
 
 const KYCBanner = ({ onPress }: { onPress?: () => void }) => (
   <BannerShell
@@ -102,41 +108,61 @@ const KYCBanner = ({ onPress }: { onPress?: () => void }) => (
   />
 );
 
-const BlackCardBanner = ({ onPress }: { onPress?: () => void }) => (
-  <BannerShell
-    badgeLabel="EXCLUSIVO"
-    badgeTone="neutral"
-    title={"Cartao\nKori Black"}
-    subtitle="Cashback ilimitado, acesso a lounges e sem anuidade no 1o ano."
-    cta="Solicitar agora"
-    ctaVariant="white"
-    onPress={onPress}
-    decoration={
-      <View style={styles.cardDecor}>
-        <View style={styles.cardDecorChip} />
-        <View style={styles.cardDecorStripe} />
-        <Text style={styles.cardDecorLabel}>KORI BLACK</Text>
-      </View>
-    }
-  />
-);
+const BlackCardBanner = ({ onPress }: { onPress?: () => void }) => {
+  const { t } = useTheme();
+  return (
+    <BannerShell
+      badgeLabel="EXCLUSIVO"
+      badgeTone="neutral"
+      title={"Cartao\nKori Black"}
+      subtitle="Cashback ilimitado, acesso a lounges e sem anuidade no 1o ano."
+      cta="Solicitar agora"
+      ctaVariant="white"
+      onPress={onPress}
+      decoration={
+        <View
+          style={[
+            styles.cardDecor,
+            {
+              backgroundColor: t.bgElev,
+              borderColor: t.line2,
+            },
+          ]}
+        >
+          <View
+            style={[styles.cardDecorChip, { backgroundColor: t.inkDim }]}
+          />
+          <View
+            style={[styles.cardDecorStripe, { backgroundColor: t.line2 }]}
+          />
+          <Text style={[styles.cardDecorLabel, { color: t.inkDim }]}>
+            KORI BLACK
+          </Text>
+        </View>
+      }
+    />
+  );
+};
 
-const ReferralBanner = ({ onPress }: { onPress?: () => void }) => (
-  <BannerShell
-    badgeLabel="RECOMPENSAS"
-    badgeTone="reward"
-    title={"Indique e\nGanhe +R$ 30"}
-    subtitle="Ganhe R$ 30 por cada amigo indicado que abrir conta na Kori."
-    cta="Indicar amigo"
-    ctaVariant="white"
-    onPress={onPress}
-    decoration={
-      <View style={styles.referralDecor}>
-        <Text style={styles.referralEmoji}>🎁</Text>
-      </View>
-    }
-  />
-);
+const ReferralBanner = ({ onPress }: { onPress?: () => void }) => {
+  const { t } = useTheme();
+  return (
+    <BannerShell
+      badgeLabel="RECOMPENSAS"
+      badgeTone="reward"
+      title={"Indique e\nGanhe +R$ 30"}
+      subtitle="Ganhe R$ 30 por cada amigo indicado que abrir conta na Kori."
+      cta="Indicar amigo"
+      ctaVariant="white"
+      onPress={onPress}
+      decoration={
+        <View style={styles.referralDecor}>
+          <GiftIcon size={56} color={t.orange} />
+        </View>
+      }
+    />
+  );
+};
 
 interface PromoBannerProps {
   onVerify?: () => void;
@@ -149,6 +175,7 @@ export const PromoBanner: React.FC<PromoBannerProps> = ({
   onOrderBlackCard,
   onReferFriend,
 }) => {
+  const { t } = useTheme();
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -182,7 +209,14 @@ export const PromoBanner: React.FC<PromoBannerProps> = ({
         {[0, 1, 2].map((i) => (
           <View
             key={i}
-            style={[styles.dot, activeIndex === i && styles.dotActive]}
+            style={[
+              styles.dot,
+              { backgroundColor: t.inkFaint },
+              activeIndex === i && [
+                styles.dotActive,
+                { backgroundColor: t.ink },
+              ],
+            ]}
           />
         ))}
       </View>
@@ -212,7 +246,6 @@ const styles = StyleSheet.create({
     maxWidth: "62%",
   },
   badge: {
-    backgroundColor: colors.line2,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -220,19 +253,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   badgeText: {
-    color: colors.ink,
     fontFamily: fonts.mono.semibold,
     fontSize: 9,
     letterSpacing: 1.4,
   },
-  badgeReward: {
-    backgroundColor: "rgba(255,107,61,0.16)",
-  },
-  badgeTextReward: {
-    color: colors.orange,
-  },
   title: {
-    color: colors.ink,
     fontFamily: fonts.sans.bold,
     fontWeight: "700",
     fontSize: 20,
@@ -241,36 +266,21 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
   },
   subtitle: {
-    color: colors.inkDim,
     fontFamily: fonts.sans.medium,
     fontSize: 12,
     marginBottom: 14,
     lineHeight: 17,
   },
-  cta: {
-    paddingVertical: 9,
-    paddingHorizontal: 16,
-    borderRadius: radii.btn,
+  ctaWrap: {
     alignSelf: "flex-start",
   },
-  ctaWhite: {
-    backgroundColor: colors.ink,
+  cta: {
+    minHeight: 36,
+    paddingVertical: 0,
+    paddingHorizontal: 12,
   },
-  ctaOutlineOrange: {
-    borderWidth: 1,
-    borderColor: colors.orange,
-    backgroundColor: "transparent",
-  },
-  ctaText: {
-    fontFamily: fonts.sans.semibold,
-    fontWeight: "600",
+  ctaLabel: {
     fontSize: 12,
-  },
-  ctaTextDark: {
-    color: colors.bg,
-  },
-  ctaTextOrange: {
-    color: colors.orange,
   },
   decor: {
     position: "absolute",
@@ -290,26 +300,21 @@ const styles = StyleSheet.create({
   cardDecor: {
     width: 90,
     height: 58,
-    backgroundColor: colors.bgElev,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: colors.line2,
     padding: 8,
     justifyContent: "space-between",
   },
   cardDecorChip: {
     width: 20,
     height: 14,
-    backgroundColor: colors.inkDim,
     borderRadius: 3,
   },
   cardDecorStripe: {
     height: 2,
-    backgroundColor: colors.line2,
     borderRadius: 1,
   },
   cardDecorLabel: {
-    color: colors.inkDim,
     fontFamily: fonts.mono.semibold,
     fontSize: 7,
     letterSpacing: 1,
@@ -332,12 +337,10 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.inkFaint,
   },
   dotActive: {
     width: 18,
     height: 3,
     borderRadius: 2,
-    backgroundColor: colors.ink,
   },
 });

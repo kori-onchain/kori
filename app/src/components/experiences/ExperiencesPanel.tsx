@@ -12,9 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ReAnimated from "react-native-reanimated";
 import QRCode from "react-native-qrcode-svg";
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
+import { useFadeUp } from "@hooks/useFadeUp";
+import { Button } from "@components/layout/Button";
+import { SoftCard } from "@components/layout/SoftCard";
 import { fonts, radii } from "@theme/tokens";
 
 /* ─── Assets ───────────────────────────────────────── */
@@ -377,6 +381,7 @@ const DetailScreen: React.FC<{
    ══════════════════════════════════════════════════════ */
 export const ExperiencesPanel: React.FC = () => {
   const { t } = useTheme();
+  const entering = useFadeUp();
   const [filtro,    setFiltro]    = useState<Filter>("breve");
   const [busca,     setBusca]     = useState("");
   const [detalhe,   setDetalhe]   = useState<Exp | null>(null);
@@ -425,30 +430,37 @@ export const ExperiencesPanel: React.FC = () => {
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       {/* Saudação */}
-      <View style={ls.greetBlock}>
-        <Text style={[ls.greetSmall, { color: t.inkDim }]}>Olá, explorador</Text>
-        <Text style={[ls.greetBig,   { color: t.ink }]}>Escolha sua próxima{"\n"}experiência</Text>
-      </View>
+      <ReAnimated.View entering={entering(60)}>
+        <View style={ls.greetBlock}>
+          <Text style={[ls.greetSmall, { color: t.inkDim }]}>Olá, explorador</Text>
+          <Text style={[ls.greetBig,   { color: t.ink }]}>Escolha sua próxima{"\n"}experiência</Text>
+        </View>
+      </ReAnimated.View>
 
       {/* Barra de busca */}
-      <View style={[ls.searchBar, { backgroundColor: t.bgElev, borderColor: t.line }]}>
-        <Feather name="search" size={16} color={t.inkMute} />
-        <TextInput
-          value={busca}
-          onChangeText={setBusca}
-          placeholder="Buscar evento ou restaurante"
-          placeholderTextColor={t.inkMute}
-          style={[ls.searchInput, { color: t.ink }]}
-          autoCorrect={false}
-        />
-        {busca.length > 0 && (
-          <TouchableOpacity onPress={() => setBusca("")}>
-            <Feather name="x" size={16} color={t.inkMute} />
-          </TouchableOpacity>
-        )}
-      </View>
+      <ReAnimated.View entering={entering(120)} style={{ marginBottom: 24 }}>
+      <SoftCard radius={radii.pill} padding={0}>
+        <View style={ls.searchBar}>
+          <Feather name="search" size={16} color={t.inkMute} />
+          <TextInput
+            value={busca}
+            onChangeText={setBusca}
+            placeholder="Buscar evento ou restaurante"
+            placeholderTextColor={t.inkMute}
+            style={[ls.searchInput, { color: t.ink }]}
+            autoCorrect={false}
+          />
+          {busca.length > 0 && (
+            <TouchableOpacity onPress={() => setBusca("")}>
+              <Feather name="x" size={16} color={t.inkMute} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </SoftCard>
+      </ReAnimated.View>
 
       {/* Filtros de categoria */}
+      <ReAnimated.View entering={entering(180)}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={ls.filtersRow}>
         {([
           { id: "tudo",        label: "Tudo" },
@@ -468,6 +480,7 @@ export const ExperiencesPanel: React.FC = () => {
           );
         })}
       </ScrollView>
+      </ReAnimated.View>
 
       {/* ─── ABA: MEUS INGRESSOS ─── */}
       {meusIngs.length > 0 && (
@@ -539,9 +552,7 @@ export const ExperiencesPanel: React.FC = () => {
                   <Text style={[ls.eventTitle, { color: t.ink }]} numberOfLines={1}>{exp.title}</Text>
                   <Text style={[ls.eventSub,   { color: t.inkMute }]} numberOfLines={1}>{exp.subtitle}</Text>
                 </View>
-                <View style={[ls.verBtn, { backgroundColor: t.ink }]}>
-                  <Text style={[ls.verBtnText, { color: t.bg }]}>Ver</Text>
-                </View>
+                <Button label="Ver" variant="primary" style={ls.verBtn} labelStyle={ls.verBtnText} />
               </View>
             </View>
           </TouchableOpacity>
@@ -553,18 +564,17 @@ export const ExperiencesPanel: React.FC = () => {
 
 /* ─── Estilos ─────────────────────────────────────── */
 const ls = StyleSheet.create({
-  greetBlock: { marginTop: 18, marginBottom: 18 },
+  greetBlock: { marginBottom: 24 },
   greetSmall: { fontFamily: fonts.sans.semibold, fontSize: 13 },
   greetBig:   { fontFamily: fonts.sans.bold, fontSize: 26, fontWeight: "800", letterSpacing: -0.5, marginTop: 4 },
 
   searchBar: {
     flexDirection: "row", alignItems: "center", height: 48,
-    borderRadius: radii.pill, borderWidth: 1, paddingHorizontal: 14,
-    gap: 10, marginBottom: 18,
+    paddingHorizontal: 14, gap: 10,
   },
   searchInput: { flex: 1, fontFamily: fonts.sans.medium, fontSize: 14 },
 
-  filtersRow: { gap: 6, paddingRight: 8, marginBottom: 20 },
+  filtersRow: { gap: 12, paddingRight: 8, marginBottom: 24 },
   filterPill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: radii.pill },
   filterText: { fontFamily: fonts.sans.bold, fontSize: 13 },
 

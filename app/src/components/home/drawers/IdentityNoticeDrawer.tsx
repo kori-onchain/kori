@@ -10,6 +10,7 @@ import {
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
+import { Button } from "@components/layout/Button";
 
 interface IdentityNoticeDrawerProps {
   visible: boolean;
@@ -103,13 +104,12 @@ export const IdentityNoticeDrawer: React.FC<IdentityNoticeDrawerProps> = ({
             </TouchableOpacity>
 
             {/* Confirm Button */}
-            <TouchableOpacity
-              activeOpacity={0.85}
+            <Button
+              label="Confirmar"
+              variant="primary"
               onPress={() => onConfirm(dontShowAgain)}
-              style={[styles.confirmBtn, { backgroundColor: t.orange }]}
-            >
-              <Text style={styles.confirmBtnText}>Confirmar</Text>
-            </TouchableOpacity>
+              full
+            />
           </View>
         </View>
       </View>

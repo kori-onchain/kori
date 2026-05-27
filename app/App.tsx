@@ -18,7 +18,6 @@ import { HomeScreen } from "./src/screens/Home/HomeScreen";
 import { AuthScreen } from "./src/screens/Auth/AuthScreen";
 import { SecuritySetupScreen } from "./src/screens/SecuritySetup/SecuritySetupScreen";
 import { SplashScreen } from "./src/screens/Splash/SplashScreen";
-import { OnboardingScreen } from "./src/screens/Onboarding/OnboardingScreen";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 
 interface UserSession {
@@ -39,7 +38,6 @@ export default function App() {
     GeistMono_600SemiBold,
   });
   const [showSplash, setShowSplash] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(true);
   const [session, setSession] = useState<UserSession | null>(null);
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
 
@@ -88,8 +86,6 @@ export default function App() {
 
   if (showSplash) {
     screen = <SplashScreen onAnimationComplete={() => setShowSplash(false)} />;
-  } else if (showOnboarding) {
-    screen = <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
   } else if (session) {
     // If a session is active, go straight to HomeScreen
     screen = (

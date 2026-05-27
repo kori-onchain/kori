@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
+import Animated from "react-native-reanimated";
 import { useTheme } from "@theme/ThemeProvider";
+import { useFadeUp } from "@hooks/useFadeUp";
 import { EarningSummary } from "./EarningSummary";
 import { EarningItemsList } from "./EarningItemsList";
 import { Opportunities } from "./Opportunities";
@@ -10,6 +12,7 @@ import { Categories } from "./Categories";
 export const InvestmentsPanel: React.FC = () => {
   const { t } = useTheme();
   const [scrollEnabled, setScrollEnabled] = useState(true);
+  const entering = useFadeUp();
 
   return (
     <ScrollView
@@ -18,19 +21,24 @@ export const InvestmentsPanel: React.FC = () => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
     >
-      {/* 1. Header & Earning balance (Title, Balance, Segmented bar, Investir/Resgatar buttons) */}
-      <View style={{ paddingHorizontal: 20 }}>
+      <Animated.View entering={entering(60)} style={{ paddingHorizontal: 20 }}>
         <EarningSummary />
-      </View>
+      </Animated.View>
 
-      {/* 2. Full-bleed Rentabilidade Chart positioned directly under the buttons */}
-      <EvolutionChart setScrollEnabled={setScrollEnabled} />
+      <Animated.View entering={entering(120)}>
+        <EvolutionChart setScrollEnabled={setScrollEnabled} />
+      </Animated.View>
 
-      {/* 3. Detail list of items (Staking, Lending, Cash) and Opportunities banner */}
       <View style={{ paddingHorizontal: 20 }}>
-        <EarningItemsList />
-        <Opportunities />
-        <Categories />
+        <Animated.View entering={entering(180)}>
+          <EarningItemsList />
+        </Animated.View>
+        <Animated.View entering={entering(240)}>
+          <Opportunities />
+        </Animated.View>
+        <Animated.View entering={entering(300)}>
+          <Categories />
+        </Animated.View>
       </View>
     </ScrollView>
   );

@@ -13,6 +13,7 @@ import {
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts } from "@theme/tokens";
+import { Button } from "@components/layout/Button";
 
 interface AddProductModalProps {
   visible: boolean;
@@ -191,21 +192,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 </View>
               </View>
 
-              <TouchableOpacity
-                style={[styles.saveBtn, { backgroundColor: t.btnPrimaryBg }]}
+              <Button
+                label="Salvar Produto"
+                variant="primary"
                 onPress={handleSave}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.saveBtnText, { color: t.btnPrimaryFg }]}>
-                  Salvar Produto
-                </Text>
-              </TouchableOpacity>
+                full
+              />
             </View>
           </View>
         </KeyboardAvoidingView>
 
         {toastMessage && (
-          <Animated.View style={[styles.toast, { opacity: toastOpacity }]}>
+          <Animated.View style={[styles.toast, { opacity: toastOpacity, backgroundColor: t.bgElev, borderColor: t.cardBorder }]}>
             <Feather
               name="check-circle"
               size={16}
@@ -322,9 +320,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1C1C1E",
     borderWidth: 1,
-    borderColor: "#2C2C2C",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 18,

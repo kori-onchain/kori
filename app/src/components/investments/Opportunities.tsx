@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
+import { BuildingIcon, BriefcaseIcon, BanknoteIcon, MoneyBagIcon, TrendUpIcon } from "@components/layout/icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, {
   Path,
@@ -50,8 +51,8 @@ export const Opportunities: React.FC = () => {
           <View style={styles.inner}>
             {/* Left copy section */}
             <View style={styles.leftContent}>
-              <View style={[styles.badge, { backgroundColor: "rgba(0,168,150,0.12)" }]}>
-                <Text style={[styles.badgeText, { color: "#00A896" }]}>
+              <View style={[styles.badge, { backgroundColor: `${t.green}1F` }]}>
+                <Text style={[styles.badgeText, { color: t.green }]}>
                   Rendimento Fixo!
                 </Text>
               </View>
@@ -69,13 +70,12 @@ export const Opportunities: React.FC = () => {
                 <Defs>
                   {/* Gold coin gradient */}
                   <SvgGrad id="goldCoinGrad" x1="0" y1="0" x2="1" y2="1">
-                    <Stop offset="0%" stopColor="#FFE082" stopOpacity="1" />
-                    <Stop offset="100%" stopColor="#FFB300" stopOpacity="1" />
+                    <Stop offset="0%" stopColor={t.orange} stopOpacity="0.6" />
+                    <Stop offset="100%" stopColor={t.orange} stopOpacity="1" />
                   </SvgGrad>
-                  {/* Background glow gradient */}
                   <SvgGrad id="bgGlow" x1="0" y1="0" x2="1" y2="1">
-                    <Stop offset="0%" stopColor="#FFB300" stopOpacity="0.08" />
-                    <Stop offset="100%" stopColor="#9945ff" stopOpacity="0.02" />
+                    <Stop offset="0%" stopColor={t.orange} stopOpacity="0.08" />
+                    <Stop offset="100%" stopColor={t.sol} stopOpacity="0.02" />
                   </SvgGrad>
                 </Defs>
 
@@ -86,7 +86,7 @@ export const Opportunities: React.FC = () => {
                 <Path
                   d="M 52,24 A 36,36 0 0,1 100,54"
                   fill="none"
-                  stroke="#FFB300"
+                  stroke={t.orange}
                   strokeWidth="4"
                   strokeLinecap="round"
                   opacity="0.85"
@@ -103,20 +103,20 @@ export const Opportunities: React.FC = () => {
                 {/* Curved arrows on rings */}
                 <Path
                   d="M 100,54 L 97,48 M 100,54 L 105,49"
-                  stroke="#FFB300"
+                  stroke={t.orange}
                   strokeWidth="1.5"
                   strokeLinecap="round"
                 />
 
                 {/* 3D Golden Coin at Center */}
                 <Circle cx="76" cy="52" r="20" fill="url(#goldCoinGrad)" />
-                <Circle cx="76" cy="52" r="16" fill="none" stroke="#FFA000" strokeWidth="1.5" />
-                <Text x="76" y="58" fontSize="20" fontWeight="bold" fill="#8F6B00" textAnchor="middle">$</Text>
+                <Circle cx="76" cy="52" r="16" fill="none" stroke={t.orangeDark} strokeWidth="1.5" />
+                <Text x="76" y="58" fontSize="20" fontWeight="bold" fill={t.bg} textAnchor="middle">$</Text>
 
                 {/* Green staking badge in circle */}
-                <Circle cx="38" cy="38" r="14" fill="#00A896" />
-                <Circle cx="38" cy="38" r="6" fill="none" stroke="#0a0a0a" strokeWidth="2" />
-                <Path d="M 32,41 L 44,41" stroke="#0a0a0a" strokeWidth="2" strokeLinecap="round" />
+                <Circle cx="38" cy="38" r="14" fill={t.green} />
+                <Circle cx="38" cy="38" r="6" fill="none" stroke={t.bg} strokeWidth="2" />
+                <Path d="M 32,41 L 44,41" stroke={t.bg} strokeWidth="2" strokeLinecap="round" />
               </Svg>
             </View>
           </View>
@@ -127,8 +127,8 @@ export const Opportunities: React.FC = () => {
           <View style={styles.inner}>
             {/* Left copy section */}
             <View style={styles.leftContent}>
-              <View style={[styles.badge, { backgroundColor: "rgba(16,185,129,0.12)" }]}>
-                <Text style={[styles.badgeText, { color: "#10B981" }]}>
+              <View style={[styles.badge, { backgroundColor: `${t.green}1F` }]}>
+                <Text style={[styles.badgeText, { color: t.green }]}>
                   Oportunidade!
                 </Text>
               </View>
@@ -143,19 +143,24 @@ export const Opportunities: React.FC = () => {
             {/* Right emerald gradient growth illustration inside the card */}
             <View style={styles.rightContentPiggy}>
               <LinearGradient
-                colors={["#10B981", "#059669"]}
+                colors={[t.green, "#059669"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.piggyGradient}
               >
-                {/* Decorative floating emojis inside the card's green growth circle */}
-                <Text style={[styles.piggyDecoEmoji, { top: 8, right: 8 }]}>🏢</Text>
-                <Text style={[styles.piggyDecoEmoji, { top: 8, left: 8 }]}>💼</Text>
-                <Text style={[styles.piggyDecoEmoji, { bottom: 8, left: 8 }]}>💵</Text>
-                <Text style={[styles.piggyDecoEmoji, { bottom: 8, right: 8 }]}>💰</Text>
-
-                {/* Central Chart Trend Growth */}
-                <Text style={styles.piggyEmoji}>📈</Text>
+                <View style={[styles.piggyDecoEmoji, { top: 8, right: 8 }]}>
+                  <BuildingIcon size={12} color="rgba(255,255,255,0.6)" />
+                </View>
+                <View style={[styles.piggyDecoEmoji, { top: 8, left: 8 }]}>
+                  <BriefcaseIcon size={12} color="rgba(255,255,255,0.6)" />
+                </View>
+                <View style={[styles.piggyDecoEmoji, { bottom: 8, left: 8 }]}>
+                  <BanknoteIcon size={12} color="rgba(255,255,255,0.6)" />
+                </View>
+                <View style={[styles.piggyDecoEmoji, { bottom: 8, right: 8 }]}>
+                  <MoneyBagIcon size={12} color="rgba(255,255,255,0.6)" />
+                </View>
+                <TrendUpIcon size={36} color="rgba(255,255,255,0.9)" />
               </LinearGradient>
             </View>
           </View>

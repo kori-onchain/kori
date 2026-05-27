@@ -12,48 +12,48 @@ export const EarningItemsList: React.FC = () => {
   const items = [
     {
       id: "renda-fixa",
-      title: "Renda fixa (Bonds)",
+      title: "Renda fixa",
       subtitle: "40%",
-      value: "US$ 10.000,00",
+      value: "R$ 10.000,00",
       change: "▲ 10,00%",
       changeVal: 10.0,
-      color: "#00A896", // Teal/cyan matching segment
+      color: t.orange,
     },
     {
       id: "fundos",
-      title: "Fundos (Mutual Funds)",
+      title: "Fundos",
       subtitle: "30%",
-      value: "US$ 10.000,00",
+      value: "R$ 10.000,00",
       change: "▲ 9,50%",
       changeVal: 9.5,
-      color: "#9945ff", // Purple matching segment
+      color: t.sol,
     },
     {
       id: "acoes",
-      title: "Ações (Stocks)",
+      title: "Ações",
       subtitle: "15%",
-      value: "US$ 10.000,00",
+      value: "R$ 10.000,00",
       change: "▲ 12,80%",
       changeVal: 12.8,
-      color: "#FF8C00", // Orange matching segment
+      color: t.green,
     },
     {
       id: "previdencia",
-      title: "Previdência (Pension)",
+      title: "Previdência",
       subtitle: "10%",
-      value: "US$ 10.000,00",
+      value: "R$ 10.000,00",
       change: "▲ 7,20%",
       changeVal: 7.2,
-      color: "#FF2D55", // Pink matching segment
+      color: t.inkDim,
     },
     {
       id: "cripto",
-      title: "Cripto (Crypto)",
+      title: "Cripto",
       subtitle: "5%",
-      value: "US$ 10.000,00",
+      value: "R$ 10.000,00",
       change: "▲ 24,50%",
       changeVal: 24.5,
-      color: "#007AFF", // Blue matching segment
+      color: t.inkMute,
     },
   ];
 
@@ -67,13 +67,12 @@ export const EarningItemsList: React.FC = () => {
     { id: "maior-rentabilidade", label: "Maior rentabilidade" },
   ];
 
-  // Segment calculation for Donut Chart
   const segments = [
-    { percentage: 0.40, color: "#00A896" },
-    { percentage: 0.30, color: "#9945ff" },
-    { percentage: 0.15, color: "#FF8C00" },
-    { percentage: 0.10, color: "#FF2D55" },
-    { percentage: 0.05, color: "#007AFF" },
+    { percentage: 0.40, color: t.orange },
+    { percentage: 0.30, color: t.sol },
+    { percentage: 0.15, color: t.green },
+    { percentage: 0.10, color: t.inkDim },
+    { percentage: 0.05, color: t.inkMute },
   ];
 
   const radius = 26;
