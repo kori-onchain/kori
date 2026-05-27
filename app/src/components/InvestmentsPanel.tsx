@@ -8,6 +8,7 @@ import { InvestIcon, PlusIcon, ArrowRightIcon } from "./ds/icons";
 import { SoftCard } from "./ds/SoftCard";
 import { CryptoInvestments } from "./CryptoInvestments";
 import { useFadeUp } from "../hooks/useFadeUp";
+import { PoolFactoringCard } from "./factoring/PoolFactoringCard";
 
 const Shortcut: React.FC<{
   label: string;
@@ -25,7 +26,11 @@ const Shortcut: React.FC<{
   );
 };
 
-export const InvestmentsPanel: React.FC = () => {
+interface InvestmentsPanelProps {
+  onOpenPool?: () => void;
+}
+
+export const InvestmentsPanel: React.FC<InvestmentsPanelProps> = ({ onOpenPool }) => {
   const { t } = useTheme();
   const entering = useFadeUp();
 
@@ -83,6 +88,12 @@ export const InvestmentsPanel: React.FC = () => {
           </View>
         </SoftCard>
       </Animated.View>
+
+      {onOpenPool ? (
+        <Animated.View entering={entering(100)}>
+          <PoolFactoringCard onPress={onOpenPool} />
+        </Animated.View>
+      ) : null}
 
       <Animated.View entering={entering(140)}>
         <View style={styles.shortcutsRow}>

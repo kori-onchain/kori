@@ -66,7 +66,11 @@ const HEALTH = {
 };
 // ===========================================================================
 
-export const SalesReports: React.FC = () => {
+interface SalesReportsProps {
+  onAnticipate?: () => void;
+}
+
+export const SalesReports: React.FC<SalesReportsProps> = ({ onAnticipate }) => {
   const { t } = useTheme();
   const [period, setPeriod] = useState<Period>("7d");
   const data = REVENUE[period];
@@ -115,6 +119,7 @@ export const SalesReports: React.FC = () => {
       <CashFlowCard
         amountLabel={CASH_FLOW.amountLabel}
         nextEntryText={CASH_FLOW.nextEntryText}
+        onAdvance={onAnticipate}
       />
 
       <BusinessHealthCard

@@ -59,7 +59,11 @@ const TabStrip: React.FC<{
   );
 };
 
-export const MerchantPanel: React.FC = () => {
+interface MerchantPanelProps {
+  onAnticipate?: () => void;
+}
+
+export const MerchantPanel: React.FC<MerchantPanelProps> = ({ onAnticipate }) => {
   const { t } = useTheme();
   const [view, setView] = useState<SubView>("dashboard");
   const entering = useFadeUp();
@@ -87,7 +91,7 @@ export const MerchantPanel: React.FC = () => {
         <TabStrip view={view} onChange={setView} />
       </Animated.View>
       <Animated.View entering={entering(140)}>
-        <SalesReports />
+        <SalesReports onAnticipate={onAnticipate} />
       </Animated.View>
     </ScrollView>
   );

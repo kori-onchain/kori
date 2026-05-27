@@ -6,6 +6,8 @@ interface ModalState {
   transactions: boolean;
   profile: boolean;
   sendPayment: boolean;
+  investModal: boolean;
+  anticipationModal: boolean;
 }
 
 export const useModals = () => {
@@ -15,6 +17,8 @@ export const useModals = () => {
     transactions: false,
     profile: false,
     sendPayment: false,
+    investModal: false,
+    anticipationModal: false,
   });
 
   const open = useCallback((modal: keyof ModalState) => {

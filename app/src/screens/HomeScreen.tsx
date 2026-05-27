@@ -27,6 +27,10 @@ import { SendModal } from "../components/payment/SendModal";
 import { PaymentIntent, PaymentScreen } from "../types/payment";
 import { useContacts } from "../hooks/useContacts";
 import { useModals } from "../hooks/useModals";
+import { InvestModal } from "../components/factoring/InvestModal";
+import { AnticipationModal } from "../components/factoring/AnticipationModal";
+import { PoolFactoringCard } from "../components/factoring/PoolFactoringCard";
+import { AnticipationCTACard } from "../components/factoring/AnticipationCTACard";
 
 interface HomeScreenProps {
   onLogout?: () => void;
@@ -149,7 +153,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Header {...headerProps} />
             </Animated.View>
             <View style={styles.panelFlex}>
-              <MerchantPanel />
+              <MerchantPanel onAnticipate={() => open("anticipationModal")} />
             </View>
           </View>
         ) : activeTab === "investimentos" ? (
@@ -158,7 +162,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Header {...headerProps} />
             </Animated.View>
             <View style={styles.panelFlex}>
-              <InvestPanel />
+              <InvestPanel onOpenInvestModal={() => open("investModal")} />
             </View>
           </View>
         ) : (
@@ -186,13 +190,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 open("sendPayment");
               }}
             />
-            <Animated.View entering={entering(220)}>
+            {accountType === "PJ" ? (
+              <Animated.View entering={entering(200)}>
+                <AnticipationCTACard onPress={() => open("anticipationModal")} />
+              </Animated.View>
+            ) : (
+              <Animated.View entering={entering(200)}>
+                <PoolFactoringCard onPress={() => open("investModal")} />
+              </Animated.View>
+            )}
+            <Animated.View entering={entering(260)}>
               <NftHoldings onSeeAll={() => open("contacts")} />
             </Animated.View>
-            <Animated.View entering={entering(300)}>
+            <Animated.View entering={entering(340)}>
               <Transactions onSeeAll={() => open("transactions")} />
             </Animated.View>
-            <Animated.View entering={entering(380)}>
+            <Animated.View entering={entering(420)}>
               <CryptoInvestments />
             </Animated.View>
           </ScrollView>
@@ -240,6 +253,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           onClose={() => close("sendPayment")}
           initialScreen={sendInitialScreen}
           initialIntent={sendIntent}
+        />
+
+        <InvestModal
+          visible={modals.investModal}
+          onClose={() => close("investModal")}
+        />
+
+        <AnticipationModal
+          visible={modals.anticipationModal}
+          onClose={() => close("anticipationModal")}
         />
       </SafeAreaView>
     </View>

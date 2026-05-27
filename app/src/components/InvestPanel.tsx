@@ -51,7 +51,11 @@ const TabStrip: React.FC<{
   );
 };
 
-export const InvestPanel: React.FC = () => {
+interface InvestPanelProps {
+  onOpenInvestModal?: () => void;
+}
+
+export const InvestPanel: React.FC<InvestPanelProps> = ({ onOpenInvestModal }) => {
   const { t } = useTheme();
   const [view, setView] = useState<SubView>("portfolio");
   const entering = useFadeUp();
@@ -62,7 +66,7 @@ export const InvestPanel: React.FC = () => {
         <TabStrip view={view} onChange={setView} />
       </Animated.View>
       <View style={{ flex: 1 }}>
-        {view === "portfolio" ? <InvestmentsPanel /> : <ExperiencesPanel />}
+        {view === "portfolio" ? <InvestmentsPanel onOpenPool={onOpenInvestModal} /> : <ExperiencesPanel />}
       </View>
     </View>
   );
