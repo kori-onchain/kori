@@ -3,20 +3,20 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/kora-onchain/kora">
-    <img src="text-logo.svg" alt="Kora" width="280" height="80">
+  <a href="https://github.com/kori-onchain/KORI">
+    <img src="text-logo.svg" alt="KORI" width="280" height="80">
   </a>
 
-  <h3 align="center">Kora</h3>
+  <h3 align="center">KORI</h3>
 
   <p align="center">
     Conta digital on-chain para pagamentos, credito, yield local e beneficios tokenizados na Solana.
     <br />
     <a href="DESIGN.MD" target="_blank">Ver Design System</a>
     |
-    <a href="https://github.com/kora-onchain/kora/issues" target="_blank">Reportar Erro</a>
+    <a href="https://github.com/kori-onchain/KORI/issues" target="_blank">Reportar Erro</a>
     |
-    <a href="https://github.com/kora-onchain/kora/issues" target="_blank">Solicitar Features</a>
+    <a href="https://github.com/kori-onchain/KORI/issues" target="_blank">Solicitar Features</a>
   </p>
 </div>
 
@@ -53,9 +53,9 @@
 
 <div id="sobre-o-projeto"></div>
 
-Kora e uma proposta de banking on-chain feita para o usuario brasileiro: a experiencia parece a de um banco digital comum, mas a infraestrutura de saldo, pagamentos, reputacao, recebiveis e ativos tokenizados vive sobre Solana.
+Kori e uma proposta de banking on-chain feita para o usuario brasileiro: a experiencia parece a de um banco digital comum, mas a infraestrutura de saldo, pagamentos, reputacao, recebiveis e ativos tokenizados vive sobre Solana.
 
-O projeto nasceu para o Hackanation 2026 com uma tese simples: cripto nao precisa aparecer como complexidade para o usuario final. A Kora abstrai carteira, seed phrase, endereco e transacao, enquanto usa Solana para liquidacao rapida, baixo custo, rastreabilidade e composabilidade financeira.
+O projeto nasceu para o Hackanation 2026 com uma tese simples: cripto nao precisa aparecer como complexidade para o usuario final. A Kori abstrai carteira, seed phrase, endereco e transacao, enquanto usa Solana para liquidacao rapida, baixo custo, rastreabilidade e composabilidade financeira.
 
 ### Problema
 
@@ -63,7 +63,7 @@ O projeto nasceu para o Hackanation 2026 com uma tese simples: cripto nao precis
 
 Pequenos negocios precisam de capital de giro e geralmente antecipam recebiveis com taxas altas, pouca transparencia e intermediacao pesada. Do outro lado, usuarios pessoa fisica tem poucas formas simples de acessar yield ligado a economia real local sem cair em produtos opacos, burocraticos ou distantes.
 
-A Kora conecta esses dois lados: lojistas antecipam recebiveis tokenizados e usuarios investem em oportunidades locais com liquidacao em USDC, dentro de uma conta digital que tambem resolve pagamentos, cartao, score e beneficios.
+A Kori conecta esses dois lados: lojistas antecipam recebiveis tokenizados e usuarios investem em oportunidades locais com liquidacao em USDC, dentro de uma conta digital que tambem resolve pagamentos, cartao, score e beneficios.
 
 ### Onde a Solana entra
 
@@ -98,14 +98,14 @@ API:
 ### Funcionalidades
 
 **MVP atual**
-- [x] Landing page web do produto Kora.
+- [x] Landing page web do produto Kori.
 - [x] App mobile Expo com home de conta digital.
 - [x] Onboarding com experiencia de banco digital.
 - [x] Tela de seguranca com PIN/biometria como conceito de protecao.
 - [x] Envio e recebimento por `@username`, endereco de carteira, link e QR Code.
-- [x] Leitura de QR Code de pagamento Kora.
+- [x] Leitura de QR Code de pagamento Kori.
 - [x] Comprovante com hash de transacao Solana simulado.
-- [x] Area de cartoes com cartao Kora, cartao virtual e bloqueio temporario.
+- [x] Area de cartoes com cartao Kori, cartao virtual e bloqueio temporario.
 - [x] Historico de transacoes e contatos recentes.
 - [x] Abas de investimentos, NFTs e beneficios/experiencias.
 
@@ -113,8 +113,8 @@ API:
 - [ ] Smart contract para tokenizacao de recebiveis em Solana Devnet.
 - [ ] Pool de liquidez em USDC.
 - [ ] Liquidacao automatica de recebiveis on-chain.
-- [ ] Portal Kora Business para lojistas anteciparem recebiveis.
-- [ ] Marketplace Kora Yield para usuarios financiarem recebiveis locais.
+- [ ] Portal Kori Business para lojistas anteciparem recebiveis.
+- [ ] Marketplace Kori Yield para usuarios financiarem recebiveis locais.
 - [ ] Reputation Token mintado na carteira do usuario.
 - [ ] Integracao real com Solana Pay.
 - [ ] On/off-ramp BRL <-> USDC.
@@ -186,8 +186,8 @@ npm install npm@latest -g
 Clone o repositorio:
 
 ```bash
-git clone https://github.com/kora-onchain/kora.git
-cd kora
+git clone https://github.com/kori-onchain/KORI.git
+cd kori
 ```
 
 #### Frontend web
@@ -242,18 +242,18 @@ A pasta `api/` existe como placeholder para o backend/indexer. No estado atual d
 
 ### Fluxo principal do usuario
 
-1. O usuario passa pelo onboarding e cria sua conta Kora.
+1. O usuario passa pelo onboarding e cria sua conta Kori.
 2. A experiencia apresenta uma conta digital com saldo, identidade, carteira e acoes de envio/recebimento.
 3. O usuario pode pagar por QR Code, digitar um `@username` ou informar um endereco de carteira Solana.
-4. A Kora mostra revisao, processamento e comprovante com identificador de transacao.
+4. A Kori mostra revisao, processamento e comprovante com identificador de transacao.
 5. Na mesma experiencia, o usuario acessa cartao, investimentos, NFTs e beneficios.
 
 ### Fluxo do lojista proposto
 
-1. O lojista acessa o Kora Business.
+1. O lojista acessa o Kori Business.
 2. O painel mostra vendas e recebiveis futuros.
 3. O lojista seleciona recebiveis para antecipar.
-4. A Kora tokeniza esses recebiveis e disponibiliza a oportunidade no Kora Yield.
+4. A Kori tokeniza esses recebiveis e disponibiliza a oportunidade no Kori Yield.
 5. Usuarios aportam USDC e recebem rendimento conforme a liquidacao.
 
 <p align="right">(<a href="#readme-top">Voltar ao Topo</a>)</p>
@@ -262,7 +262,7 @@ A pasta `api/` existe como placeholder para o backend/indexer. No estado atual d
 
 <div id="diferencial"></div>
 
-**Diferencial tecnico:** a Kora transforma pagamentos, score, recebiveis, yield e ingressos em ativos verificaveis na Solana, sem obrigar o usuario comum a operar como usuario cripto.
+**Diferencial tecnico:** a Kori transforma pagamentos, score, recebiveis, yield e ingressos em ativos verificaveis na Solana, sem obrigar o usuario comum a operar como usuario cripto.
 
 **Diferencial economico:** lojistas acessam antecipacao de recebiveis com distribuicao direta para investidores, enquanto usuarios ganham acesso a yield lastreado em economia real local.
 
@@ -270,7 +270,7 @@ A pasta `api/` existe como placeholder para o backend/indexer. No estado atual d
 
 Frase consolidada:
 
-> A Kora tokeniza recebiveis e reputacao financeira na escala que so Solana viabiliza, dando capital mais eficiente para lojistas e yield local acessivel para usuarios.
+> A Kori tokeniza recebiveis e reputacao financeira na escala que so Solana viabiliza, dando capital mais eficiente para lojistas e yield local acessivel para usuarios.
 
 <p align="right">(<a href="#readme-top">Voltar ao Topo</a>)</p>
 
@@ -310,7 +310,7 @@ Frase consolidada:
 - [ ] Conectar app ao RPC Solana.
 - [ ] Trocar hash simulado por transacao real em Devnet.
 - [ ] Persistir usuarios, contatos e transacoes.
-- [ ] Criar portal Kora Business.
+- [ ] Criar portal Kori Business.
 - [ ] Criar documentacao tecnica dos contratos.
 - [ ] Adicionar capturas ou video da demo.
 
@@ -324,8 +324,8 @@ Distribuido sob a licenca MIT. Veja `LICENSE.txt` para mais detalhes quando o ar
 
 ## Contato
 
-Time Kora - https://github.com/kora-onchain
+Time Kori - https://github.com/kori-onchain
 
-Repositorio: [https://github.com/kora-onchain/kora](https://github.com/kora-onchain/kora)
+Repositorio: [https://github.com/kori-onchain/KORI](https://github.com/kori-onchain/KORI)
 
 <p align="right">(<a href="#readme-top">Voltar ao Topo</a>)</p>

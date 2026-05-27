@@ -35,7 +35,7 @@ export function Capabilities() {
           <span className="dim">financiamento real.</span>
         </h2>
         <p className="section-intro">
-          A Kora conecta saldo parado com capital de giro local, sem depender de
+          A Kori conecta saldo parado com capital de giro local, sem depender de
           ticket alto ou de uma camada bancária pesada.
         </p>
       </div>

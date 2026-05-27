@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import "./landing.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { KoraSymbols } from "@/components/landing/kora-symbols"
+import { KoriSymbols } from "@/components/landing/kori-symbols"
 import { cn } from "@/lib/utils"
 
 const fontSans = Geist({
@@ -29,7 +29,7 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <KoraSymbols />
+          <KoriSymbols />
           {children}
         </ThemeProvider>
       </body>

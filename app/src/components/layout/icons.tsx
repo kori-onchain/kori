@@ -354,7 +354,7 @@ export const SolanaIcon: React.FC<
 };
 
 /**
- * Official KORA wordmark (text logo). Source: text-logo.svg.
+ * Official Kori wordmark (text logo). Source: text-logo.svg.
  * ViewBox kept intact so spacing between letters matches the brand asset.
  */
 export const KoriWordmark: React.FC<{ height?: number; color?: string }> = ({
@@ -386,7 +386,7 @@ export const KoriWordmark: React.FC<{ height?: number; color?: string }> = ({
 };
 
 /**
- * KORA "K" glyph from the design spec. Uses the source viewBox so the
+ * KORI "K" glyph from the design spec. Uses the source viewBox so the
  * proportions stay identical to the brand asset.
  */
 export const KoriGlyph: React.FC<IconProps> = ({

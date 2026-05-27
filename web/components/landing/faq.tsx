@@ -1,10 +1,10 @@
 const FAQS = [
   {
     q: "O rendimento é garantido?",
-    a: "Não. A Kora mostra rendimento potencial com base na operação, prazo e risco.",
+    a: "Não. A Kori mostra rendimento potencial com base na operação, prazo e risco.",
   },
   {
-    q: "O que a Kora financia?",
+    q: "O que a Kori financia?",
     a: "Recebíveis de pequenos negócios, como vendas a prazo ou valores a receber.",
   },
   {

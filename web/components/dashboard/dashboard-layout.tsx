@@ -61,9 +61,9 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
       {/* ─── SIDEBAR ─── */}
       <aside className="sticky top-0 flex h-svh flex-col overflow-y-auto border-r border-ds-line p-5 px-3.5">
         <div className="mb-2 flex items-center gap-2.5 px-2">
-          <svg width={22} height={26} className="text-ds-ink"><use href="#kora-k" /></svg>
+          <svg width={22} height={26} className="text-ds-ink"><use href="#kori-k" /></svg>
           <div>
-            <span className="text-base font-bold">Kora</span>
+            <span className="text-base font-bold">KORI</span>
             <span className="mt-px block font-mono text-[7px] tracking-[0.1em] text-ds-mute">FUNDO ON-CHAIN</span>
           </div>
         </div>
@@ -84,7 +84,7 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
         <div className="mt-auto">
           <div className="soft-card-sm flex items-center gap-[9px] rounded-[11px] p-2.5">
             <div className="relative flex size-[30px] shrink-0 items-center justify-center rounded-full border border-ds-line bg-ds-elev">
-              <svg width={13} height={16}><use href="#kora-k" /></svg>
+              <svg width={13} height={16}><use href="#kori-k" /></svg>
               <span className="absolute -right-[3px] -bottom-0.5 flex size-3.5 items-center justify-center rounded-full border border-ds-line-2 bg-ds-bg">
                 <SolanaLogo size={12} />
               </span>

@@ -55,10 +55,10 @@ const categoryPills: { id: Category; label: string }[] = [
 ]
 
 const experiences = [
-  { id: "lounge", title: "Sala VIP Aeroportos", category: "viagem" as Category, description: "Acesso a salas parceiras com um acompanhante.", cost: "Kora Black", vip: true, icon: "MapPin" as const },
+  { id: "lounge", title: "Sala VIP Aeroportos", category: "viagem" as Category, description: "Acesso a salas parceiras com um acompanhante.", cost: "KORI Black", vip: true, icon: "MapPin" as const },
   { id: "cashback", title: "Cashback Turbo 3%", category: "beneficio" as Category, description: "Cashback elevado em compras por 30 dias.", cost: "4.500 pts", vip: false, icon: "Zap" as const },
-  { id: "concierge", title: "Concierge 24/7", category: "estilo" as Category, description: "Reservas, hotéis e eventos com atendimento prioritário.", cost: "Kora VIP", vip: true, icon: "Award" as const },
-  { id: "hotel", title: "Kora Collection Hotéis", category: "viagem" as Category, description: "Upgrade de quarto e café da manhã em hotéis selecionados.", cost: "8.000 pts", vip: false, icon: "Compass" as const },
+  { id: "concierge", title: "Concierge 24/7", category: "estilo" as Category, description: "Reservas, hotéis e eventos com atendimento prioritário.", cost: "KORI VIP", vip: true, icon: "Award" as const },
+  { id: "hotel", title: "KORI Collection Hotéis", category: "viagem" as Category, description: "Upgrade de quarto e café da manhã em hotéis selecionados.", cost: "8.000 pts", vip: false, icon: "Compass" as const },
   { id: "ingressos", title: "Pré-vendas Exclusivas", category: "beneficio" as Category, description: "Acesso antecipado a shows, festivais e eventos.", cost: "2.500 pts", vip: false, icon: "Gift" as const },
 ]
 
@@ -484,7 +484,7 @@ function ExperiencesPanel() {
           <div className="flex items-center justify-between">
             <span className="text-xs text-ds-mute">
               Próximo nível:{" "}
-              <strong className="font-medium text-ds-dim">Kora Private</strong>
+              <strong className="font-medium text-ds-dim">KORI Private</strong>
             </span>
             <span className="text-xs text-ds-mute">faltam 5.150 pts</span>
           </div>

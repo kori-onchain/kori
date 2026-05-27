@@ -1,4 +1,4 @@
-# Estrutura da landing Kora
+# Estrutura da landing Kori
 
 Base analisada: `web/app/page.tsx`, componentes em `web/components/landing` e estilos em `web/app/landing.css`.
 
@@ -27,9 +27,9 @@ Ordem real renderizada:
 
 ## Assets e imagens
 
-- `public/hero-phone.png`: imagem principal da hero, mostrando o app Kora em um celular.
+- `public/hero-phone.png`: imagem principal da hero, mostrando o app Kori em um celular.
 - `public/preview-home.png`: imagem grande usada na secao clara de produto.
-- Varios elementos visuais sao feitos via CSS/SVG inline: logo Kora, icones, marca Solana, cards, mockups de celular, mapa e diagrama de arquitetura.
+- Varios elementos visuais sao feitos via CSS/SVG inline: logo Kori, icones, marca Solana, cards, mockups de celular, mapa e diagrama de arquitetura.
 
 ## Animacoes e movimento global
 
@@ -45,7 +45,7 @@ Ordem real renderizada:
 
 Conteudo:
 
-- Logo KORA com simbolo SVG.
+- Logo Kori com simbolo SVG.
 - Links: `App`, `Yield`, `Score`, `Cartao`, `Docs`.
 - Pill de status: `DEVNET · Hackanation 2026`.
 - Icones sociais: GitHub e YouTube.
@@ -214,7 +214,7 @@ Conteudo:
   - `Yield de recebiveis`
   - `P2P em USDC`
   - `Score onchain`
-  - `Cartao Kora`
+  - `Cartao Kori`
   - `BNPL, ingressos e lounges`
 
 Visual/movimento:
@@ -282,7 +282,7 @@ Conteudo:
   - `04 Settlement`
   - `05 Reputation`
 - Diagrama `Runtime map` com nodes:
-  - `Kora App`
+  - `KORI App`
   - `Score Engine`
   - `Solana Program`
   - `USDC Settlement`
@@ -311,7 +311,7 @@ Conteudo:
 - Tag: `FAQ`.
 - Titulo: `Sem enrolar. O que o jurado vai perguntar.`
 - Perguntas:
-  - O que a Kora financia?
+  - O que a Kori financia?
   - Por que Solana importa aqui?
   - O que ja esta na demo?
   - Os comercios da vitrine sao reais?
@@ -360,14 +360,14 @@ Parallax:
 
 Conteudo:
 
-- Logo KORA.
+- Logo KORI.
 - Descricao: `Yield local e conta self-custody para o Brasil. Settled on Solana Devnet. Demo Hackanation 2026.`
 - Colunas:
   - Produto: App, Yield, Score, Cartao (roadmap)
   - Recursos: Documentacao
   - Hackanation: GitHub
 - Rodape:
-  - `© 2026 KORA LABS · MIT LICENSE`
+  - `© 2026 KORI LABS · MIT LICENSE`
   - `Powered by Solana`
   - `Devnet · Hackanation 2026`
 
@@ -390,7 +390,7 @@ Estes arquivos existem em `components/landing`, mas nao aparecem na ordem de `ap
 
 - `YieldMap`: mapa interativo de oportunidades de yield, com pins pulsando, sidebar e selecao de comercios.
 - `WhySolana`: secao clara explicando que ticket pequeno precisa de taxa pequena.
-- `DualBlocks`: dois blocos de roadmap com mockups de telefone para Cartao Kora e Ingressos NFT.
+- `DualBlocks`: dois blocos de roadmap com mockups de telefone para Cartao Kori e Ingressos NFT.
 
 Observacao: eles estao prontos no codigo, mas a landing atual nao importa nem renderiza esses componentes.
 

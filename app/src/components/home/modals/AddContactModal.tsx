@@ -207,7 +207,7 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({
                 <View style={styles.content}>
                   <SectionTitle>Dados do contato</SectionTitle>
                   <Field
-                    label="ID KORA"
+                    label="ID KORI"
                     icon="at-sign"
                     value={username}
                     placeholder="ex: joao_silva"

@@ -19,7 +19,7 @@ export function DualBlocks() {
         <div className="dual-block left">
           <span className="block-tag">ROADMAP · Cartão</span>
           <h3>
-            Cartão Kora.
+            Cartão Kori.
             <span className="dim">Cashback em USDC.</span>
           </h3>
           <p>

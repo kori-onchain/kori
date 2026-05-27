@@ -92,8 +92,8 @@ export function AuthCard({ children }: { children: React.ReactNode }) {
 export function AuthBrand() {
   return (
     <div className="mb-[26px] flex items-center justify-center gap-2.5">
-      <svg width={24} height={29} className="text-ds-ink"><use href="#kora-k" /></svg>
-      <span className="pl-[0.28em] text-[19px] font-bold uppercase tracking-[0.28em]">Kora</span>
+      <svg width={24} height={29} className="text-ds-ink"><use href="#kori-k" /></svg>
+      <span className="pl-[0.28em] text-[19px] font-bold uppercase tracking-[0.28em]">KORI</span>
     </div>
   )
 }

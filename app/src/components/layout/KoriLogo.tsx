@@ -12,7 +12,7 @@ interface KoriLogoProps {
 }
 
 /**
- * Topbar lockup: K glyph (SVG, left) + "KORA" wordmark in Geist (right).
+ * Topbar lockup: K glyph (SVG, left) + "KORI" wordmark in Geist (right).
  */
 export const KoriLogo: React.FC<KoriLogoProps> = ({
   size = 22,
@@ -26,7 +26,7 @@ export const KoriLogo: React.FC<KoriLogoProps> = ({
     <View style={styles.row}>
       <KoriGlyph size={size} color={resolvedColor} />
       {showWordmark && (
-        <Text style={[styles.wordmark, { color: resolvedColor }]}>KORA</Text>
+        <Text style={[styles.wordmark, { color: resolvedColor }]}>KORI</Text>
       )}
     </View>
   );

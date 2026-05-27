@@ -35,7 +35,7 @@ const STEPS = [
 const NODES = [
   {
     id: "app",
-    title: "Kora App",
+    title: "KORI App",
     sub: "intent + assinatura",
     position: "node-app",
   },
@@ -103,7 +103,7 @@ export function Architecture() {
             <b>Receivable settlement path</b>
           </div>
 
-          <div className="arch-map" aria-label="Diagrama da arquitetura Kora">
+          <div className="arch-map" aria-label="Diagrama da arquitetura Kori">
             <span className="flow-line line-app-program" />
             <span className="flow-line line-score-program" />
             <span className="flow-line line-program-usdc" />

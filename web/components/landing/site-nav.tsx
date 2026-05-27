@@ -11,9 +11,9 @@ export function SiteNav() {
     <nav className="nav-bar">
       <div className="nav-brand">
         <svg className="k">
-          <use href="#kora-k" />
+          <use href="#kori-k" />
         </svg>
-        <span className="word">KORA</span>
+        <span className="word">KORI</span>
       </div>
       <ul className="nav-links">
         {links.map((l) => (

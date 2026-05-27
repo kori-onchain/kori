@@ -39,7 +39,7 @@ export function Hero() {
         <Image
           className="hero-phone-img"
           src="/hero-phone.png"
-          alt="Preview do app Kora"
+          alt="Preview do app Kori"
           width={481}
           height={609}
           priority

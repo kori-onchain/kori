@@ -1,7 +1,7 @@
-# Kora Design System — React Native (Expo + NativeWind)
+# KORI Design System — React Native (Expo + NativeWind)
 
 > Implementação Android-first. Dark theme.
-> Esta é a versão de código do DS. Para a doc conceitual/web, ver `kora-design-system.md`.
+> Esta é a versão de código do DS. Para a doc conceitual/web, ver `KORI-design-system.md`.
 
 ---
 
@@ -377,7 +377,7 @@ export function ListItem({ icon, name, sub, value, incoming }: {
 
 A tela é PRETO E BRANCO por padrão. Cor só com significado.
 
-- **Laranja** (`orange`): marca/tempero. Só em indicator da nav, badge de recompensa, valor de recompensa, seta de "ver mais", tier do score, gradiente do cartão, taxa Kora, Tap to Pay. Nunca em fundo grande ou texto corrido.
+- **Laranja** (`orange`): marca/tempero. Só em indicator da nav, badge de recompensa, valor de recompensa, seta de "ver mais", tier do score, gradiente do cartão, taxa Kori, Tap to Pay. Nunca em fundo grande ou texto corrido.
 - **Verde** (`green`): só dinheiro entrando, charts de yield, toggle on, risco baixo, "verificado/live".
 - **Roxo Solana** (`sol`): só Web3 real (badge NFT, modo carteira anônimo, toggle Web3). **Nunca em promo/recompensa/card de indicação.**
 - **Branco** (`ink`): o herói. Valores principais são brancos.
@@ -463,4 +463,4 @@ Pra cada tela que você for batendo depois da home:
 
 ---
 
-*Kora DS · React Native (Expo + NativeWind) · Android-first · @kc1t*
+*KORI DS · React Native (Expo + NativeWind) · Android-first · @kc1t*

@@ -115,7 +115,7 @@ const BlackCardBanner = ({ onPress }: { onPress?: () => void }) => (
       <View style={styles.cardDecor}>
         <View style={styles.cardDecorChip} />
         <View style={styles.cardDecorStripe} />
-        <Text style={styles.cardDecorLabel}>KORA BLACK</Text>
+        <Text style={styles.cardDecorLabel}>KORI BLACK</Text>
       </View>
     }
   />

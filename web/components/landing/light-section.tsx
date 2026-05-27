@@ -31,7 +31,7 @@ export function LightSection() {
 
       <div className="product-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/preview-home.png" alt="Kora app preview" />
+        <img src="/preview-home.png" alt="Kori app preview" />
       </div>
     </section>
   )

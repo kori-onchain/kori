@@ -119,12 +119,12 @@ function MastercardMono() {
   )
 }
 
-/* ─── KORA K GLYPH ─── */
+/* ─── KORI K GLYPH ─── */
 
-function KoraKGlyph() {
+function KoriKGlyph() {
   return (
     <svg width={46} height={55} className="text-[#d6d6d6]">
-      <use href="#kora-k" />
+      <use href="#kori-k" />
     </svg>
   )
 }
@@ -160,9 +160,9 @@ function PremiumCard({ holder, last4 }: { holder: string; last4: string }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <KoraKGlyph />
+            <KoriKGlyph />
             <span className="mt-1 text-[16px] font-bold tracking-[8px] text-[#d6d6d6]">
-              KORA
+              KORI
             </span>
           </div>
           <div className="flex items-end justify-between">

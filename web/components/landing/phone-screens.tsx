@@ -36,12 +36,12 @@ export function BottomNav({ active }: { active?: "home" | "card" | "yield" | "ti
   )
 }
 
-function ScreenTop({ word = "KORA", icons }: { word?: string; icons: { id: string }[] }) {
+function ScreenTop({ word = "KORI", icons }: { word?: string; icons: { id: string }[] }) {
   return (
     <div className="scr-top">
       <div className="brand-mini">
         <svg className="k">
-          <use href="#kora-k" />
+          <use href="#kori-k" />
         </svg>
         <span className="word">{word}</span>
       </div>
@@ -81,9 +81,9 @@ function KCardMini() {
         <div className="chip-m" />
         <div className="brand-c">
           <svg className="k">
-            <use href="#kora-k" />
+            <use href="#kori-k" />
           </svg>
-          <span>KORA</span>
+          <span>KORI</span>
         </div>
       </div>
       <div className="num-m">•••• 0271</div>
@@ -155,7 +155,7 @@ export function ScreenHome({ active = false, dataScreen }: { active?: boolean; d
       <BalanceBlock />
       <div className="sec-mini-label">
         <span className="mono-lbl">Hoje · 2 movs</span>
-        <span style={{ fontFamily: "var(--kora-mono)", fontSize: 8, color: "var(--green)" }}>
+        <span style={{ fontFamily: "var(--KORI-mono)", fontSize: 8, color: "var(--green)" }}>
           +R$ 207,50
         </span>
       </div>
@@ -226,7 +226,7 @@ export function ScreenScore({ active = false, dataScreen }: { active?: boolean; 
       </div>
       <div className="sec-mini-label">
         <span className="mono-lbl">Por que subiu</span>
-        <span style={{ fontFamily: "var(--kora-mono)", fontSize: 8, color: "var(--green)" }}>
+        <span style={{ fontFamily: "var(--KORI-mono)", fontSize: 8, color: "var(--green)" }}>
           +47 últ. 30d
         </span>
       </div>
@@ -252,7 +252,7 @@ export function ScreenScore({ active = false, dataScreen }: { active?: boolean; 
             </svg>
           </div>
           <div>
-            <div className="nm">Stake 1.250 KORA</div>
+            <div className="nm">Stake 1.250 KORI</div>
             <div className="sub">epoch 487</div>
           </div>
         </div>
@@ -441,7 +441,7 @@ export function ScreenInvestmentConfirm({ active = false, dataScreen }: { active
       </div>
       <div className="sec-mini-label">
         <span className="mono-lbl">Resumo</span>
-        <span style={{ fontFamily: "var(--kora-mono)", fontSize: 8, color: "var(--orange)" }}>
+        <span style={{ fontFamily: "var(--KORI-mono)", fontSize: 8, color: "var(--orange)" }}>
           confirmar
         </span>
       </div>
@@ -567,7 +567,7 @@ export function ScreenInvestmentPortfolio({ active = false, dataScreen }: { acti
             </svg>
           </div>
           <div>
-            <div className="nm">Saldo Kora</div>
+            <div className="nm">Saldo Kori</div>
             <div className="sub">USDC liquidado</div>
           </div>
         </div>
@@ -602,9 +602,9 @@ export function ScreenCardVirtual() {
           <div className="chip-m" />
           <div className="brand-c">
             <svg className="k">
-              <use href="#kora-k" />
+              <use href="#kori-k" />
             </svg>
-            <span>KORA · VIRTUAL</span>
+            <span>KORI · VIRTUAL</span>
           </div>
         </div>
         <div className="num-m">5421 •• •• 8294</div>
@@ -688,7 +688,7 @@ export function ScreenTicket() {
         <div className="qr-pattern" />
         <div className="qr-center">
           <svg className="k">
-            <use href="#kora-k" />
+            <use href="#kori-k" />
           </svg>
         </div>
       </div>

@@ -29,9 +29,9 @@ export function SiteFooter() {
         <div className="footer-brand">
           <div className="nav-brand">
             <svg className="k">
-              <use href="#kora-k" />
+              <use href="#kori-k" />
             </svg>
-            <span className="word">KORA</span>
+            <span className="word">KORI</span>
           </div>
           <p>
             Yield local e conta self-custody para o Brasil. Settled on Solana
@@ -52,7 +52,7 @@ export function SiteFooter() {
       </div>
 
       <div className="footer-bottom">
-        <span>© 2026 KORA LABS · MIT LICENSE</span>
+        <span>© 2026 KORI LABS · MIT LICENSE</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           Powered by
           <svg style={{ width: 14, height: 12, color: "var(--ink-dim)" }}>

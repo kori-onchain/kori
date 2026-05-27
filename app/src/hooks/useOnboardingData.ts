@@ -62,7 +62,7 @@ export const useOnboardingData = () => {
   const actions = {
     skipText: "pular",
     poweredBy: "powered by",
-    brandLabel: "KORA",
+    brandLabel: "KORI",
     startButton: "Começar",
     nextButton: "Próximo",
     createAccountButton: "Criar conta",
