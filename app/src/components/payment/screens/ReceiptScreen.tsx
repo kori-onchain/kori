@@ -64,7 +64,7 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
 
   const handleShare = async () => {
     await Share.share({
-      message: `Comprovante Kora\n\nValor: ${amountFormatted}\nPara: ${displayName}\nData: ${dateFormatted} às ${timeStr}\nTX: ${txHash}`,
+      message: `Comprovante Kori\n\nValor: ${amountFormatted}\nPara: ${displayName}\nData: ${dateFormatted} às ${timeStr}\nTX: ${txHash}`,
     });
   };
 
@@ -143,7 +143,7 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
           </View>
           <DetailRow
             label="Tipo"
-            value={recipient.type === "wallet" ? "Carteira Solana" : "ID Kora"}
+            value={recipient.type === "wallet" ? "Carteira Solana" : "ID Kori"}
           />
           {recipient.type === "wallet" ? (
             <DetailRow label="Endereço" value={displayId ?? ""} mono />

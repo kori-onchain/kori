@@ -9,7 +9,7 @@ import {
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../theme/ThemeProvider";
-import { KoraGlyph, KoraWordmark } from "../components/ds/icons";
+import { KoriGlyph, KoriWordmark } from "../components/ds/icons";
 
 interface SplashScreenProps {
   onAnimationComplete: () => void;
@@ -114,9 +114,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           style={StyleSheet.absoluteFill}
           maskElement={
             <View style={styles.maskStack}>
-              <KoraGlyph size={GLYPH_SIZE} color="#000" />
+              <KoriGlyph size={GLYPH_SIZE} color="#000" />
               <View style={{ height: STACK_GAP }} />
-              <KoraWordmark height={WORDMARK_HEIGHT} color="#000" />
+              <KoriWordmark height={WORDMARK_HEIGHT} color="#000" />
             </View>
           }
         >

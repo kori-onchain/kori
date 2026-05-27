@@ -10,7 +10,7 @@ import {
   ReceiveIcon,
   SolanaIcon,
   CopyIcon,
-  KoraGlyph,
+  KoriGlyph,
 } from './icons';
 
 export interface BalanceChip {
@@ -31,8 +31,8 @@ interface BalanceHeroProps {
   chips?: BalanceChip[];
   /** Truncated wallet hash or user handle (e.g. "7xKj...9aBc" or "@opedrooz"). */
   walletHash?: string;
-  /** Drives the leading icon: 'sol' for wallet, 'kora' for user-id. */
-  walletKind?: 'sol' | 'kora';
+  /** Drives the leading icon: 'sol' for wallet, 'kori' for user-id. */
+  walletKind?: 'sol' | 'kori';
   onCopyWallet?: () => void;
   label?: string;
   balanceEntering?: any;
@@ -94,7 +94,7 @@ export const BalanceHero: React.FC<BalanceHeroProps> = ({
             {walletKind === 'sol' ? (
               <SolanaIcon width={13} height={10} color={t.inkDim} />
             ) : (
-              <KoraGlyph size={11} color={t.inkDim} />
+              <KoriGlyph size={11} color={t.inkDim} />
             )}
             <Text style={[styles.walletText, { color: t.inkMute }]}>
               {walletHash}

@@ -143,7 +143,7 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({
             <Text
               style={[styles.pillText, { color: isWallet ? t.sol : t.orange }]}
             >
-              {isWallet ? "Carteira anônima" : "ID Kora"}
+              {isWallet ? "Carteira anônima" : "ID Kori"}
             </Text>
           </View>
         ) : null}

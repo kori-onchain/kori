@@ -254,7 +254,7 @@ export const SecuritySetupScreen: React.FC<SecuritySetupProps> = ({ userName, on
           <Text style={[styles.scanDesc, { color: t.inkMute }]}>
             {scanProgress < 1 
               ? "Simulando a integração segura com os sensores biométricos do seu smartphone."
-              : "Sua carteira Kora está protegida com criptografia nativa de ponta."
+              : "Sua carteira Kori está protegida com criptografia nativa de ponta."
             }
           </Text>
         </View>

@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { fonts } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
-import { KoraGlyph } from './icons';
+import { KoriGlyph } from './icons';
 
-interface KoraLogoProps {
+interface KoriLogoProps {
   /** Size of the K glyph on the left (px). */
   size?: number;
   color?: string;
@@ -12,9 +12,9 @@ interface KoraLogoProps {
 }
 
 /**
- * Topbar lockup: K glyph (SVG, left) + "KORA" wordmark in Geist (right).
+ * Topbar lockup: K glyph (SVG, left) + "KORI" wordmark in Geist (right).
  */
-export const KoraLogo: React.FC<KoraLogoProps> = ({
+export const KoriLogo: React.FC<KoriLogoProps> = ({
   size = 22,
   color,
   showWordmark = true,
@@ -24,9 +24,9 @@ export const KoraLogo: React.FC<KoraLogoProps> = ({
 
   return (
     <View style={styles.row}>
-      <KoraGlyph size={size} color={resolvedColor} />
+      <KoriGlyph size={size} color={resolvedColor} />
       {showWordmark && (
-        <Text style={[styles.wordmark, { color: resolvedColor }]}>KORA</Text>
+        <Text style={[styles.wordmark, { color: resolvedColor }]}>KORI</Text>
       )}
     </View>
   );

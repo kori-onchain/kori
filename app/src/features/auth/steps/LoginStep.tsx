@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
 import { Ionicons } from "../../../icons";
-import { ArrowRightIcon, KoraGlyph } from "../../../components/ds/icons";
+import { ArrowRightIcon, KoriGlyph } from "../../../components/ds/icons";
 import { AuthButton } from "../components/AuthButton";
 import { AuthField } from "../components/AuthField";
 import { AuthTopBar } from "../components/AuthTopBar";
@@ -37,9 +37,9 @@ export const LoginStep: React.FC<LoginStepProps> = ({
         <AuthTopBar onBack={onBack} />
 
         <View className="mt-4 items-center">
-          <KoraGlyph size={44} color="#fafafa" />
+          <KoriGlyph size={44} color="#fafafa" />
           <Text className="mt-4 font-sans-bold text-[23px] leading-[27px] tracking-[-0.6px] text-ink">
-            Entrar na Kora.
+            Entrar na Kori.
           </Text>
           <Text className="mt-2 max-w-[260px] text-center font-sans text-[13px] leading-5 text-ink-dim">
             Acesse sua conta com e-mail e senha.

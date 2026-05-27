@@ -2,7 +2,7 @@ import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather } from "../../../icons";
-import { KoraGlyph, SolanaIcon } from "../../../components/ds/icons";
+import { KoriGlyph, SolanaIcon } from "../../../components/ds/icons";
 import { WALLET_ADDRESS_PREVIEW } from "../constants";
 
 type WalletStepProps = {
@@ -34,7 +34,7 @@ export const WalletStep: React.FC<WalletStepProps> = ({ username, walletStep, lo
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFill}
           />
-          <KoraGlyph size={48} color="#fafafa" />
+          <KoriGlyph size={48} color="#fafafa" />
         </View>
         <Text className="text-center font-sans-bold text-[23px] leading-[27px] tracking-[-0.6px] text-ink">
           Preparando sua{"\n"}conta on-chain.

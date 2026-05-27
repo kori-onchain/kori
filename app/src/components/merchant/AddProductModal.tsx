@@ -130,7 +130,7 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   style={{ marginRight: 8 }}
                 />
                 <TextInput
-                  placeholder="ex: Camiseta Kora Premium"
+                  placeholder="ex: Camiseta Kori Premium"
                   placeholderTextColor={t.inkMute}
                   value={name}
                   onChangeText={setName}

@@ -105,11 +105,11 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({
   };
 
   const handleCopyLink = async () => {
-    const inviteLink = `https://kora.app/invite/user_${Math.random().toString(36).slice(2, 9)}`;
+    const inviteLink = `https://kori.app/invite/user_${Math.random().toString(36).slice(2, 9)}`;
     await Clipboard.setStringAsync(inviteLink);
     showToast("Link copiado");
     await Share.share({
-      message: `Participe do Kora: ${inviteLink}`,
+      message: `Participe do Kori: ${inviteLink}`,
       url: inviteLink,
     });
   };
@@ -190,14 +190,14 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({
                   </Text>
                   <PaymentActionCard
                     title="Enviar convite"
-                    description="Copia um link para compartilhar fora da Kora"
+                    description="Copia um link para compartilhar fora da Kori"
                     icon="share-2"
                     onPress={handleCopyLink}
                     style={styles.action}
                   />
                   <PaymentActionCard
                     title="Adicionar pelo ID"
-                    description="Use o @usuario Kora para salvar o contato"
+                    description="Use o @usuario Kori para salvar o contato"
                     icon="user-plus"
                     onPress={() => setStep("add_id")}
                     style={styles.action}
@@ -207,7 +207,7 @@ export const AddContactModal: React.FC<AddContactModalProps> = ({
                 <View style={styles.content}>
                   <SectionTitle>Dados do contato</SectionTitle>
                   <Field
-                    label="ID KORA"
+                    label="ID KORI"
                     icon="at-sign"
                     value={username}
                     placeholder="ex: joao_silva"

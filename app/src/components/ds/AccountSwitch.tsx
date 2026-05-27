@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { fonts, radii } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
 import { SoftCard } from './SoftCard';
-import { ChevronDownIcon, KoraGlyph, SolanaIcon } from './icons';
+import { ChevronDownIcon, KoriGlyph, SolanaIcon } from './icons';
 
 interface AccountSwitchProps {
   /** e.g. "TS" — derived from the active account name */
@@ -111,7 +111,7 @@ export const AccountSwitch: React.FC<AccountSwitchProps> = ({
               />
             )}
             {isPJ ? (
-              <KoraGlyph size={14} color={t.ink} />
+              <KoriGlyph size={14} color={t.ink} />
             ) : (
               <Text style={[styles.avatarText, { color: t.ink }]}>
                 {initials}

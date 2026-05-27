@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SoftCard } from '../ds/SoftCard';
-import { KoraGlyph as IconK } from '../ds/icons';
+import { KoriGlyph as IconK } from '../ds/icons';
 import { fonts } from '../../theme/tokens';
 import { useTheme } from '../../theme/ThemeProvider';
 

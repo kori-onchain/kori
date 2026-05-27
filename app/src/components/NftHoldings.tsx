@@ -10,7 +10,7 @@ import { fonts } from '../theme/tokens';
 import { useTheme } from '../theme/ThemeProvider';
 import { NftPill, NftPillType } from './ui/NftPill';
 
-type NftKind = 'kora' | 'ticket' | 'badge' | 'yield';
+type NftKind = 'kori' | 'ticket' | 'badge' | 'yield';
 
 interface NftItem {
   id: string;
@@ -24,8 +24,8 @@ const HOLDINGS: NftItem[] = [
   {
     id: 'founder-0271',
     category: 'Founder',
-    name: 'Kora #0271',
-    kind: 'kora',
+    name: 'Kori #0271',
+    kind: 'kori',
     type: 'founder',
   },
   {

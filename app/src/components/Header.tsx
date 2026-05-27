@@ -8,12 +8,12 @@ import {
 import * as Clipboard from 'expo-clipboard';
 import { fonts, radii } from '../theme/tokens';
 import { useTheme } from '../theme/ThemeProvider';
-import { KoraLogo } from './ds/KoraLogo';
+import { KoriLogo } from './ds/KoriLogo';
 import { AccountSwitch } from './ds/AccountSwitch';
 import {
   ChevronRightIcon,
   CopyIcon,
-  KoraGlyph,
+  KoriGlyph,
   SolanaIcon,
 } from './ds/icons';
 
@@ -76,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.topRow}>
         <View style={styles.left}>
-          <KoraLogo size={22} color={t.ink} />
+          <KoriLogo size={22} color={t.ink} />
         </View>
 
         <View style={styles.right}>
@@ -117,7 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { backgroundColor: t.bgElev, borderColor: t.line },
               ]}
             >
-              <KoraGlyph size={13} color={t.ink} />
+              <KoriGlyph size={13} color={t.ink} />
             </View>
             <Text style={[styles.rowText, { color: t.ink }]} numberOfLines={1}>
               Ver perfil
@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
                 { backgroundColor: t.bgElev, borderColor: t.line },
               ]}
             >
-              <KoraGlyph size={14} color={t.ink} />
+              <KoriGlyph size={14} color={t.ink} />
             </View>
             <View style={styles.identityText}>
               <Text style={[styles.identityLabel, { color: t.inkMute }]}>

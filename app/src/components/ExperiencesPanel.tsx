@@ -34,7 +34,7 @@ const EXPERIENCES: ExperienceItem[] = [
     title: "Sala VIP Aeroportos",
     category: "viagem",
     description: "Acesso a salas parceiras com um acompanhante.",
-    costPoints: "Kora Black",
+    costPoints: "Kori Black",
     status: "vip",
     icon: "map-pin",
   },
@@ -52,13 +52,13 @@ const EXPERIENCES: ExperienceItem[] = [
     title: "Concierge 24/7",
     category: "estilo",
     description: "Reservas, hotéis e eventos com atendimento prioritário.",
-    costPoints: "Kora VIP",
+    costPoints: "Kori VIP",
     status: "vip",
     icon: "award",
   },
   {
     id: "hotel",
-    title: "Kora Collection Hotéis",
+    title: "Kori Collection Hotéis",
     category: "viagem",
     description: "Upgrade de quarto e café da manhã em hotéis selecionados.",
     costPoints: "8.000 pts",
@@ -96,7 +96,7 @@ export const ExperiencesPanel: React.FC = () => {
 
   const handleShareBenefit = async (benefitTitle: string) => {
     await Share.share({
-      message: `Olha esse benefício do Kora: ${benefitTitle}`,
+      message: `Olha esse benefício do Kori: ${benefitTitle}`,
     });
   };
 
@@ -136,7 +136,7 @@ export const ExperiencesPanel: React.FC = () => {
 
           <View style={styles.pointsFooter}>
             <Text style={[styles.footerText, { color: t.inkMute }]}>
-              Próximo nível: <Text style={{ color: t.ink }}>Kora Private</Text>
+              Próximo nível: <Text style={{ color: t.ink }}>Kori Private</Text>
             </Text>
             <Text style={[styles.footerText, { color: t.inkMute }]}>
               faltam 5.150 pts

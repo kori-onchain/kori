@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { Feather, Ionicons } from "../../../icons";
-import { KoraGlyph } from "../../../components/ds/icons";
+import { KoriGlyph } from "../../../components/ds/icons";
 import { AuthButton } from "../components/AuthButton";
 
 type WelcomeStepProps = {
@@ -19,9 +19,9 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 }) => (
   <View className="flex-1 px-[22px] pb-6 pt-11">
     <View className="flex-1 items-center justify-center pb-3">
-      <KoraGlyph size={68} color="#fafafa" />
+      <KoriGlyph size={68} color="#fafafa" />
       <Text className="mt-5 text-center font-sans-bold text-[28px] leading-8 tracking-[-0.8px] text-ink">
-        Bem-vindo{"\n"}à Kora.
+        Bem-vindo{"\n"}à Kori.
       </Text>
       <Text className="mt-2.5 max-w-[270px] text-center font-sans text-[13px] leading-5 text-ink-dim">
         Sua conta on-chain em 30 segundos. Sem agência, sem papel.

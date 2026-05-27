@@ -37,7 +37,7 @@ export const Balance: React.FC<BalanceProps> = ({
         integer="R$ 74.352"
         decimals=",93"
         walletHash={display}
-        walletKind={isWallet ? 'sol' : 'kora'}
+        walletKind={isWallet ? 'sol' : 'kori'}
         onCopyWallet={() => Clipboard.setStringAsync(copyValue)}
         onSendPress={onSendPress}
         onReceivePress={() => setReceiveVisible(true)}

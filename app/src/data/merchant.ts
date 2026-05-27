@@ -62,7 +62,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: 'p3',
-    name: 'PlayStation 5 Edição Kora',
+    name: 'PlayStation 5 Edição Kori',
     description: 'Sony',
     category: 'Game Consoles',
     price: 3899.0,

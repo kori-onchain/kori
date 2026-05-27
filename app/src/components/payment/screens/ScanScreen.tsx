@@ -19,19 +19,19 @@ import {
 } from "../PaymentDS";
 import { fonts } from "../../../theme/tokens";
 
-const APP_SCHEME = "kora://pay";
+const APP_SCHEME = "kori://pay";
 
 interface ScanScreenProps {
   onResult: (recipient: PaymentRecipient, amount?: string) => void;
   onClose: () => void;
 }
 
-const parseSolanaOrKoraQR = (
+const parseSolanaOrKoriQR = (
   raw: string,
 ): { recipient: PaymentRecipient; amount?: string } | null => {
   try {
-    // kora://pay?to=@handle&amount=10.00  OR  kora://pay?wallet=ADDRESS&amount=...
-    if (raw.startsWith("kora://pay")) {
+    // kori://pay?to=@handle&amount=10.00  OR  kori://pay?wallet=ADDRESS&amount=...
+    if (raw.startsWith("kori://pay")) {
       const url = new URL(raw);
       const to = url.searchParams.get("to");
       const wallet = url.searchParams.get("wallet");
@@ -104,7 +104,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     if (scanned) return;
     setScanned(true);
-    const parsed = parseSolanaOrKoraQR(data);
+    const parsed = parseSolanaOrKoriQR(data);
     if (parsed) {
       onResult(parsed.recipient, parsed.amount);
     } else {
@@ -140,7 +140,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
                 Permissão de câmera
               </Text>
               <Text style={[styles.permDesc, { color: t.inkMute }]}>
-                Para escanear QR Codes da Kora, precisamos de acesso à sua
+                Para escanear QR Codes da Kori, precisamos de acesso à sua
                 câmera.
               </Text>
             </View>
@@ -198,7 +198,7 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
             <View style={styles.overlaySide} />
           </View>
           <View style={styles.overlayBottom}>
-            <Text style={styles.scanHint}>Aponte para um QR Code da Kora</Text>
+            <Text style={styles.scanHint}>Aponte para um QR Code da Kori</Text>
             {scanned && (
               <TouchableOpacity
                 onPress={() => setScanned(false)}

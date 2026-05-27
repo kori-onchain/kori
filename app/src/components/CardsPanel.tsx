@@ -78,7 +78,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({ userName }) => {
 
   const handleCopyDetails = async () => {
     const text = [
-      "Cartão Kora Virtual",
+      "Cartão Kori Virtual",
       `Nome: ${displayName}`,
       `Número: ${cardNumber}`,
       `Validade: ${expiry}`,

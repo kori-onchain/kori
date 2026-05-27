@@ -17,7 +17,7 @@ import Svg, {
 } from "react-native-svg";
 
 import { Button } from "../components/ds/Button";
-import { ArrowRightIcon, KoraGlyph, SolanaIcon } from "../components/ds/icons";
+import { ArrowRightIcon, KoriGlyph, SolanaIcon } from "../components/ds/icons";
 import { SoftCard } from "../components/ds/SoftCard";
 import { useTheme } from "../theme/ThemeProvider";
 import { radii } from "../theme/tokens";
@@ -264,10 +264,10 @@ const SlideBody = ({ slide }: { slide: Slide }) => {
   if (slide.kind === "brand" || slide.kind === "finish") {
     return (
       <View className="flex-1 items-center justify-center text-center">
-        <KoraGlyph size={82} color="#fafafa" />
+        <KoriGlyph size={82} color="#fafafa" />
         {slide.kind === "brand" && (
           <Text className="mt-[30px] pl-[5px] font-sans-bold text-[14px] uppercase tracking-[5.8px] text-ink-dim">
-            KORA
+            KORI
           </Text>
         )}
         <Text className="mt-6 text-center font-sans-bold text-[30px] leading-[34px] tracking-[-1px] text-ink">

@@ -36,7 +36,7 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
         <AuthTopBar step="2 / 3" onBack={onBack} />
         <View className="mt-4">
           <Text className="font-sans-bold text-[23px] leading-[27px] tracking-[-0.6px] text-ink">
-            {isPF ? "Sua conta pessoal." : "Sua loja na Kora."}
+            {isPF ? "Sua conta pessoal." : "Sua loja na Kori."}
           </Text>
           <Text className="mt-2 font-sans text-[13px] leading-5 text-ink-dim">
             {isPF ? "Só o essencial. Sem senha, sem burocracia." : "Isso vira a vitrine que seus clientes veem."}
@@ -59,7 +59,7 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 label="E-mail"
                 value={form.email}
                 onChangeText={(value) => onChangeField("email", value)}
-                placeholder="kaua@kora.app"
+                placeholder="kaua@kori.app"
                 keyboardType="email-address"
                 focused={focusedField === "email"}
                 onFocus={() => onFocusField("email")}
@@ -120,7 +120,7 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 label="E-mail"
                 value={form.email}
                 onChangeText={(value) => onChangeField("email", value)}
-                placeholder="loja@kora.app"
+                placeholder="loja@kori.app"
                 keyboardType="email-address"
                 focused={focusedField === "email"}
                 onFocus={() => onFocusField("email")}

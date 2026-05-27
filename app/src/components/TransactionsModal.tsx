@@ -80,7 +80,7 @@ const INITIAL_GROUPS: DayGroup[] = [
       {
         id: 't12',
         title: 'Compra no Cartão',
-        description: 'Supermercado Kora',
+        description: 'Supermercado Kori',
         amount: '-R$ 152,40',
         rawAmount: -152.40,
         isInflow: false,
@@ -137,7 +137,7 @@ const INITIAL_GROUPS: DayGroup[] = [
       {
         id: 't9',
         title: 'Resgate Aplicação',
-        description: 'CDB Kora Liquidez Diária',
+        description: 'CDB Kori Liquidez Diária',
         amount: 'R$ 3.000,00',
         rawAmount: 3000.0,
         isInflow: true,
@@ -194,7 +194,7 @@ const INITIAL_GROUPS: DayGroup[] = [
       {
         id: 't7',
         title: 'Câmbio BRL -> USD',
-        description: 'Conversão de saldo Kora',
+        description: 'Conversão de saldo Kori',
         amount: '-R$ 2.450,80',
         rawAmount: -2450.80,
         isInflow: false,

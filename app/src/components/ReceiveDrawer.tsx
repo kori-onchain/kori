@@ -31,7 +31,7 @@ import {
 
 const USER_ID = "opedrooz";
 const WALLET_ADDRESS = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
-const APP_SCHEME = "kora://pay";
+const APP_SCHEME = "kori://pay";
 
 type Screen = "menu" | "share_id" | "share_wallet" | "payment_link" | "qrcode";
 
@@ -79,7 +79,7 @@ const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({
 
   const handleShare = async () => {
     await Share.share({
-      message: `Me pague pelo Kora: ${deepLink}`,
+      message: `Me pague pelo Kori: ${deepLink}`,
       url: deepLink,
     });
   };
@@ -93,9 +93,9 @@ const ShareIdScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({
       <PaymentToast message={toast.message} opacity={toast.opacity} />
       <PaymentInfoCard
         icon="at-sign"
-        label="Seu ID Kora"
+        label="Seu ID Kori"
         value={`@${USER_ID}`}
-        description="Ideal para receber de contatos dentro da Kora."
+        description="Ideal para receber de contatos dentro da Kori."
         style={styles.sectionCard}
       />
       <PaymentActionCard
@@ -132,7 +132,7 @@ const ShareWalletScreen: React.FC<{
 
   const handleShare = async () => {
     await Share.share({
-      message: `Me pague pelo Kora: ${deepLink}`,
+      message: `Me pague pelo Kori: ${deepLink}`,
       url: deepLink,
     });
   };
@@ -225,7 +225,7 @@ const PaymentLinkScreen: React.FC<{
 
   const handleShare = async () => {
     const link = buildLink();
-    await Share.share({ message: `Me pague pelo Kora: ${link}`, url: link });
+    await Share.share({ message: `Me pague pelo Kori: ${link}`, url: link });
   };
 
   const canGenerate = mode === "free" || !!amount;
@@ -314,7 +314,7 @@ const QRCodeScreen: React.FC<{ onBack: () => void; onClose: () => void }> = ({
 
   const handleShare = async () => {
     const link = buildQRValue();
-    await Share.share({ message: `Me pague pelo Kora: ${link}`, url: link });
+    await Share.share({ message: `Me pague pelo Kori: ${link}`, url: link });
   };
 
   const canGenerate = mode === "free" || !!amount;
@@ -394,7 +394,7 @@ const MenuScreen: React.FC<{
       screen: "share_id" as Screen,
       icon: "at-sign" as const,
       title: "Compartilhar ID",
-      desc: "Receba pelo seu @usuário Kora",
+      desc: "Receba pelo seu @usuário Kori",
     },
     {
       screen: "share_wallet" as Screen,

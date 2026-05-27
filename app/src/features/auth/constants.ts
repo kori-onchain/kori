@@ -2,7 +2,7 @@ import { AuthForm, AuthUserData } from "./types";
 
 export const RETURNING_USER: AuthUserData = {
   name: "Kauã",
-  email: "kaua@kora.app",
+  email: "kaua@kori.app",
   username: "kc1t",
   accountType: "PF",
 };

@@ -108,7 +108,7 @@ const BlackCardBanner = () => (
   <BannerShell
     badgeLabel="EXCLUSIVO"
     badgeTone="neutral"
-    title={'Cartao\nKora Black'}
+    title={'Cartao\nKori Black'}
     subtitle="Cashback ilimitado, acesso a lounges e sem anuidade no 1o ano."
     cta="Solicitar agora"
     ctaVariant="white"
@@ -116,7 +116,7 @@ const BlackCardBanner = () => (
       <View style={styles.cardDecor}>
         <View style={styles.cardDecorChip} />
         <View style={styles.cardDecorStripe} />
-        <Text style={styles.cardDecorLabel}>KORA BLACK</Text>
+        <Text style={styles.cardDecorLabel}>KORI BLACK</Text>
       </View>
     }
   />
@@ -127,7 +127,7 @@ const ReferralBanner = () => (
     badgeLabel="RECOMPENSAS"
     badgeTone="reward"
     title={'Indique e\nGanhe +R$ 30'}
-    subtitle="Ganhe R$ 30 por cada amigo indicado que abrir conta na Kora."
+    subtitle="Ganhe R$ 30 por cada amigo indicado que abrir conta na Kori."
     cta="Indicar amigo"
     ctaVariant="white"
     decoration={

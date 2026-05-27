@@ -35,8 +35,8 @@ export const resolveSignupData = (form: AuthForm, accountType: AccountType): Aut
   const username = isPF ? form.username.trim() : form.storeUsername.trim();
 
   return {
-    name: name || (isPF ? "Usuário Kora" : "Loja Kora"),
-    email: form.email.trim().toLowerCase() || "usuario@kora.app",
+    name: name || (isPF ? "Usuário Kori" : "Loja Kori"),
+    email: form.email.trim().toLowerCase() || "usuario@kori.app",
     accountType,
     username: username || fallbackUsername,
   };

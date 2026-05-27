@@ -51,7 +51,7 @@ const THEME_OPTIONS: {
   {
     value: "dark",
     label: "Escuro",
-    description: "Visual padrão da Kora",
+    description: "Visual padrão da Kori",
     icon: "moon",
   },
   {
@@ -100,7 +100,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   };
 
   const handleLogout = () => {
-    Alert.alert("Sair da Kora?", "Você voltará para a tela de entrada.", [
+    Alert.alert("Sair da Kori?", "Você voltará para a tela de entrada.", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Sair",
@@ -146,7 +146,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     },
   ];
 
-  const initials = getInitials(editedUserName || userName || "Kora");
+  const initials = getInitials(editedUserName || userName || "Kori");
   const handle = username.startsWith("@") ? username : `@${username}`;
 
   return (

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Line, Path, Circle } from 'react-native-svg';
 import { fonts } from '../../theme/tokens';
-import { KoraGlyph } from './icons';
+import { KoriGlyph } from './icons';
 import { ChipEMV } from './ChipEMV';
 
 /* ------------------------------------------------------------------ */
@@ -115,8 +115,8 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
 
         {/* MID — K glyph + wordmark */}
         <View style={styles.mid}>
-          <KoraGlyph size={55} color="#d6d6d6" />
-          <Text style={styles.koraTxt}>KORA</Text>
+          <KoriGlyph size={55} color="#d6d6d6" />
+          <Text style={styles.koriTxt}>KORI</Text>
         </View>
 
         {/* BOT — holder info + mastercard */}
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  koraTxt: {
+  koriTxt: {
     fontFamily: fonts.sans.bold,
     fontSize: 16,
     color: '#d6d6d6',

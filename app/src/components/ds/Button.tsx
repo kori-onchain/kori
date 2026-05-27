@@ -27,7 +27,7 @@ interface ButtonProps {
 }
 
 /**
- * Kora DS button. Three variants:
+ * Kori DS button. Three variants:
  *  - primary:   subtle white→light gradient, black text + soft top hairline.
  *               The hero CTA (Enviar).
  *  - secondary: SoftCard glossy bg, white text. Paired with primary in 1fr 1fr.

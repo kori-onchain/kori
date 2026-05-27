@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { KoraGlyph, SolanaIcon } from "../../../components/ds/icons";
+import { KoriGlyph, SolanaIcon } from "../../../components/ds/icons";
 import { AuthTopBar } from "../components/AuthTopBar";
 import { PinKeypad } from "../components/PinKeypad";
 import { AuthUserData } from "../types";
@@ -26,7 +26,7 @@ export const PinLoginStep: React.FC<PinLoginStepProps> = ({
     <AuthTopBar onBack={onBack} />
     <View className="items-center">
       <View className="relative mb-3.5 h-16 w-16 items-center justify-center rounded-full border border-line2 bg-bg-elev">
-        <KoraGlyph size={30} color="#fafafa" />
+        <KoriGlyph size={30} color="#fafafa" />
         <View className="absolute -bottom-px -right-px h-5 w-5 items-center justify-center rounded-full border border-line2 bg-bg">
           <SolanaIcon width={11} color="#9a9a9e" />
         </View>

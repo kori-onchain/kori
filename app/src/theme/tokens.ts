@@ -1,5 +1,5 @@
 /**
- * Kora Design System — tokens.
+ * Kori Design System — tokens.
  * Mirrors the tailwind.config.js theme.extend spec so the DS stays portable
  * if/when NativeWind is wired up later. Use these instead of magic literals.
  */
