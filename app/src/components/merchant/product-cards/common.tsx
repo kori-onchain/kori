@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Feather } from "../../../icons";
-import { SolanaIcon } from "../../ds/icons";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
+import { Feather } from "@/icons";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
+import { SolanaIcon } from "@/components/layout/icons";
 
 export interface ProductCardProps {
   image?: string;

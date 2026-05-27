@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
-import { SoftCard } from "../../ds/SoftCard";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
+import { SoftCard } from "@components/layout/SoftCard";
 
 export interface BusinessHealthCardProps {
   score: number;

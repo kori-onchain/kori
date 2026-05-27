@@ -10,9 +10,9 @@ import {
   Platform,
   Animated,
 } from "react-native";
-import { Feather } from "../../icons";
-import { useTheme } from "../../theme/ThemeProvider";
-import { fonts } from "../../theme/tokens";
+import { Feather } from "@/icons";
+import { useTheme } from "@theme/ThemeProvider";
+import { fonts } from "@theme/tokens";
 
 interface AddProductModalProps {
   visible: boolean;

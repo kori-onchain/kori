@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Feather } from "../../../icons";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
-import { SoftCard } from "../../ds/SoftCard";
+import { Feather } from "@/icons";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
+import { SoftCard } from "@components/layout/SoftCard";
 
 export interface CashFlowCardProps {
   amountLabel: string;

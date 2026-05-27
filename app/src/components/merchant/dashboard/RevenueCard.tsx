@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Polyline } from "react-native-svg";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
-import { SoftCard } from "../../ds/SoftCard";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
+import { SoftCard } from "@components/layout/SoftCard";
 
 export interface RevenueCardProps {
   revenueLabel: string;

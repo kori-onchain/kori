@@ -1,10 +1,10 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useTheme } from "../../theme/ThemeProvider";
-import { fonts } from "../../theme/tokens";
-import { Feather } from "../../icons";
-import { SoftCard } from "../ds/SoftCard";
-import { mockProducts } from "../../data/merchant";
+import { useTheme } from "@theme/ThemeProvider";
+import { fonts } from "@theme/tokens";
+import { SoftCard } from "@components/layout/SoftCard";
+import { mockProducts } from "@/data/merchant";
+import { Feather } from "@/icons";
 
 interface ProductsPanelProps {
   onAddProduct: () => void;

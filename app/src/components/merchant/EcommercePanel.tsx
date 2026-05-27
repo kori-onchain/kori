@@ -7,13 +7,14 @@ import {
   TextInput,
   ScrollView,
 } from "react-native";
-import { fonts, radii } from "../../theme/tokens";
-import { Feather } from "../../icons";
-import { useTheme } from "../../theme/ThemeProvider";
-import { mockProducts, Product } from "../../data/merchant";
-import { ProductHeroCard } from "./product-cards/ProductHeroCard";
-import { ProductCell } from "./product-cards/ProductCell";
-import { ProductWideCard } from "./product-cards/ProductWideCard";
+import { fonts, radii } from "@theme/tokens";
+import { Feather } from "@/icons";
+import { useTheme } from "@theme/ThemeProvider";
+import { mockProducts, Product } from "@/data/merchant";
+import { ProductHeroCard } from "@components/merchant/product-cards/ProductHeroCard";
+import { ProductCell } from "@components/merchant/product-cards/ProductCell";
+import { ProductWideCard } from "@components/merchant/product-cards/ProductWideCard";
+import { AddProductModal } from "@components/merchant/AddProductModal";
 
 const CATEGORIES = [
   "Tudo",
@@ -37,11 +38,13 @@ const productToCardProps = (p: Product) => ({
 
 export const EcommercePanel: React.FC = () => {
   const { t } = useTheme();
+  const [products, setProducts] = useState<Product[]>(mockProducts);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("Tudo");
+  const [addModalVisible, setAddModalVisible] = useState(false);
 
   const filtered = useMemo(() => {
-    return mockProducts.filter((p) => {
+    return products.filter((p) => {
       if (category !== "Tudo" && p.category !== category) return false;
       if (query.trim()) {
         const q = query.trim().toLowerCase();
@@ -54,9 +57,21 @@ export const EcommercePanel: React.FC = () => {
       }
       return true;
     });
-  }, [category, query]);
+  }, [category, query, products]);
 
-  const [hero, c1, c2, wide, c3, c4] = filtered;
+  const handleSaveProduct = (newProdData: any) => {
+    const newProduct: Product = {
+      id: "p_" + Date.now(),
+      name: newProdData.name,
+      description: "Vendedor",
+      category: "Other" as any,
+      price: parseFloat(newProdData.price.replace(",", ".")) || 0.0,
+      imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400",
+    };
+    setProducts((prev) => [newProduct, ...prev]);
+  };
+
+  const [hero, c1, c2, wide, c3, c4, ...others] = filtered;
 
   return (
     <ScrollView
@@ -64,6 +79,19 @@ export const EcommercePanel: React.FC = () => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.scroll}
     >
+      {/* Title and Add Button Row */}
+      <View style={styles.titleRow}>
+        <Text style={[styles.titleText, { color: t.ink }]}>Vitrine de Produtos</Text>
+        <TouchableOpacity
+          style={[styles.addNewBtn, { backgroundColor: t.orange }]}
+          activeOpacity={0.8}
+          onPress={() => setAddModalVisible(true)}
+        >
+          <Feather name="plus" size={16} color="#FFF" style={{ marginRight: 4 }} />
+          <Text style={styles.addNewBtnText}>Cadastrar</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Search row */}
       <View style={styles.searchRow}>
         <View
@@ -154,8 +182,31 @@ export const EcommercePanel: React.FC = () => {
               {c4 && <ProductCell {...productToCardProps(c4)} />}
             </View>
           )}
+
+          {/* Render extra products in 2-column rows */}
+          {others.length > 0 && (
+            <View style={{ gap: 12 }}>
+              {Array.from({ length: Math.ceil(others.length / 2) }).map((_, rowIndex) => {
+                const item1 = others[rowIndex * 2];
+                const item2 = others[rowIndex * 2 + 1];
+                return (
+                  <View key={`row-${rowIndex}`} style={styles.row}>
+                    {item1 && <ProductCell {...productToCardProps(item1)} />}
+                    {item2 && <ProductCell {...productToCardProps(item2)} />}
+                  </View>
+                );
+              })}
+            </View>
+          )}
         </View>
       )}
+
+      {/* Product Creation Modal */}
+      <AddProductModal
+        visible={addModalVisible}
+        onClose={() => setAddModalVisible(false)}
+        onSave={handleSaveProduct}
+      />
     </ScrollView>
   );
 };
@@ -163,6 +214,28 @@ export const EcommercePanel: React.FC = () => {
 const styles = StyleSheet.create({
   scroll: {
     paddingBottom: 40,
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  titleText: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 18,
+  },
+  addNewBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radii.pill,
+  },
+  addNewBtnText: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 12,
+    color: "#FFF",
   },
   searchRow: {
     flexDirection: "row",

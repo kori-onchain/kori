@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
-import { TopSellingItem } from "../../../data/merchant";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
+import { TopSellingItem } from "@/data/merchant";
 
 export interface TopSellingListProps {
   items: TopSellingItem[];

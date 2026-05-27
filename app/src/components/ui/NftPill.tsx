@@ -1,12 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SoftCard } from '../ds/SoftCard';
-import { KoriGlyph as IconK } from '../ds/icons';
-import { fonts } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { SoftCard } from "@/components/layout/SoftCard";
+import { KoriGlyph as IconK } from "@/components/layout/icons";
+import { fonts } from "@/theme/tokens";
+import { useTheme } from "@/theme/ThemeProvider";
 
-export type NftPillType = 'founder' | 'ingresso' | 'vip' | 'default';
+export type NftPillType =
+  | "founder"
+  | "ingresso"
+  | "vip"
+  | "default"
+  | "human"
+  | "gold_payer"
+  | "debt_degen"
+  | "yield";
 
 interface NftPillProps {
   name: string;
@@ -14,19 +22,26 @@ interface NftPillProps {
   type?: NftPillType;
 }
 
-const GRADIENTS: Record<Exclude<NftPillType, 'default'>, readonly [string, string]> = {
-  founder: ['#ff6b3d', '#d94d20'],
-  ingresso: ['#9945ff', '#5a1f9e'],
-  vip: ['#9945ff', '#5a1f9e'],
+const GRADIENTS: Record<
+  Exclude<NftPillType, "default">,
+  readonly [string, string]
+> = {
+  founder: ["#ff6b3d", "#d94d20"],
+  ingresso: ["#9945ff", "#5a1f9e"],
+  vip: ["#9945ff", "#5a1f9e"],
+  human: ["#06b6d4", "#0891b2"],
+  gold_payer: ["#f59e0b", "#d97706"],
+  debt_degen: ["#ef4444", "#b91c1c"],
+  yield: ["#10b981", "#047857"],
 };
 
 export const NftPill: React.FC<NftPillProps> = ({
   name,
   category,
-  type = 'default',
+  type = "default",
 }) => {
   const { t } = useTheme();
-  const gradient = type === 'default' ? null : GRADIENTS[type];
+  const gradient = type === "default" ? null : GRADIENTS[type];
 
   return (
     <SoftCard radius={999} padding={0} flat>
@@ -50,7 +65,10 @@ export const NftPill: React.FC<NftPillProps> = ({
           <Text style={[styles.name, { color: t.ink }]} numberOfLines={1}>
             {name}
           </Text>
-          <Text style={[styles.category, { color: t.inkMute }]} numberOfLines={1}>
+          <Text
+            style={[styles.category, { color: t.inkMute }]}
+            numberOfLines={1}
+          >
             {category.toUpperCase()}
           </Text>
         </View>
@@ -61,8 +79,8 @@ export const NftPill: React.FC<NftPillProps> = ({
 
 const styles = StyleSheet.create({
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 9,
     paddingLeft: 7,
     paddingRight: 12,
@@ -73,9 +91,9 @@ const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   name: {
     fontFamily: fonts.sans.semibold,

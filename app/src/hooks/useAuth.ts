@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
-import { MOCK_AUTH } from "../constants/devConfig";
+import { supabase } from "@/lib/supabase";
+import { MOCK_AUTH } from "@constants/devConfig";
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);

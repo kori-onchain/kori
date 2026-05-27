@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
 import {
   BrandLabel,
   DiscountBadge,
@@ -11,7 +11,7 @@ import {
   ProductCardProps,
   RatingTag,
   formatBRL,
-} from "./common";
+} from "@components/merchant/product-cards/common";
 
 export const ProductWideCard: React.FC<ProductCardProps> = ({
   image,

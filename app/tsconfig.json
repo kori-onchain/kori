@@ -5,8 +5,26 @@
     "esModuleInterop": true,
     "jsx": "react-native",
     "paths": {
-      "~/*": [
-        "./*"
+      "@/*": [
+        "./src/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@screens/*": [
+        "./src/screens/*"
+      ],
+      "@theme/*": [
+        "./src/theme/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@type/*": [
+        "./src/types/*"
+      ],
+      "@constants/*": [
+        "./src/constants/*"
       ]
     }
   }

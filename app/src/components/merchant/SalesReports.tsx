@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useTheme } from "../../theme/ThemeProvider";
-import { fonts, radii } from "../../theme/tokens";
-import { RevenueCard } from "./dashboard/RevenueCard";
-import { CashFlowCard } from "./dashboard/CashFlowCard";
-import { BusinessHealthCard } from "./dashboard/BusinessHealthCard";
-import { TopSellingList } from "./dashboard/TopSellingList";
-import { topSellingItems } from "../../data/merchant";
+import { useTheme } from "@theme/ThemeProvider";
+import { fonts, radii } from "@theme/tokens";
+import { RevenueCard } from "@components/merchant/dashboard/RevenueCard";
+import { CashFlowCard } from "@components/merchant/dashboard/CashFlowCard";
+import { BusinessHealthCard } from "@components/merchant/dashboard/BusinessHealthCard";
+import { TopSellingList } from "@components/merchant/dashboard/TopSellingList";
+import { topSellingItems } from "@/data/merchant";
 
 type Period = "hoje" | "7d" | "30d";
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import { fonts, radii } from "../../../theme/tokens";
-import { useTheme } from "../../../theme/ThemeProvider";
+import { fonts, radii } from "@theme/tokens";
+import { useTheme } from "@theme/ThemeProvider";
 import {
   BrandLabel,
   DiscountBadge,
@@ -12,7 +12,7 @@ import {
   RatingTag,
   Scrim,
   formatBRL,
-} from "./common";
+} from "@components/merchant/product-cards/common";
 
 export const ProductHeroCard: React.FC<ProductCardProps> = ({
   image,
