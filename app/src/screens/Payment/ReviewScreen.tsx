@@ -70,15 +70,20 @@ export const ReviewScreen: React.FC<ReviewScreenProps> = ({
           <SectionTitle>Quem vai receber</SectionTitle>
           <DetailRow label="Nome" value={displayName} />
           <DetailRow
-            label={recipient.type === "wallet" ? "Tipo" : "ID"}
+            label={recipient.type === "wallet" ? "Tipo" : recipient.type === "pix" ? "Método" : "ID"}
             value={
               recipient.type === "wallet"
                 ? "Carteira Solana"
-                : (displayId ?? "")
+                : recipient.type === "pix"
+                  ? "Pix"
+                  : (displayId ?? "")
             }
           />
           {recipient.type === "wallet" ? (
             <DetailRow label="Endereço" value={displayId ?? ""} mono />
+          ) : null}
+          {recipient.type === "pix" ? (
+            <DetailRow label="Chave Pix" value={displayId ?? ""} />
           ) : null}
         </PaymentCard>
 

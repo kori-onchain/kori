@@ -1,4 +1,4 @@
-export type RecipientType = 'id' | 'wallet';
+export type RecipientType = 'id' | 'wallet' | 'pix';
 
 export interface PaymentRecipient {
   id?: string;
@@ -9,6 +9,8 @@ export interface PaymentRecipient {
   userId?: string;
   /** Endereço completo para tipo 'wallet' */
   walletAddress?: string;
+  /** Chave PIX para tipo 'pix' */
+  pixKey?: string;
   isAnonymous: boolean;
   isFavorite: boolean;
 }
@@ -27,4 +29,5 @@ export type PaymentScreen =
   | 'amount'
   | 'review'
   | 'paying'
-  | 'receipt';
+  | 'receipt'
+  | 'pix_send';

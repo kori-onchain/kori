@@ -14,7 +14,7 @@ import {
 import * as Clipboard from "expo-clipboard";
 import QRCode from "react-native-qrcode-svg";
 import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@/icons";
+import { Feather, MaterialCommunityIcons, PixIcon } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
 import {
@@ -35,7 +35,7 @@ const USER_ID = "opedrooz";
 const WALLET_ADDRESS = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
 const APP_SCHEME = "kori://pay";
 
-type Screen = "menu" | "share_id" | "share_wallet" | "payment_link" | "qrcode" | "card" | "amount_entry";
+type Screen = "menu" | "share_id" | "share_wallet" | "payment_link" | "qrcode" | "card" | "amount_entry" | "pix";
 
 interface ReceiveDrawerProps {
   visible: boolean;
@@ -883,6 +883,231 @@ const CardScreen: React.FC<{
   );
 };
 
+/* ── PIX Receive Screen ─────────────────────────────── */
+const PIX_MOCK_KEY = "opedrooz@kori.com.br";
+const PIX_EXPIRY_SECONDS = 15 * 60; // 15 minutes
+
+const formatCountdown = (seconds: number) => {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+};
+
+const PixReceiveScreen: React.FC<{
+  onBack: () => void;
+  onClose: () => void;
+  amount: string;
+  setAmount: (a: string) => void;
+  selectedProduct: Product | null;
+  setSelectedProduct: (p: Product | null) => void;
+  mode: "free" | "fixed";
+  setMode: (m: "free" | "fixed") => void;
+  onOpenAmountEntry: () => void;
+  accountType?: "PF" | "PJ";
+}> = ({
+  onBack,
+  onClose,
+  amount,
+  setAmount,
+  selectedProduct,
+  setSelectedProduct,
+  mode,
+  setMode,
+  onOpenAmountEntry,
+  accountType,
+}) => {
+  const { t } = useTheme();
+  const toast = useToast();
+  const [generated, setGenerated] = useState(false);
+  const [remaining, setRemaining] = useState(PIX_EXPIRY_SECONDS);
+  const [expired, setExpired] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    if (generated && !expired) {
+      timerRef.current = setInterval(() => {
+        setRemaining((prev) => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            setExpired(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [generated, expired]);
+
+  const buildPixPayload = () => {
+    const val = mode === "fixed" && amount ? amount.replace(",", ".") : "";
+    // Mock EMV Pix payload
+    return `00020126580014br.gov.bcb.pix0114${PIX_MOCK_KEY}0206Kori${val ? `54${val.length.toString().padStart(2, "0")}${val}` : ""}5303986540${val || "0.00"}5802BR5913KORA PAGAMENTOS6009SAO PAULO62070503***6304ABCD`;
+  };
+
+  const buildCopyPaste = () => {
+    return buildPixPayload();
+  };
+
+  const canGenerate = mode === "free" || !!amount;
+  const displayAmount = amount ? `R$ ${parseFloat(amount.replace(",", ".")).toFixed(2).replace(".", ",")}` : "R$ 0,00";
+
+  const handleRegenerate = () => {
+    setGenerated(false);
+    setExpired(false);
+    setRemaining(PIX_EXPIRY_SECONDS);
+    if (timerRef.current) clearInterval(timerRef.current);
+    setTimeout(() => setGenerated(true), 100);
+  };
+
+  const progressRatio = remaining / PIX_EXPIRY_SECONDS;
+  const isUrgent = remaining <= 120; // last 2 minutes
+
+  return (
+    <BottomSheetFrame
+      title="Pix"
+      onBack={onBack}
+      onClose={onClose}
+      footer={generated ? undefined : (
+        <PaymentPrimaryButton
+          label="Continuar"
+          onPress={() => setGenerated(true)}
+          disabled={!canGenerate}
+        />
+      )}
+    >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.stepContent}>
+        {!generated && (
+          <>
+            <SectionTitle>Valor da Cobrança</SectionTitle>
+            <ChoiceCards
+              selected={mode}
+              onSelect={(m) => {
+                setMode(m);
+                setGenerated(false);
+                if (m === "fixed") {
+                  onOpenAmountEntry();
+                } else {
+                  setAmount("");
+                  setSelectedProduct(null);
+                }
+              }}
+            />
+
+            {mode === "fixed" && !!amount && (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={onOpenAmountEntry}
+                style={[styles.amountDisplayCard, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.amountDisplayCardLabel, { color: t.inkMute }]}>
+                    {selectedProduct ? `Produto: ${selectedProduct.name}` : "Valor Definido"}
+                  </Text>
+                  <Text style={[styles.amountDisplayCardVal, { color: t.ink }]}>{displayAmount}</Text>
+                </View>
+                <Feather name="edit" size={16} color={t.orange} />
+              </TouchableOpacity>
+            )}
+
+
+          </>
+        )}
+
+        {generated && (
+          <View style={{ alignItems: "center" }}>
+            {/* Timer */}
+            <View style={[pixStyles.timerContainer, { backgroundColor: expired ? "#ef444415" : t.bgElev }]}>
+              <View style={pixStyles.timerHeaderRow}>
+                <Feather name={expired ? "alert-circle" : "clock"} size={14} color={expired ? "#ef4444" : t.ink} />
+                <Text style={[pixStyles.timerText, { color: expired ? "#ef4444" : t.ink }]}>
+                  {expired ? "Código expirado" : `Expira em ${formatCountdown(remaining)}`}
+                </Text>
+              </View>
+              {!expired && (
+                <View style={[pixStyles.progressTrack, { backgroundColor: t.line }]}>
+                  <View style={[
+                    pixStyles.progressFill,
+                    {
+                      backgroundColor: isUrgent ? "#ef4444" : t.ink,
+                      width: `${progressRatio * 100}%`,
+                    },
+                  ]} />
+                </View>
+              )}
+            </View>
+
+            {/* Amount display */}
+            {mode === "fixed" && amount ? (
+              <Text style={[pixStyles.pixAmount, { color: t.ink }]}>{displayAmount}</Text>
+            ) : (
+              <Text style={[pixStyles.pixFreeLabel, { color: t.inkMute }]}>Valor livre</Text>
+            )}
+
+            {/* QR Code */}
+            <View style={[
+              pixStyles.qrContainer,
+              { backgroundColor: "#FFFFFF" },
+              expired && { opacity: 0.4 },
+            ]}>
+              <QRCode value={buildPixPayload()} size={220} color="#000000" backgroundColor="#FFFFFF" />
+              <View style={[pixStyles.pixLogoBadge, { backgroundColor: "#32bcad", borderColor: "#FFFFFF", borderWidth: 4 }]}>
+                <PixIcon size={20} color="#FFFFFF" />
+              </View>
+            </View>
+
+            {/* Copia e cola */}
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={async () => {
+                await Clipboard.setStringAsync(buildCopyPaste());
+                toast.show("Código Pix copiado");
+              }}
+              style={[pixStyles.copyPasteTouchable, { backgroundColor: t.bgElev, borderColor: t.line }]}
+            >
+              <View style={{ flex: 1, overflow: "hidden" }}>
+                <Text style={[pixStyles.copyPasteLabelCustom, { color: t.inkMute }]}>Pix Copia e Cola</Text>
+                <Text style={[pixStyles.copyPasteTextCustom, { color: t.ink }]} numberOfLines={1}>
+                  {buildCopyPaste()}
+                </Text>
+              </View>
+              <View style={[pixStyles.copyIconBox, { backgroundColor: t.bg2 }]}>
+                <Feather name="copy" size={16} color={t.ink} />
+              </View>
+            </TouchableOpacity>
+
+            {/* Actions */}
+            {expired ? (
+              <PaymentPrimaryButton
+                label="Gerar novo QR Code"
+                onPress={handleRegenerate}
+                icon={<Feather name="refresh-cw" size={16} color={t.btnPrimaryFg} />}
+                style={{ marginTop: 16, width: "100%" }}
+              />
+            ) : (
+              <View style={{ marginTop: 16, width: "100%" }}>
+                <PaymentPrimaryButton
+                  label="Compartilhar código"
+                  onPress={async () => {
+                    const payload = buildCopyPaste();
+                    await Share.share({ message: `Pague via Pix: ${payload}` });
+                  }}
+                  full
+                  icon={<Feather name="share-2" size={16} color={t.btnPrimaryFg} />}
+                />
+              </View>
+            )}
+
+
+          </View>
+        )}
+      </ScrollView>
+      <PaymentToast message={toast.message} opacity={toast.opacity} />
+    </BottomSheetFrame>
+  );
+};
+
 /* ── Menu item ───────────────────────────────────────── */
 interface MenuItemProps {
   icon: React.ComponentProps<typeof Feather>["name"];
@@ -931,6 +1156,32 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, title, desc, anonBadge, disab
   );
 };
 
+/* ── PIX Menu Item (custom styled) ── */
+const PixMenuItem: React.FC<{ onPress: () => void }> = ({ onPress }) => {
+  const { t } = useTheme();
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onPress}
+      style={[
+        menuStyles.row,
+        { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.line },
+      ]}
+    >
+      <View style={[menuStyles.iconWrap, { backgroundColor: t.bgElev, borderWidth: 1, borderColor: t.line }]}>
+        <PixIcon size={18} color={t.ink} />
+      </View>
+      <View style={menuStyles.textWrap}>
+        <View style={menuStyles.titleRow}>
+          <Text style={[menuStyles.title, { color: t.ink }]}>Pix</Text>
+        </View>
+        <Text style={[menuStyles.desc, { color: t.inkMute }]}>QR Code Pix ou Copia e cola</Text>
+      </View>
+      <Feather name="chevron-right" size={16} color={t.inkFaint} />
+    </TouchableOpacity>
+  );
+};
+
 /* ── Menu Screen ─────────────────────────────────────── */
 const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void; accountType?: "PF" | "PJ" }> = ({
   onSelect,
@@ -975,9 +1226,9 @@ const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void;
           icon="grid"
           title="QR Code"
           desc="Mostre o código para quem vai pagar"
-          isLast={accountType !== "PJ"}
           onPress={() => onSelect("qrcode")}
         />
+        <PixMenuItem onPress={() => onSelect("pix")} />
         {accountType === "PJ" && (
           <MenuItem
             icon="credit-card"
@@ -996,7 +1247,7 @@ const MenuScreen: React.FC<{ onSelect: (s: Screen) => void; onClose: () => void;
 export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose, accountType }) => {
   const { t } = useTheme();
   const [screen, setScreen] = useState<Screen>("menu");
-  const [originScreen, setOriginScreen] = useState<"payment_link" | "qrcode" | "card" | null>(null);
+  const [originScreen, setOriginScreen] = useState<"payment_link" | "qrcode" | "card" | "pix" | null>(null);
 
   // Shared billing states
   const [amount, setAmount] = useState("");
@@ -1089,6 +1340,21 @@ export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose, 
             mode={mode}
             setMode={setMode}
             onOpenAmountEntry={() => openAmountEntry("card")}
+          />
+        );
+      case "pix":
+        return (
+          <PixReceiveScreen
+            onBack={() => navigate("menu", -1)}
+            onClose={handleClose}
+            amount={amount}
+            setAmount={setAmount}
+            selectedProduct={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+            mode={mode}
+            setMode={setMode}
+            onOpenAmountEntry={() => openAmountEntry("pix")}
+            accountType={accountType}
           />
         );
       case "amount_entry":
@@ -1650,4 +1916,92 @@ const choiceStyles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 15,
   },
+});
+
+/* ── PIX Receive Styles ── */
+const pixStyles = StyleSheet.create({
+  timerContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    marginBottom: 20,
+    width: "100%",
+    gap: 10,
+  },
+  timerHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  timerText: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 13,
+    letterSpacing: 0.5,
+  },
+  progressTrack: {
+    width: "100%",
+    height: 4,
+    borderRadius: 2,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 2,
+  },
+  pixAmount: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 32,
+    fontWeight: "900",
+    marginBottom: 16,
+  },
+  pixFreeLabel: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  qrContainer: {
+    padding: 24,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+  pixLogoBadge: {
+    position: "absolute",
+    bottom: -20,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  copyPasteTouchable: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 12,
+  },
+  copyPasteLabelCustom: {
+    fontFamily: fonts.mono.medium,
+    fontSize: 10,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    marginBottom: 4,
+  },
+  copyPasteTextCustom: {
+    fontFamily: fonts.mono.medium,
+    fontSize: 13,
+  },
+  copyIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
 });
