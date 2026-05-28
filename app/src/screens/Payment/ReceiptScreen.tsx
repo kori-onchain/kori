@@ -143,10 +143,13 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
           </View>
           <DetailRow
             label="Tipo"
-            value={recipient.type === "wallet" ? "Carteira Solana" : "ID Kori"}
+            value={recipient.type === "wallet" ? "Carteira Solana" : recipient.type === "pix" ? "Pix" : "ID Kori"}
           />
           {recipient.type === "wallet" ? (
             <DetailRow label="Endereço" value={displayId ?? ""} mono />
+          ) : null}
+          {recipient.type === "pix" ? (
+            <DetailRow label="Chave Pix" value={displayId ?? ""} />
           ) : null}
         </PaymentCard>
       </ScrollView>

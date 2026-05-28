@@ -20,6 +20,7 @@ export const useContacts = () => {
       walletId,
       initials,
       isFavorite: false,
+      channels: ['kori'],
     };
 
     setContacts((prev) => [newContact, ...prev]);

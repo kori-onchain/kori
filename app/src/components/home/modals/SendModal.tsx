@@ -13,6 +13,7 @@ import { AmountScreen } from "@screens/Payment/AmountScreen";
 import { ReviewScreen } from "@screens/Payment/ReviewScreen";
 import { PayingScreen } from "@screens/Payment/PayingScreen";
 import { ReceiptScreen } from "@screens/Payment/ReceiptScreen";
+
 import { useTheme } from "@theme/ThemeProvider";
 
 const HandleBar = () => {
@@ -70,6 +71,7 @@ export const SendModal: React.FC<SendModalProps> = ({
     setScreen("amount");
   };
 
+
   const handleAmountResult = (amount: string) => {
     setIntent((prev) => ({ ...prev, amount }));
     setScreen("review");
@@ -95,7 +97,13 @@ export const SendModal: React.FC<SendModalProps> = ({
           <AmountScreen
             recipient={intent.recipient}
             onContinue={handleAmountResult}
-            onBack={initialScreen === "manual" ? () => setScreen("manual") : () => setScreen("scan")}
+            onBack={() => {
+              if (initialScreen === "manual") {
+                setScreen("manual");
+              } else {
+                setScreen("scan");
+              }
+            }}
             onClose={handleClose}
           />
         );

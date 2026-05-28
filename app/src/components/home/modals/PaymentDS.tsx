@@ -37,10 +37,12 @@ export const getRecipientInitials = (recipient: PaymentRecipient) => {
     .toUpperCase();
 };
 
-export const getRecipientId = (recipient: PaymentRecipient) =>
-  recipient.isAnonymous
+export const getRecipientId = (recipient: PaymentRecipient) => {
+  if (recipient.type === "pix") return recipient.pixKey ?? recipient.displayName;
+  return recipient.isAnonymous
     ? `${(recipient.walletAddress ?? "").slice(0, 8)}...${(recipient.walletAddress ?? "").slice(-6)}`
     : recipient.userId;
+};
 
 export const PaymentHeader: React.FC<{
   title: string;

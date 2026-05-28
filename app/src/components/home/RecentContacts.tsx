@@ -9,7 +9,8 @@ import {
 import { fonts } from "@theme/tokens";
 import { useTheme } from "@theme/ThemeProvider";
 import { Contact } from "@/data/contacts";
-import { PlusIcon } from "@components/layout/icons";
+import { Feather, MaterialCommunityIcons, PixIcon } from "@/icons";
+import { KoriGlyph, PlusIcon } from "@components/layout/icons";
 
 interface RecentContactsProps {
   contacts: Contact[];
@@ -75,6 +76,21 @@ export const RecentContacts: React.FC<RecentContactsProps> = ({
                     { backgroundColor: t.orange, borderColor: t.bg },
                   ]}
                 />
+              )}
+              {/* Channel badge indicators */}
+              {contact.channels && contact.channels.length > 0 && (
+                <View style={styles.channelDots}>
+                  {contact.channels.includes("pix") && (
+                    <View style={[styles.channelDot, { backgroundColor: t.ink, borderColor: t.bg }]}>
+                      <PixIcon size={6} color={t.bg} />
+                    </View>
+                  )}
+                  {contact.channels.includes("kori") && (
+                    <View style={[styles.channelDot, { backgroundColor: t.orange, borderColor: t.bg }]}>
+                      <KoriGlyph size={6} color="#FFF" />
+                    </View>
+                  )}
+                </View>
               )}
             </View>
             <Text style={[styles.contactName, { color: t.inkDim }]} numberOfLines={1}>
@@ -166,6 +182,21 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+    borderWidth: 1.5,
+  },
+  channelDots: {
+    position: "absolute",
+    top: -2,
+    right: -4,
+    flexDirection: "row",
+    gap: 2,
+  },
+  channelDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1.5,
   },
   avatarText: {
