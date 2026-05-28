@@ -3123,3 +3123,295 @@
 .reveal.d4 {
   animation-delay: 0.32s;
 }
+
+/* =========================================
+   THEME TOGGLE
+   ========================================= */
+.theme-toggle {
+  padding: 0;
+}
+.theme-icon {
+  width: 17px;
+  height: 17px;
+}
+/* Dark theme is the default: show the sun (click = go light). */
+.theme-icon-moon {
+  display: none;
+}
+.light .theme-icon-sun {
+  display: none;
+}
+.light .theme-icon-moon {
+  display: inline-block;
+}
+
+/* =========================================
+   LIGHT THEME
+   Tokens are redefined here; most of the UI uses var(--*),
+   so it adapts automatically. Hardcoded surfaces, glows and
+   shadows that only read well on black get explicit overrides.
+   The phone mockups stay dark on purpose — they show the
+   real (dark) app UI — by re-asserting dark tokens on .phone.
+   ========================================= */
+.light .landing {
+  --orange: #f1591f;
+  --orange-bright: #ff7a4d;
+  --orange-dark: #c8430f;
+  --orange-soft: rgba(241, 89, 31, 0.1);
+
+  --bg: #faf9f7;
+  --frame: #ece9e3;
+  --bg-1: #f4f2ee;
+  --bg-2: #efebe5;
+  --bg-card: #f4f2ee;
+  --bg-elev: #e8e4dc;
+
+  --ink: #1b1a17;
+  --ink-dim: #5f5c55;
+  --ink-mute: #7a7770;
+  --ink-faint: #d9d5cd;
+
+  --line: rgba(0, 0, 0, 0.08);
+  --line-2: rgba(0, 0, 0, 0.14);
+
+  --green: #15a34a;
+  --green-soft: rgba(21, 163, 74, 0.12);
+  --sol: #7c3aed;
+  --sol-soft: rgba(124, 58, 237, 0.1);
+
+  --hatch: rgba(0, 0, 0, 0.045);
+  --tick: rgba(0, 0, 0, 0.28);
+}
+
+.light .landing ::selection {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Keep the device mockups dark regardless of page theme. */
+.light .phone {
+  --bg: #0a0a0a;
+  --bg-1: #111114;
+  --bg-2: #16161a;
+  --bg-card: #1a1a1f;
+  --bg-elev: #202026;
+  --ink: #fafafa;
+  --ink-dim: #9a9a9e;
+  --ink-mute: #5a5a5e;
+  --ink-faint: #2f2f33;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-2: rgba(255, 255, 255, 0.1);
+  --green: #4ade80;
+  --green-soft: rgba(74, 222, 128, 0.1);
+  --sol: #9945ff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 30px 64px -26px rgba(0, 0, 0, 0.45),
+    0 0 90px -34px rgba(241, 89, 31, 0.4);
+}
+.light .dual-block .block-phone .phone {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 40px 80px -26px rgba(0, 0, 0, 0.5),
+    0 0 120px -34px rgba(241, 89, 31, 0.4);
+}
+.light .dual-block.right .block-phone .phone {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 40px 80px -26px rgba(0, 0, 0, 0.5),
+    0 0 120px -34px rgba(124, 58, 237, 0.45);
+}
+
+/* Nav */
+.light .nav-bar {
+  background: rgba(250, 249, 247, 0.72);
+}
+.light .nav-social {
+  background: rgba(0, 0, 0, 0.02);
+}
+.light .nav-social:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+
+/* Buttons / pills */
+.light .btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.16);
+}
+.light .pill,
+.light .eyebrow {
+  background: rgba(0, 0, 0, 0.02);
+}
+.light .eyebrow .tag {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Hero */
+.light .hero::before {
+  background: radial-gradient(
+    circle,
+    rgba(241, 89, 31, 0.16) 0%,
+    rgba(241, 89, 31, 0.07) 28%,
+    rgba(241, 89, 31, 0.02) 48%,
+    transparent 68%
+  );
+}
+.light .hero-phone-img {
+  filter: drop-shadow(0 24px 45px rgba(0, 0, 0, 0.2));
+}
+
+/* Trust bar */
+.light .trust-bar {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(0, 0, 0, 0.025),
+    transparent 70%
+  );
+}
+.light .trust-item {
+  background: rgba(0, 0, 0, 0.015);
+}
+.light .trust-item .micro {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Problem */
+.light .problem-card {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, transparent 100%);
+}
+
+/* Parallax */
+.light .parallax-phone {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.02), transparent 60%),
+    var(--bg);
+}
+
+/* Capabilities + Roadmap (.feat) */
+.light .feat {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.015) 0%, transparent 100%);
+}
+.light .feat:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(0, 0, 0, 0.006) 100%
+  );
+}
+.light .feat-icon {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Solana compare */
+.light .solana-panel {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.015) 0%, transparent 100%);
+}
+.light .solana-panel li {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Architecture */
+.light .arch-list article {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent),
+    var(--bg-1);
+}
+.light .arch-list article.active {
+  border-color: rgba(0, 0, 0, 0.18);
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.04), transparent),
+    var(--bg-1);
+}
+.light .arch-canvas {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(124, 58, 237, 0.12), transparent 38%),
+    radial-gradient(circle at 78% 58%, rgba(241, 89, 31, 0.1), transparent 36%),
+    var(--bg-1);
+}
+.light .arch-canvas::before {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0 39px,
+      rgba(0, 0, 0, 0.04) 39px 40px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 39px,
+      rgba(0, 0, 0, 0.04) 39px 40px
+    );
+}
+.light .arch-node {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent),
+    var(--bg-2);
+  box-shadow: 0 12px 30px -22px rgba(0, 0, 0, 0.35);
+}
+.light .arch-node.featured {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 18px 42px -28px rgba(124, 58, 237, 0.55);
+}
+.light .arch-payloads div {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Yield map (not in the default page, kept consistent) */
+.light .map-canvas {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.02), transparent 70%),
+    var(--bg-1);
+}
+.light .map-canvas::before {
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      transparent 0 49px,
+      rgba(0, 0, 0, 0.05) 49px 50px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0 49px,
+      rgba(0, 0, 0, 0.05) 49px 50px
+    );
+}
+.light .compass {
+  background: rgba(255, 255, 255, 0.6);
+}
+.light .pin .pin-ring {
+  fill: rgba(0, 0, 0, 0.06);
+  stroke: rgba(0, 0, 0, 0.3);
+}
+.light .map-row:hover {
+  background: rgba(0, 0, 0, 0.025);
+}
+.light .map-row.active {
+  background: rgba(241, 89, 31, 0.08);
+}
+
+/* CTA glow */
+.light .cta::before {
+  background: radial-gradient(
+    circle,
+    rgba(241, 89, 31, 0.12) 0%,
+    transparent 60%
+  );
+}
+
+/* Scrollbar */
+.light {
+  scrollbar-color: #c7c3bb #ece9e3;
+}
+.light body::-webkit-scrollbar-track,
+.light body::-webkit-scrollbar-corner {
+  background: #ece9e3;
+}
+.light body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #cbc7bf, #b6b2a9);
+  border: 2px solid #ece9e3;
+}
+.light body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b6b2a9, #9d998f);
+}

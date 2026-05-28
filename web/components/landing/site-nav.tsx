@@ -1,3 +1,5 @@
+import { ThemeToggle } from "@/components/landing/theme-toggle"
+
 const links = [
   { label: "App", href: "#" },
   { label: "Yield", href: "#" },
@@ -26,6 +28,7 @@ export function SiteNav() {
         <span className="pill">
           <span className="dot" /> DEVNET · Hackanation 2026
         </span>
+        <ThemeToggle />
         <a href="#" className="nav-social" aria-label="GitHub">
           <svg aria-hidden="true" viewBox="0 0 24 24" role="img">
             <path
