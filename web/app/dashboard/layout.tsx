@@ -17,12 +17,17 @@ export default async function DashboardRootLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name")
+    .select("name, username, account_type, business_name")
     .eq("id", user.id)
     .single()
 
   return (
-    <DashboardLayout userName={profile?.name || user.email?.split("@")[0]}>
+    <DashboardLayout
+      userName={profile?.name || user.email?.split("@")[0]}
+      accountType={(profile?.account_type as "PF" | "PJ") || "PF"}
+      businessName={profile?.business_name || undefined}
+      username={profile?.username || undefined}
+    >
       {children}
     </DashboardLayout>
   )

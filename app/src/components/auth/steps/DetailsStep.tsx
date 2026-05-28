@@ -52,7 +52,7 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
           </Text>
           <Text className="mt-2 font-sans text-[13px] leading-5 text-ink-dim">
             {isPF
-              ? "Só o essencial. Sem senha, sem burocracia."
+              ? "Só o essencial para criar sua conta."
               : "Isso vira a vitrine que seus clientes veem."}
           </Text>
         </View>
@@ -60,6 +60,15 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
         <View className="mt-6 gap-[13px]">
           {isPF ? (
             <>
+              <AuthField
+                label="Nome"
+                value={form.name}
+                onChangeText={(value) => onChangeField("name", value)}
+                placeholder="Seu nome"
+                focused={focusedField === "name"}
+                onFocus={() => onFocusField("name")}
+                onBlur={() => onFocusField(null)}
+              />
               <AuthField
                 label="E-mail"
                 value={form.email}
@@ -80,6 +89,16 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 onFocus={() => onFocusField("username")}
                 onBlur={() => onFocusField(null)}
                 showAvailable={form.username.length >= 3}
+              />
+              <AuthField
+                label="Senha"
+                value={form.password}
+                onChangeText={(value) => onChangeField("password", value)}
+                placeholder="Mínimo 6 caracteres"
+                secureTextEntry
+                focused={focusedField === "password"}
+                onFocus={() => onFocusField("password")}
+                onBlur={() => onFocusField(null)}
               />
             </>
           ) : (
@@ -119,6 +138,16 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 keyboardType="email-address"
                 focused={focusedField === "email"}
                 onFocus={() => onFocusField("email")}
+                onBlur={() => onFocusField(null)}
+              />
+              <AuthField
+                label="Senha"
+                value={form.password}
+                onChangeText={(value) => onChangeField("password", value)}
+                placeholder="Mínimo 6 caracteres"
+                secureTextEntry
+                focused={focusedField === "password"}
+                onFocus={() => onFocusField("password")}
                 onBlur={() => onFocusField(null)}
               />
             </>

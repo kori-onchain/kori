@@ -40,7 +40,7 @@ export const PinLoginStep: React.FC<PinLoginStepProps> = ({
     </View>
 
     <View className="mb-7 mt-[30px] flex-row justify-center gap-[13px]">
-      {[0, 1, 2, 3, 4, 5].map((index) => (
+      {[0, 1, 2, 3, 4].map((index) => (
         <View
           key={index}
           className={[

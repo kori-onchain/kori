@@ -1,4 +1,4 @@
-import { AuthForm, AuthUserData } from "../../../types";
+import { AuthForm, AuthUserData } from "@type/auth";
 
 export const RETURNING_USER: AuthUserData = {
   name: "Kauã",
@@ -9,6 +9,7 @@ export const RETURNING_USER: AuthUserData = {
 
 export const INITIAL_AUTH_FORM: AuthForm = {
   email: "",
+  password: "",
   name: "",
   username: "",
   storeName: "",

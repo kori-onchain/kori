@@ -11,10 +11,12 @@ import {
   Animated,
   Image,
 } from "react-native";
+import ReAnimated from "react-native-reanimated";
 import { Feather } from "@/icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "@theme/ThemeProvider";
+import { useFadeUp } from "@hooks/useFadeUp";
 import { CreditCardSection } from "@components/home/CreditCardSection";
 import { Button } from "@components/layout/Button";
 import { SoftCard } from "@components/layout/SoftCard";
@@ -348,6 +350,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
   cardsState,
 }) => {
   const { t, scheme } = useTheme();
+  const entering = useFadeUp();
 
   const purchases = [
     {
@@ -634,6 +637,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
       )}
 
       {/* Invoice + Limit Card */}
+      <ReAnimated.View entering={entering(60)}>
       <SoftCard radius={20} padding={0} style={styles.refCard}>
         <View style={styles.refTop}>
           <Text style={[styles.refLabel, { color: t.inkDim }]}>Total da fatura este mês</Text>
@@ -685,9 +689,12 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           </View>
         </View>
       </SoftCard>
+      </ReAnimated.View>
 
       {/* CreditCardSection from components/home */}
-      <CreditCardSection
+      <ReAnimated.View entering={entering(120)}>
+      <View style={styles.comingSoonWrapper}>
+        <CreditCardSection
         userName={userName}
         cards={displayCards}
         onToggleLock={toggleFreezeAction}
@@ -703,7 +710,16 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           setMainActiveIndex(index);
         }}
       />
+        <View style={styles.comingSoonOverlay}>
+          <View style={styles.comingSoonBadge}>
+            <Feather name="clock" size={14} color="#FFF" />
+            <Text style={styles.comingSoonText}>Em breve</Text>
+          </View>
+        </View>
+      </View>
+      </ReAnimated.View>
 
+      <ReAnimated.View entering={entering(180)}>
       <View style={[styles.purchasesContainer, { paddingHorizontal: 0 }]}>
         <Text style={[styles.limitTitle, { color: t.ink, marginBottom: 16 }]}>
           Últimas Compras
@@ -748,6 +764,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           </TouchableOpacity>
         ))}
       </View>
+      </ReAnimated.View>
     </ScrollView>
   );
 };
@@ -755,6 +772,36 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  comingSoonWrapper: {
+    position: "relative",
+    overflow: "hidden",
+    borderRadius: 16,
+  },
+  comingSoonOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+  comingSoonBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.15)",
+  },
+  comingSoonText: {
+    fontFamily: fonts.sans.bold,
+    fontSize: 14,
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   toast: {
     position: "absolute",

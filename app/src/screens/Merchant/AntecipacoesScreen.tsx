@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
+  Platform,
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { useTheme } from "@theme/ThemeProvider";
@@ -16,7 +17,7 @@ import { Header } from "@components/home/Header";
 import { SoftCard } from "@components/layout/SoftCard";
 import { Button } from "@components/layout/Button";
 import { useFadeUp } from "@hooks/useFadeUp";
-import { useReceivables, Receivable, AdvanceReceipt } from "@hooks/useReceivables";
+import { useReceivables, Receivable } from "@hooks/useReceivables";
 import { Feather } from "@/icons";
 
 interface AntecipacoesScreenProps {
@@ -69,10 +70,10 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
 
             <Animated.View entering={entering(120)}>
               <Text style={[styles.receiptTitle, { color: t.ink }]}>
-                Antecipacao realizada
+                Antecipação realizada
               </Text>
               <Text style={[styles.receiptSubtitle, { color: t.inkMute }]}>
-                O valor liquido sera creditado na sua conta em instantes.
+                O valor líquido será creditado na sua conta em instantes.
               </Text>
             </Animated.View>
 
@@ -84,7 +85,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                 </View>
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
                 <View style={styles.receiptRow}>
-                  <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Recebiveis</Text>
+                  <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Recebíveis</Text>
                   <Text style={[styles.receiptValue, { color: t.ink }]}>{receipt.count}</Text>
                 </View>
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
@@ -99,7 +100,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                 </View>
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
                 <View style={styles.receiptRow}>
-                  <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Liquido creditado</Text>
+                  <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Líquido creditado</Text>
                   <Text style={[styles.receiptValueBig, { color: t.green }]}>{receipt.net}</Text>
                 </View>
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
@@ -112,7 +113,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
 
             <Animated.View entering={entering(240)} style={styles.receiptBtnWrap}>
               <Button
-                label="Voltar para recebiveis"
+                label="Voltar para recebíveis"
                 variant="primary"
                 onPress={dismissReceipt}
                 full
@@ -128,10 +129,10 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
           <View style={styles.emptyContainer}>
             <Feather name="inbox" size={48} color={t.inkFaint} />
             <Text style={[styles.emptyTitle, { color: t.ink }]}>
-              Nenhum recebivel pendente
+              Nenhum recebível pendente
             </Text>
             <Text style={[styles.emptySubtitle, { color: t.inkMute }]}>
-              Seus recebiveis aparecerao aqui quando voce tiver vendas
+              Seus recebíveis aparecerão aqui quando você tiver vendas
               parceladas.
             </Text>
           </View>
@@ -149,7 +150,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                 style={styles.heroCard}
               >
                 <Text style={[styles.heroLabel, { color: t.inkMute }]}>
-                  TOTAL DISPONIVEL PARA ANTECIPAR
+                  TOTAL DISPONÍVEL PARA ANTECIPAR
                 </Text>
                 <Text style={[styles.heroAmount, { color: t.ink }]}>
                   {totalGross}
@@ -157,7 +158,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                 <View style={styles.heroRow}>
                   <View style={styles.heroStat}>
                     <Text style={[styles.heroStatLabel, { color: t.inkMute }]}>
-                      Liquido estimado
+                      Líquido estimado
                     </Text>
                     <Text style={[styles.heroStatValue, { color: t.green }]}>
                       {totalNet}
@@ -181,7 +182,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
             {/* List header */}
             <Animated.View entering={entering(120)} style={styles.listHeader}>
               <Text style={[styles.sectionTitle, { color: t.ink }]}>
-                Recebiveis pendentes
+                Recebíveis pendentes
               </Text>
               <TouchableOpacity activeOpacity={0.7} onPress={selectAll}>
                 <Text style={[styles.selectAll, { color: t.orange }]}>
@@ -290,8 +291,8 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                     <Text style={[styles.summaryLabel, { color: t.inkDim }]}>
                       {selectedSummary.count}{" "}
                       {selectedSummary.count === 1
-                        ? "recebivel"
-                        : "recebiveis"}
+                        ? "recebível"
+                        : "recebíveis"}
                     </Text>
                     <Text style={[styles.summaryValue, { color: t.ink }]}>
                       {selectedSummary.gross}
@@ -299,7 +300,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                   </View>
                   <View style={styles.summaryRow}>
                     <Text style={[styles.summaryLabel, { color: t.inkDim }]}>
-                      Liquido estimado
+                      Líquido estimado
                     </Text>
                     <Text style={[styles.summaryValue, { color: t.green }]}>
                       {selectedSummary.net}
@@ -309,7 +310,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
 
                 <View style={styles.ctaBtnWrap}>
                   <Button
-                    label={`Antecipar ${selectedSummary.count} ${selectedSummary.count === 1 ? "recebivel" : "recebiveis"}`}
+                    label={`Antecipar ${selectedSummary.count} ${selectedSummary.count === 1 ? "recebível" : "recebíveis"}`}
                     variant="primary"
                     onPress={() => setShowConfirmation(true)}
                     full
@@ -327,71 +328,107 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
           </ScrollView>
         )}
 
-        {/* Confirmation Modal */}
+        {/* Confirmation Drawer */}
         <Modal
           visible={showConfirmation}
           transparent
-          animationType="fade"
-          onRequestClose={() => setShowConfirmation(false)}
+          animationType="slide"
+          onRequestClose={() => !isProcessing && setShowConfirmation(false)}
+          statusBarTranslucent
         >
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: t.bg }]}>
-              <Text style={[styles.modalTitle, { color: t.ink }]}>
-                Confirmar antecipacao
-              </Text>
+          <View style={styles.drawerOverlay}>
+            <TouchableOpacity
+              style={styles.drawerBackdrop}
+              activeOpacity={1}
+              onPress={() => !isProcessing && setShowConfirmation(false)}
+            >
+              <View style={{ flex: 1 }} />
+            </TouchableOpacity>
+            <View
+              style={[
+                styles.drawer,
+                { backgroundColor: t.bg, borderColor: t.line },
+              ]}
+            >
+              <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
 
-              <View style={[styles.modalDivider, { backgroundColor: t.line }]} />
+              <View style={styles.drawerBody}>
+                <View
+                  style={[
+                    styles.drawerIconCircle,
+                    { backgroundColor: "rgba(255, 107, 61, 0.12)" },
+                  ]}
+                >
+                  <Feather name="zap" size={28} color={t.orange} />
+                </View>
 
-              <View style={styles.modalRow}>
-                <Text style={[styles.modalLabel, { color: t.inkDim }]}>
-                  Recebiveis
+                <Text style={[styles.drawerTitle, { color: t.ink }]}>
+                  Confirmar antecipação
                 </Text>
-                <Text style={[styles.modalValue, { color: t.ink }]}>
-                  {selectedSummary.count}
+                <Text style={[styles.drawerDesc, { color: t.inkDim }]}>
+                  Você está antecipando {selectedSummary.count}{" "}
+                  {selectedSummary.count === 1 ? "recebível" : "recebíveis"}.
+                  Confira os detalhes abaixo.
                 </Text>
-              </View>
-              <View style={styles.modalRow}>
-                <Text style={[styles.modalLabel, { color: t.inkDim }]}>
-                  Total bruto
-                </Text>
-                <Text style={[styles.modalValue, { color: t.ink }]}>
-                  {selectedSummary.gross}
-                </Text>
-              </View>
-              <View style={styles.modalRow}>
-                <Text style={[styles.modalLabel, { color: t.inkDim }]}>
-                  Taxa
-                </Text>
-                <Text style={[styles.modalValue, { color: t.orange }]}>
-                  {advanceRate}
-                </Text>
-              </View>
-              <View style={styles.modalRow}>
-                <Text style={[styles.modalLabel, { color: t.inkDim }]}>
-                  Liquido a receber
-                </Text>
-                <Text style={[styles.modalValueBig, { color: t.green }]}>
-                  {selectedSummary.net}
-                </Text>
-              </View>
 
-              <View style={[styles.modalDivider, { backgroundColor: t.line }]} />
+                <View
+                  style={[
+                    styles.drawerCard,
+                    { backgroundColor: t.bgElev, borderColor: t.line },
+                  ]}
+                >
+                  <View style={styles.drawerRow}>
+                    <Text style={[styles.drawerLabel, { color: t.inkDim }]}>
+                      Recebíveis
+                    </Text>
+                    <Text style={[styles.drawerValue, { color: t.ink }]}>
+                      {selectedSummary.count}
+                    </Text>
+                  </View>
+                  <View style={[styles.drawerDivider, { backgroundColor: t.line }]} />
+                  <View style={styles.drawerRow}>
+                    <Text style={[styles.drawerLabel, { color: t.inkDim }]}>
+                      Total bruto
+                    </Text>
+                    <Text style={[styles.drawerValue, { color: t.ink }]}>
+                      {selectedSummary.gross}
+                    </Text>
+                  </View>
+                  <View style={[styles.drawerDivider, { backgroundColor: t.line }]} />
+                  <View style={styles.drawerRow}>
+                    <Text style={[styles.drawerLabel, { color: t.inkDim }]}>
+                      Taxa
+                    </Text>
+                    <Text style={[styles.drawerValue, { color: t.orange }]}>
+                      {advanceRate}
+                    </Text>
+                  </View>
+                  <View style={[styles.drawerDivider, { backgroundColor: t.line }]} />
+                  <View style={styles.drawerRow}>
+                    <Text style={[styles.drawerLabel, { color: t.inkDim }]}>
+                      Líquido a receber
+                    </Text>
+                    <Text style={[styles.drawerValueBig, { color: t.green }]}>
+                      {selectedSummary.net}
+                    </Text>
+                  </View>
+                </View>
 
-              <View style={styles.modalActions}>
                 {isProcessing ? (
                   <View style={styles.processingWrap}>
                     <ActivityIndicator size="small" color={t.orange} />
                     <Text style={[styles.processingText, { color: t.inkMute }]}>
-                      Processando antecipacao...
+                      Processando antecipação...
                     </Text>
                   </View>
                 ) : (
-                  <>
+                  <View style={styles.drawerActions}>
                     <Button
-                      label="Confirmar"
+                      label="Confirmar antecipação"
                       variant="primary"
                       onPress={confirmAdvance}
                       full
+                      icon={<Feather name="check" size={16} color={t.btnPrimaryFg} />}
                     />
                     <Button
                       label="Cancelar"
@@ -399,7 +436,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                       onPress={() => setShowConfirmation(false)}
                       full
                     />
-                  </>
+                  </View>
                 )}
               </View>
             </View>
@@ -583,55 +620,99 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Confirmation modal
-  modalOverlay: {
+  // Confirmation drawer
+  drawerOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    justifyContent: "flex-end",
+  },
+  drawerBackdrop: {
+    flex: 1,
+  },
+  drawer: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    paddingBottom: Platform.OS === "ios" ? 40 : 28,
+    overflow: "hidden",
+  },
+  handleBar: {
+    width: 44,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: "center",
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  drawerBody: {
+    paddingHorizontal: 24,
     alignItems: "center",
-    padding: 24,
+    paddingBottom: 8,
   },
-  modalContent: {
-    width: "100%",
-    borderRadius: 20,
-    padding: 24,
-    gap: 16,
+  drawerIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
   },
-  modalTitle: {
+  drawerTitle: {
     fontFamily: fonts.sans.bold,
     fontSize: 20,
     letterSpacing: -0.4,
     textAlign: "center",
+    marginBottom: 8,
   },
-  modalDivider: {
-    height: 1,
+  drawerDesc: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: "center",
+    marginBottom: 20,
+    paddingHorizontal: 12,
   },
-  modalRow: {
+  drawerCard: {
+    width: "100%",
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 24,
+  },
+  drawerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingVertical: 8,
   },
-  modalLabel: {
+  drawerDivider: {
+    height: 1,
+  },
+  drawerLabel: {
     fontFamily: fonts.sans.medium,
     fontSize: 14,
   },
-  modalValue: {
-    fontFamily: fonts.sans.bold,
+  drawerValue: {
+    fontFamily: fonts.mono.semibold,
     fontSize: 14,
+    letterSpacing: 0.2,
   },
-  modalValueBig: {
+  drawerValueBig: {
     fontFamily: fonts.sans.bold,
     fontSize: 18,
     letterSpacing: -0.3,
   },
-  modalActions: {
-    gap: 8,
+  drawerActions: {
+    width: "100%",
+    gap: 10,
   },
   processingWrap: {
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    paddingVertical: 16,
+    paddingVertical: 20,
   },
   processingText: {
     fontFamily: fonts.sans.medium,

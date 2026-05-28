@@ -182,9 +182,7 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
                 <View style={styles.cardInner}>
                   {/* Top row with XP-like Kori logo and digital credit badge */}
                   <View style={styles.cardTopRow}>
-                    <View style={styles.logoBadgeContainer}>
-                      <KoriGlyph size={12} color="#000" />
-                    </View>
+                    <KoriGlyph size={18} color="#FFFFFF" />
                     <View style={styles.digitalCreditBadge}>
                       <Text style={styles.digitalCreditText}>
                         Crédito digital
@@ -382,14 +380,6 @@ const styles = StyleSheet.create({
   cardTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-  },
-  logoBadgeContainer: {
-    width: 28,
-    height: 28,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 7,
-    justifyContent: "center",
     alignItems: "center",
   },
   digitalCreditBadge: {

@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { AuthStage, AccountType, AuthForm, AuthUserData } from "@type/auth";
-import { INITIAL_AUTH_FORM, RETURNING_USER } from "@constants/authConstants";
+import { INITIAL_AUTH_FORM } from "@constants/authConstants";
 import {
   cleanUsername,
   resolveSignupData,
   validateAuthDetails,
 } from "@/utils/authUtils";
+import {
+  signUpWithEmail,
+  signInWithEmail,
+  upsertProfile,
+  getProfile,
+  getSession,
+} from "@/lib/authService";
+import { verifyPin } from "@/lib/pinService";
+import { MOCK_AUTH, MOCK_SESSION } from "@constants/devConfig";
 
 interface UseAuthLogicParams {
   onAuthSuccess: (userData: AuthUserData, isSignup: boolean) => void;
@@ -20,6 +29,7 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
   const [pin, setPin] = useState<string[]>([]);
   const [walletStep, setWalletStep] = useState(0);
   const [loadingWallet, setLoadingWallet] = useState(false);
+  const [loadingLogin, setLoadingLogin] = useState(false);
 
   useEffect(() => {
     if (stage !== "wallet") return;
@@ -27,18 +37,58 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     setLoadingWallet(true);
     setWalletStep(0);
 
-    const timers = [
-      setTimeout(() => setWalletStep(1), 450),
-      setTimeout(() => setWalletStep(2), 950),
-      setTimeout(() => setWalletStep(3), 1450),
+    const signupData = resolveSignupData(form, accountType);
+
+    if (MOCK_AUTH) {
+      const timers = [
+        setTimeout(() => setWalletStep(1), 450),
+        setTimeout(() => setWalletStep(2), 950),
+        setTimeout(() => setWalletStep(3), 1450),
+        setTimeout(() => {
+          setLoadingWallet(false);
+          onAuthSuccess(signupData, true);
+        }, 2100),
+      ];
+      return () => timers.forEach(clearTimeout);
+    }
+
+    const doSignup = async () => {
+      const { data, error: signupError } = await signUpWithEmail(
+        form.email.trim().toLowerCase(),
+        form.password,
+      );
+
+      if (signupError || !data.user) {
+        setLoadingWallet(false);
+        setError(signupError?.message || "Erro ao criar conta.");
+        setStage("details");
+        return;
+      }
+
+      const userId = data.user.id;
+
+      await upsertProfile(userId, {
+        name: signupData.name,
+        username: signupData.username,
+        account_type: signupData.accountType,
+        business_name:
+          accountType === "PJ" ? form.storeName.trim() || undefined : undefined,
+      });
+
+      setWalletStep(1);
+      setTimeout(() => setWalletStep(2), 500);
+      setTimeout(() => setWalletStep(3), 1000);
       setTimeout(() => {
         setLoadingWallet(false);
-        onAuthSuccess(resolveSignupData(form, accountType), true);
-      }, 2100),
-    ];
+        onAuthSuccess(
+          { ...signupData, supabaseId: userId },
+          true,
+        );
+      }, 1600);
+    };
 
-    return () => timers.forEach(clearTimeout);
-  }, [accountType, form, onAuthSuccess, stage]);
+    doSignup();
+  }, [stage === "wallet"]);
 
   const startSignup = (emailSeed?: string) => {
     setForm((prev) => ({ ...prev, email: prev.email || emailSeed || "" }));
@@ -46,11 +96,21 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     setStage("accountType");
   };
 
+  const startLogin = () => {
+    setError(null);
+    setStage("login");
+  };
+
   const handleBack = () => {
     setError(null);
 
     if (stage === "pin") {
       setPin([]);
+      setStage("welcome");
+      return;
+    }
+
+    if (stage === "login") {
       setStage("welcome");
       return;
     }
@@ -83,14 +143,119 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     setStage("wallet");
   };
 
+  const handleLogin = async () => {
+    if (!form.email.trim()) {
+      setError("O e-mail é obrigatório.");
+      return;
+    }
+    if (!form.password.trim()) {
+      setError("A senha é obrigatória.");
+      return;
+    }
+
+    setLoadingLogin(true);
+    setError(null);
+
+    if (MOCK_AUTH) {
+      setTimeout(() => {
+        setLoadingLogin(false);
+        onAuthSuccess(
+          {
+            name: MOCK_SESSION.name,
+            email: form.email.trim().toLowerCase() || MOCK_SESSION.email,
+            accountType: MOCK_SESSION.accountType,
+            username: MOCK_SESSION.username,
+          },
+          false,
+        );
+      }, 600);
+      return;
+    }
+
+    const { data, error: loginError } = await signInWithEmail(
+      form.email.trim().toLowerCase(),
+      form.password,
+    );
+
+    if (loginError || !data.user) {
+      setLoadingLogin(false);
+      setError(loginError?.message === "Invalid login credentials"
+        ? "E-mail ou senha incorretos."
+        : loginError?.message || "Erro ao entrar.");
+      return;
+    }
+
+    const { data: profile } = await getProfile(data.user.id);
+
+    setLoadingLogin(false);
+
+    onAuthSuccess(
+      {
+        name: profile?.name || data.user.email?.split("@")[0] || "Usuário",
+        email: data.user.email || "",
+        accountType: (profile?.account_type as AccountType) || "PF",
+        username: profile?.username || data.user.email?.split("@")[0] || "user",
+        supabaseId: data.user.id,
+        businessName: profile?.business_name || undefined,
+      },
+      false,
+    );
+  };
+
   const handlePinDigit = (digit: string) => {
-    if (pin.length >= 6) return;
+    if (pin.length >= 5) return;
 
     const next = [...pin, digit];
     setPin(next);
 
-    if (next.length === 6) {
-      setTimeout(() => onAuthSuccess(RETURNING_USER, false), 250);
+    if (next.length === 5) {
+      const pinStr = next.join("");
+
+      if (MOCK_AUTH) {
+        setTimeout(() => {
+          onAuthSuccess(
+            {
+              name: MOCK_SESSION.name,
+              email: MOCK_SESSION.email,
+              accountType: MOCK_SESSION.accountType,
+              username: MOCK_SESSION.username,
+            },
+            false,
+          );
+        }, 250);
+        return;
+      }
+
+      (async () => {
+        const valid = await verifyPin(pinStr);
+        if (!valid) {
+          setError("PIN incorreto.");
+          setPin([]);
+          return;
+        }
+
+        const { data } = await getSession();
+        if (!data.session?.user) {
+          setError("Sessão expirada. Faça login novamente.");
+          setPin([]);
+          setStage("login");
+          return;
+        }
+
+        const { data: profile } = await getProfile(data.session.user.id);
+
+        onAuthSuccess(
+          {
+            name: profile?.name || data.session.user.email?.split("@")[0] || "Usuário",
+            email: data.session.user.email || "",
+            accountType: (profile?.account_type as AccountType) || "PF",
+            username: profile?.username || "user",
+            supabaseId: data.session.user.id,
+            businessName: profile?.business_name || undefined,
+          },
+          false,
+        );
+      })();
     }
   };
 
@@ -111,10 +276,13 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     setPin,
     walletStep,
     loadingWallet,
+    loadingLogin,
     startSignup,
+    startLogin,
     handleBack,
     handleChangeField,
     handleCreateAccount,
+    handleLogin,
     handlePinDigit,
     activeUsername,
   };

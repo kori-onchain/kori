@@ -1,4 +1,4 @@
-import { AccountType, AuthForm, AuthUserData } from "../../../types";
+import { AccountType, AuthForm, AuthUserData } from "@type/auth";
 
 export const cleanUsername = (value: string) =>
   value.replace(/[^a-zA-Z0-9._-]/g, "").toLowerCase();
@@ -8,8 +8,13 @@ export const validateAuthDetails = (form: AuthForm, accountType: AccountType) =>
   if (!form.email.includes("@") || !form.email.includes(".")) {
     return "Digite um e-mail válido.";
   }
+  if (!form.password.trim()) return "A senha é obrigatória.";
+  if (form.password.trim().length < 6) {
+    return "A senha precisa ter pelo menos 6 caracteres.";
+  }
 
   if (accountType === "PF") {
+    if (!form.name.trim()) return "O nome é obrigatório.";
     if (!form.username.trim()) return "Escolha seu @username.";
     if (form.username.trim().length < 3) {
       return "O username precisa ter pelo menos 3 caracteres.";

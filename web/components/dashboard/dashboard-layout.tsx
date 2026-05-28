@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
@@ -8,7 +9,10 @@ import {
   LayoutGrid,
   LogOut,
   Search,
+  Send,
   Store,
+  TicketCheck,
+  Wallet,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +20,8 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { SolanaLogo } from "./shared"
+
+type AccountType = "PF" | "PJ"
 
 /* ─── NAV ─── */
 
@@ -53,8 +59,37 @@ function NavItem({
 
 /* ─── LAYOUT ─── */
 
-export function DashboardLayout({ userName, children }: { userName?: string; children: React.ReactNode }) {
+export function DashboardLayout({
+  userName,
+  accountType = "PF",
+  businessName,
+  username,
+  children,
+}: {
+  userName?: string
+  accountType?: AccountType
+  businessName?: string
+  username?: string
+  children: React.ReactNode
+}) {
   const router = useRouter()
+  const [localAccountType, setLocalAccountType] = useState<AccountType>(accountType)
+
+  const handleSwitchAccountType = async (next: AccountType) => {
+    if (next === localAccountType) return
+    setLocalAccountType(next)
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (user) {
+      await supabase.from("profiles").update({ account_type: next }).eq("id", user.id)
+    }
+    router.refresh()
+  }
+
+  const isPJ = localAccountType === "PJ"
+  const displayName = isPJ ? businessName || userName : userName
 
   return (
     <main className="grid min-h-svh grid-cols-[224px_1fr] bg-ds-bg text-ds-ink">
@@ -69,17 +104,48 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
         </div>
 
         <div className="mx-1 mt-3.5 mb-5 flex gap-0.5 rounded-[10px] border border-ds-line bg-[#0e0e11] p-0.5">
-          <button className="soft-card-sm flex-1 rounded-[7px] py-[7px] text-center text-[11px] font-semibold text-ds-ink">Investidor</button>
-          <button className="flex-1 rounded-[7px] py-[7px] text-center text-[11px] font-semibold text-ds-mute">Comércio</button>
+          <button
+            onClick={() => handleSwitchAccountType("PF")}
+            className={cn(
+              "flex-1 rounded-[7px] py-[7px] text-center text-[11px] font-semibold transition-colors",
+              !isPJ ? "soft-card-sm text-ds-ink" : "text-ds-mute"
+            )}
+          >
+            Investidor
+          </button>
+          <button
+            onClick={() => handleSwitchAccountType("PJ")}
+            className={cn(
+              "flex-1 rounded-[7px] py-[7px] text-center text-[11px] font-semibold transition-colors",
+              isPJ ? "soft-card-sm text-ds-ink" : "text-ds-mute"
+            )}
+          >
+            Comércio
+          </button>
         </div>
 
         <div className="mb-[7px] mt-4 px-2.5 font-mono text-[8px] uppercase tracking-[0.15em] text-ds-faint">Geral</div>
         <NavItem href="/dashboard" icon={LayoutGrid} label="Dashboard" />
-        <NavItem href="/dashboard/cartao" icon={CreditCard} label="Meu cartão" />
-        <NavItem href="/dashboard/invest" icon={Layers} label="Portfólio" />
+        <NavItem href="/dashboard/pagamentos" icon={Send} label="Pagamentos" />
+        {!isPJ && (
+          <>
+            <NavItem href="/dashboard/cartao" icon={CreditCard} label="Meu cartão" />
+            <NavItem href="/dashboard/invest" icon={Layers} label="Portfólio" />
+          </>
+        )}
+        {isPJ && (
+          <>
+            <NavItem href="/dashboard/loja" icon={Store} label="Minha loja" />
+            <NavItem href="/dashboard/antecipacoes" icon={TicketCheck} label="Antecipações" />
+          </>
+        )}
 
-        <div className="mb-[7px] mt-4 px-2.5 font-mono text-[8px] uppercase tracking-[0.15em] text-ds-faint">Operação</div>
-        <NavItem href="/dashboard/loja" icon={Store} label="Comércios" badge="42" />
+        {!isPJ && (
+          <>
+            <div className="mb-[7px] mt-4 px-2.5 font-mono text-[8px] uppercase tracking-[0.15em] text-ds-faint">Operação</div>
+            <NavItem href="/dashboard/loja" icon={Store} label="Comércios" badge="42" />
+          </>
+        )}
 
         <div className="mt-auto">
           <div className="soft-card-sm flex items-center gap-[9px] rounded-[11px] p-2.5">
@@ -90,8 +156,10 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
               </span>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs font-semibold">{userName || "Usuário"}</div>
-              <div className="font-mono text-[8px] text-ds-mute">7nxB...4X1a</div>
+              <div className="text-xs font-semibold truncate">{displayName || "Usuário"}</div>
+              <div className="font-mono text-[8px] text-ds-mute">
+                {username ? `@${username}` : "7nxB...4X1a"}
+              </div>
             </div>
             <button
               aria-label="Sair"
@@ -113,7 +181,9 @@ export function DashboardLayout({ userName, children }: { userName?: string; chi
       <div className="flex min-w-0 flex-col">
         <div className="flex items-center justify-between border-b border-ds-line px-6 py-4">
           <div>
-            <div className="text-lg font-bold tracking-tight">Bom te ver, {userName?.split(" ")[0] || "Investidor"}</div>
+            <div className="text-lg font-bold tracking-tight">
+              Bom te ver, {displayName?.split(" ")[0] || (isPJ ? "Lojista" : "Investidor")}
+            </div>
             <div className="mt-0.5 font-mono text-[9px] text-ds-mute">último acesso: hoje, 09:12</div>
           </div>
           <div className="flex items-center gap-2.5">

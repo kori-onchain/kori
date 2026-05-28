@@ -44,7 +44,7 @@ interface UseReceivablesReturn {
 const MOCK_RECEIVABLES: Receivable[] = [
   {
     id: "1",
-    description: "Venda #3821 — Tenis Air Pro",
+    description: "Venda #3821 — Tênis Air Pro",
     dueDate: "02 jun 2026",
     grossAmount: "R$ 1.200,00",
     grossValue: 1200,
@@ -98,6 +98,8 @@ const MOCK_RECEIVABLES: Receivable[] = [
     status: "pendente",
   },
 ];
+
+const ADVANCE_RATE = "3% a.m.";
 
 const formatBRL = (value: number): string =>
   `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -189,7 +191,7 @@ export const useReceivables = (): UseReceivablesReturn => {
         count: summary.count,
         gross: summary.gross,
         net: summary.net,
-        rate: "3% a.m.",
+        rate: ADVANCE_RATE,
         date: `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h")}`,
         protocol: generateProtocol(),
       });
@@ -215,7 +217,7 @@ export const useReceivables = (): UseReceivablesReturn => {
     selectedSummary,
     totalGross,
     totalNet,
-    advanceRate: "3% a.m.",
+    advanceRate: ADVANCE_RATE,
     confirmAdvance,
     showConfirmation,
     setShowConfirmation,

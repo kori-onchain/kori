@@ -484,7 +484,7 @@ export const ExperiencesPanel: React.FC = () => {
 
       {/* ─── ABA: MEUS INGRESSOS ─── */}
       {meusIngs.length > 0 && (
-        <View style={ls.mySection}>
+        <ReAnimated.View entering={entering(240)} style={ls.mySection}>
           <Text style={[ls.mySectionTitle, { color: t.ink }]}>Meus Ingressos</Text>
 
           {meusIngs.map((tkt) => (
@@ -522,10 +522,11 @@ export const ExperiencesPanel: React.FC = () => {
               </View>
             </TouchableOpacity>
           ))}
-        </View>
+        </ReAnimated.View>
       )}
 
       {/* ─── CARDS DE EVENTOS ─── */}
+      <ReAnimated.View entering={entering(300)}>
       <Text style={[ls.sectionLabel, { color: t.ink, marginBottom: 12 }]}>
         {visiveis.length > 0 ? "Eventos Disponíveis" : "Nenhum evento encontrado"}
       </Text>
@@ -558,6 +559,7 @@ export const ExperiencesPanel: React.FC = () => {
           </TouchableOpacity>
         ))}
       </View>
+      </ReAnimated.View>
     </ScrollView>
   );
 };

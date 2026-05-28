@@ -1,14 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import { useTheme } from "@theme/ThemeProvider";
 import { useAuthLogic } from "@hooks/useAuthLogic";
 import { WelcomeStep } from "@components/auth/steps/WelcomeStep";
+import { LoginStep } from "@components/auth/steps/LoginStep";
 import { PinLoginStep } from "@components/auth/steps/PinLoginStep";
 import { AccountTypeStep } from "@components/auth/steps/AccountTypeStep";
 import { DetailsStep } from "@components/auth/steps/DetailsStep";
 import { WalletStep } from "@components/auth/steps/WalletStep";
 import { AuthUserData } from "@type/auth";
 import { RETURNING_USER } from "@constants/authConstants";
+import { hasPin } from "@/lib/pinService";
+import { getSession } from "@/lib/authService";
+import { MOCK_AUTH } from "@constants/devConfig";
 
 interface AuthScreenProps {
   onAuthSuccess: (userData: AuthUserData, isSignup: boolean) => void;
@@ -18,6 +22,20 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
   Container: React.FC<{ children: React.ReactNode; bg: string; barStyle: any }>;
 } = ({ onAuthSuccess }) => {
   const { t } = useTheme();
+  const [hasSavedPin, setHasSavedPin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const pinExists = await hasPin();
+      if (MOCK_AUTH) {
+        setHasSavedPin(pinExists);
+        return;
+      }
+      const { data } = await getSession();
+      setHasSavedPin(pinExists && !!data.session);
+    })();
+  }, []);
+
   const {
     stage,
     accountType,
@@ -29,10 +47,13 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
     pin,
     walletStep,
     loadingWallet,
+    loadingLogin,
     startSignup,
+    startLogin,
     handleBack,
     handleChangeField,
     handleCreateAccount,
+    handleLogin,
     handlePinDigit,
     setPin,
     setStage,
@@ -43,10 +64,30 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
     <AuthScreen.Container bg={t.bg} barStyle={t.statusBar}>
       {stage === "welcome" && (
         <WelcomeStep
-          onSignupWithApple={() => startSignup("kaua@icloud.com")}
-          onSignupWithGoogle={() => startSignup("kaua@gmail.com")}
+          onSignupWithApple={() => startSignup()}
+          onSignupWithGoogle={() => startSignup()}
           onSignupWithEmail={() => startSignup()}
-          onPinLogin={() => setStage("pin")}
+          onPinLogin={() => {
+            if (hasSavedPin) {
+              setStage("pin");
+            } else {
+              startLogin();
+            }
+          }}
+        />
+      )}
+
+      {stage === "login" && (
+        <LoginStep
+          form={form}
+          focusedField={focusedField}
+          error={error}
+          loading={loadingLogin}
+          onBack={handleBack}
+          onFocusField={setFocusedField}
+          onChangeField={handleChangeField}
+          onLogin={handleLogin}
+          onCreateAccount={() => startSignup()}
         />
       )}
 
@@ -59,7 +100,7 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
           onBack={handleBack}
           onSwitchAccount={() => {
             setPin([]);
-            setStage("welcome");
+            startLogin();
           }}
         />
       )}

@@ -14,6 +14,7 @@ type AuthFieldProps = {
   select?: boolean;
   showAvailable?: boolean;
   keyboardType?: TextInputProps["keyboardType"];
+  secureTextEntry?: boolean;
 };
 
 export const AuthField: React.FC<AuthFieldProps> = ({
@@ -28,6 +29,7 @@ export const AuthField: React.FC<AuthFieldProps> = ({
   select = false,
   showAvailable = false,
   keyboardType = "default",
+  secureTextEntry = false,
 }) => (
   <View className="w-full">
     <Text className="mb-1.5 font-mono-medium text-[9px] uppercase tracking-[1.1px] text-ink-mute">
@@ -54,8 +56,9 @@ export const AuthField: React.FC<AuthFieldProps> = ({
         onBlur={onBlur}
         keyboardType={keyboardType}
         editable={!select}
+        secureTextEntry={secureTextEntry}
         autoCapitalize={
-          prefix || keyboardType === "email-address" ? "none" : "words"
+          prefix || keyboardType === "email-address" || secureTextEntry ? "none" : "words"
         }
         autoCorrect={false}
       />

@@ -8,7 +8,10 @@ export function useAuth() {
   const [loading, setLoading] = useState(!MOCK_AUTH);
 
   useEffect(() => {
-    if (MOCK_AUTH) return;
+    if (MOCK_AUTH) {
+      setLoading(false);
+      return;
+    }
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);

@@ -3,18 +3,15 @@ import { View, StyleSheet, Animated, StatusBar } from "react-native";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "@theme/ThemeProvider";
-import { KoriGlyph, KoriWordmark } from "@components/layout/icons";
+import { KoriGlyph } from "@components/layout/icons";
 import { useSplashLogic } from "@hooks/useSplashLogic";
 
 interface SplashScreenProps {
   onAnimationComplete: () => void;
 }
 
-const GLYPH_SIZE = 110;
-const WORDMARK_HEIGHT = 22;
-const STACK_GAP = 16;
-const WRAPPER_WIDTH = 170;
-const WRAPPER_HEIGHT = GLYPH_SIZE + STACK_GAP + WORDMARK_HEIGHT;
+const GLYPH_SIZE = 120;
+const WRAPPER_SIZE = GLYPH_SIZE;
 
 export const SplashScreen: React.FC<SplashScreenProps> & {
   Container: React.FC<{ children: React.ReactNode; bg: string; barStyle: any }>;
@@ -78,8 +75,6 @@ const SplashScreenShimmerMask: React.FC<{ children: React.ReactNode }> = ({
     maskElement={
       <View style={styles.maskStack}>
         <KoriGlyph size={GLYPH_SIZE} color="#000" />
-        <View style={{ height: STACK_GAP }} />
-        <KoriWordmark height={WORDMARK_HEIGHT} color="#000" />
       </View>
     }
   >
@@ -127,8 +122,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logoWrapper: {
-    width: WRAPPER_WIDTH,
-    height: WRAPPER_HEIGHT,
+    width: WRAPPER_SIZE,
+    height: WRAPPER_SIZE,
     position: "relative",
   },
   maskStack: {
@@ -148,7 +143,7 @@ const styles = StyleSheet.create({
   shimmerSweep: {
     position: "absolute",
     width: 70,
-    height: WRAPPER_HEIGHT + 120,
+    height: WRAPPER_SIZE + 120,
     top: -60,
     left: -40,
   },
