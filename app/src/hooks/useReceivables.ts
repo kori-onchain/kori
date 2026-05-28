@@ -41,6 +41,14 @@ interface UseReceivablesReturn {
   dismissReceipt: () => void;
 }
 
+interface UseReceivablesParams {
+  onAdvanceCredited?: (credit: {
+    amount: number;
+    formattedAmount: string;
+    protocol: string;
+  }) => void;
+}
+
 const MOCK_RECEIVABLES: Receivable[] = [
   {
     id: "1",
@@ -111,7 +119,9 @@ const generateProtocol = (): string => {
   return `ANT-${date}-${rand}`;
 };
 
-export const useReceivables = (): UseReceivablesReturn => {
+export const useReceivables = ({
+  onAdvanceCredited,
+}: UseReceivablesParams = {}): UseReceivablesReturn => {
   const [receivables, setReceivables] = useState<Receivable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -187,20 +197,30 @@ export const useReceivables = (): UseReceivablesReturn => {
       );
 
       const now = new Date();
+      const protocol = generateProtocol();
       setReceipt({
         count: summary.count,
         gross: summary.gross,
         net: summary.net,
         rate: ADVANCE_RATE,
         date: `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h")}`,
-        protocol: generateProtocol(),
+        protocol,
+      });
+
+      const credited = pendingReceivables
+        .filter((r) => advancedIds.has(r.id))
+        .reduce((sum, r) => sum + r.netValue, 0);
+      onAdvanceCredited?.({
+        amount: credited,
+        formattedAmount: summary.net,
+        protocol,
       });
 
       setSelected(new Set());
       setShowConfirmation(false);
       setIsProcessing(false);
     }, 1200);
-  }, [selected, selectedSummary]);
+  }, [onAdvanceCredited, pendingReceivables, selected, selectedSummary]);
 
   const dismissReceipt = useCallback(() => {
     setReceipt(null);

@@ -11,6 +11,7 @@ import Svg, {
   LinearGradient as SvgGrad,
   Stop,
   Circle,
+  Text as SvgText,
 } from "react-native-svg";
 
 const { width: SCREEN_W } = Dimensions.get("window");
@@ -47,7 +48,7 @@ export const Opportunities: React.FC = () => {
         style={styles.carouselScrollView}
       >
         {/* Slide 1: CDBs de 105% (Portuguese & Cash theme) */}
-        <View style={[styles.card, { backgroundColor: t.bg2 || t.bgElev, borderColor: t.cardBorder }]}>
+        <View style={[styles.card, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
           <View style={styles.inner}>
             {/* Left copy section */}
             <View style={styles.leftContent}>
@@ -111,7 +112,7 @@ export const Opportunities: React.FC = () => {
                 {/* 3D Golden Coin at Center */}
                 <Circle cx="76" cy="52" r="20" fill="url(#goldCoinGrad)" />
                 <Circle cx="76" cy="52" r="16" fill="none" stroke={t.orangeDark} strokeWidth="1.5" />
-                <Text x="76" y="58" fontSize="20" fontWeight="bold" fill={t.bg} textAnchor="middle">$</Text>
+                <SvgText x="76" y="58" fontSize="20" fontWeight="bold" fill={t.bg} textAnchor="middle">$</SvgText>
 
                 {/* Green staking badge in circle */}
                 <Circle cx="38" cy="38" r="14" fill={t.green} />
@@ -123,7 +124,7 @@ export const Opportunities: React.FC = () => {
         </View>
 
         {/* Slide 2: Renda Variável (Portuguese & Growth theme) */}
-        <View style={[styles.card, { backgroundColor: t.bg2 || t.bgElev, borderColor: t.cardBorder }]}>
+        <View style={[styles.card, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
           <View style={styles.inner}>
             {/* Left copy section */}
             <View style={styles.leftContent}>

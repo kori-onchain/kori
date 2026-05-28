@@ -164,7 +164,7 @@ export const PaymentSecondaryButton: React.FC<{
 
 export const PaymentCard: React.FC<{
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   padding?: number;
 }> = ({ children, style, padding = 16 }) => (
   <SoftCard radius={radii.card} padding={padding} style={style}>

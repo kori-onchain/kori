@@ -15,7 +15,8 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
   const { contacts, addContact } = useContacts();
   const { modals, open, close } = useModals();
   const { cards, toggleFreeze } = useCards();
-  const { transactions } = useTransactions();
+  const { transactions, addTransaction } = useTransactions();
+  const [balanceValue, setBalanceValue] = useState(74352.93);
 
   const [activeTab, setActiveTab] = useState("inicio");
   const [sendIntent, setSendIntent] = useState<Partial<PaymentIntent>>({});
@@ -119,6 +120,34 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
   const walletHashFull = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
   const walletHashShort = "7nxB...4X1a";
   const userHandle = username ? `@${username}` : "@opedrooz";
+  const formattedBalance = balanceValue.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  });
+  const [balanceInteger = "R$ 0", balanceDecimals = ",00"] =
+    formattedBalance.split(",");
+
+  const handleAdvanceCredited = ({
+    amount,
+    formattedAmount,
+    protocol,
+  }: {
+    amount: number;
+    formattedAmount: string;
+    protocol: string;
+  }) => {
+    setBalanceValue((prev) => prev + amount);
+    addTransaction({
+      title: "Antecipação de recebíveis",
+      type: protocol,
+      amount: `+${formattedAmount}`,
+      amountColor: "#34C759",
+      subAmount: "Creditado agora",
+      subAmountColor: "#8E8E93",
+      isAvatar: false,
+    });
+  };
 
   return {
     contacts,
@@ -147,5 +176,8 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     walletHashFull,
     walletHashShort,
     userHandle,
+    balanceInteger,
+    balanceDecimals: `,${balanceDecimals}`,
+    handleAdvanceCredited,
   };
 };

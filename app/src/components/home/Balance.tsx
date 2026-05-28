@@ -17,6 +17,8 @@ interface BalanceProps {
   actionsEntering?: any;
   accountType?: "PF" | "PJ";
   onSelectIdentity?: (id: IdentityKind) => void;
+  balanceInteger?: string;
+  balanceDecimals?: string;
 }
 
 export const Balance: React.FC<BalanceProps> = ({
@@ -30,6 +32,8 @@ export const Balance: React.FC<BalanceProps> = ({
   actionsEntering,
   accountType,
   onSelectIdentity,
+  balanceInteger = "R$ 74.352",
+  balanceDecimals = ",93",
 }) => {
   const [receiveVisible, setReceiveVisible] = useState(false);
 
@@ -41,8 +45,8 @@ export const Balance: React.FC<BalanceProps> = ({
   return (
     <View style={styles.container}>
       <BalanceHero
-        integer="R$ 74.352"
-        decimals=",93"
+        integer={balanceInteger}
+        decimals={balanceDecimals}
         walletHash={display}
         walletKind={isWallet ? "sol" : "kori"}
         onCopyWallet={() => Clipboard.setStringAsync(copyValue)}

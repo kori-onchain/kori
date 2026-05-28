@@ -9,7 +9,8 @@ import {
 import {
   signUpWithEmail,
   signInWithEmail,
-  upsertProfile,
+  resendSignupEmail,
+  updateProfile,
   getProfile,
   getSession,
 } from "@/lib/authService";
@@ -30,6 +31,7 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
   const [walletStep, setWalletStep] = useState(0);
   const [loadingWallet, setLoadingWallet] = useState(false);
   const [loadingLogin, setLoadingLogin] = useState(false);
+  const [loadingResendEmail, setLoadingResendEmail] = useState(false);
 
   useEffect(() => {
     if (stage !== "wallet") return;
@@ -56,6 +58,12 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
       const { data, error: signupError } = await signUpWithEmail(
         form.email.trim().toLowerCase(),
         form.password,
+        {
+          name: signupData.name,
+          username: signupData.username,
+          account_type: signupData.accountType,
+          business_name: signupData.businessName,
+        },
       );
 
       if (signupError || !data.user) {
@@ -67,13 +75,25 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
 
       const userId = data.user.id;
 
-      await upsertProfile(userId, {
+      if (!data.session) {
+        setLoadingWallet(false);
+        setStage("confirmEmail");
+        return;
+      }
+
+      const { error: profileError } = await updateProfile(userId, {
         name: signupData.name,
         username: signupData.username,
         account_type: signupData.accountType,
-        business_name:
-          accountType === "PJ" ? form.storeName.trim() || undefined : undefined,
+        business_name: signupData.businessName,
       });
+
+      if (profileError) {
+        setLoadingWallet(false);
+        setError(profileError.message || "Erro ao atualizar perfil.");
+        setStage("details");
+        return;
+      }
 
       setWalletStep(1);
       setTimeout(() => setWalletStep(2), 500);
@@ -122,6 +142,11 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
 
     if (stage === "details") {
       setStage("accountType");
+      return;
+    }
+
+    if (stage === "confirmEmail") {
+      setStage("details");
     }
   };
 
@@ -165,6 +190,7 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
             email: form.email.trim().toLowerCase() || MOCK_SESSION.email,
             accountType: MOCK_SESSION.accountType,
             username: MOCK_SESSION.username,
+            businessName: MOCK_SESSION.businessName,
           },
           false,
         );
@@ -185,7 +211,13 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
       return;
     }
 
-    const { data: profile } = await getProfile(data.user.id);
+    const { data: profile, error: profileError } = await getProfile(data.user.id);
+
+    if (profileError) {
+      setLoadingLogin(false);
+      setError("Conta acessada, mas não foi possível carregar o perfil.");
+      return;
+    }
 
     setLoadingLogin(false);
 
@@ -200,6 +232,24 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
       },
       false,
     );
+  };
+
+  const handleResendConfirmationEmail = async () => {
+    const email = form.email.trim().toLowerCase();
+    if (!email) {
+      setError("Informe o e-mail para reenviar a confirmação.");
+      return;
+    }
+
+    setLoadingResendEmail(true);
+    setError(null);
+
+    const { error: resendError } = await resendSignupEmail(email);
+    setLoadingResendEmail(false);
+
+    if (resendError) {
+      setError(resendError.message || "Erro ao reenviar confirmação.");
+    }
   };
 
   const handlePinDigit = (digit: string) => {
@@ -242,7 +292,14 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
           return;
         }
 
-        const { data: profile } = await getProfile(data.session.user.id);
+        const { data: profile, error: profileError } = await getProfile(data.session.user.id);
+
+        if (profileError) {
+          setError("Sessão ativa, mas não foi possível carregar o perfil.");
+          setPin([]);
+          setStage("login");
+          return;
+        }
 
         onAuthSuccess(
           {
@@ -277,12 +334,14 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     walletStep,
     loadingWallet,
     loadingLogin,
+    loadingResendEmail,
     startSignup,
     startLogin,
     handleBack,
     handleChangeField,
     handleCreateAccount,
     handleLogin,
+    handleResendConfirmationEmail,
     handlePinDigit,
     activeUsername,
   };

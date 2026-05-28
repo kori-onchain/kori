@@ -27,6 +27,8 @@ interface MerchantPanelProps {
   userHandle?: string;
   walletHashFull?: string;
   walletHashShort?: string;
+  balanceInteger?: string;
+  balanceDecimals?: string;
 }
 
 export const MerchantPanel: React.FC<MerchantPanelProps> = ({
@@ -38,6 +40,8 @@ export const MerchantPanel: React.FC<MerchantPanelProps> = ({
   userHandle,
   walletHashFull,
   walletHashShort,
+  balanceInteger,
+  balanceDecimals,
 }) => {
   const { t } = useTheme();
   const entering = useFadeUp();
@@ -65,6 +69,8 @@ export const MerchantPanel: React.FC<MerchantPanelProps> = ({
           userHandle={userHandle}
           walletHashFull={walletHashFull}
           walletHashShort={walletHashShort}
+          balanceInteger={balanceInteger}
+          balanceDecimals={balanceDecimals}
           onSendPress={onSendPress}
           accountType="PJ"
         />

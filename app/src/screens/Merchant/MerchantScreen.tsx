@@ -22,6 +22,8 @@ interface MerchantScreenProps {
   userHandle?: string;
   walletHashFull?: string;
   walletHashShort?: string;
+  balanceInteger?: string;
+  balanceDecimals?: string;
 }
 
 export const MerchantScreen: React.FC<MerchantScreenProps> = ({
@@ -34,6 +36,8 @@ export const MerchantScreen: React.FC<MerchantScreenProps> = ({
   userHandle,
   walletHashFull,
   walletHashShort,
+  balanceInteger,
+  balanceDecimals,
 }) => {
   const { t } = useTheme();
 
@@ -54,6 +58,8 @@ export const MerchantScreen: React.FC<MerchantScreenProps> = ({
             userHandle={userHandle}
             walletHashFull={walletHashFull}
             walletHashShort={walletHashShort}
+            balanceInteger={balanceInteger}
+            balanceDecimals={balanceDecimals}
           />
         </View>
       </View>

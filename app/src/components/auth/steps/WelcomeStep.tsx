@@ -1,19 +1,15 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-import { Feather, Ionicons } from "@/icons";
+import { Feather } from "@/icons";
 import { KoriGlyph } from "@components/layout/icons";
 import { AuthButton } from "@components/auth/AuthButton";
 
 type WelcomeStepProps = {
-  onSignupWithApple: () => void;
-  onSignupWithGoogle: () => void;
   onSignupWithEmail: () => void;
   onPinLogin: () => void;
 };
 
 export const WelcomeStep: React.FC<WelcomeStepProps> = ({
-  onSignupWithApple,
-  onSignupWithGoogle,
   onSignupWithEmail,
   onPinLogin,
 }) => (
@@ -30,21 +26,9 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
 
     <View className="gap-2.5">
       <AuthButton
-        label="Continuar com Apple"
-        onPress={onSignupWithApple}
-        icon={<Ionicons name="logo-apple" size={18} color="#0a0a0a" />}
-      />
-      <AuthButton
-        label="Continuar com Google"
-        variant="soft"
-        onPress={onSignupWithGoogle}
-        icon={<Ionicons name="logo-google" size={18} color="#fafafa" />}
-      />
-      <AuthButton
         label="Continuar com e-mail"
-        variant="soft"
         onPress={onSignupWithEmail}
-        icon={<Feather name="mail" size={17} color="#fafafa" />}
+        icon={<Feather name="mail" size={17} color="#0a0a0a" />}
       />
       <Pressable onPress={onPinLogin} className="items-center py-2">
         <Text className="font-mono text-[10px] text-ink-mute">

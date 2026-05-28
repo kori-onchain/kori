@@ -8,6 +8,7 @@ import { PinLoginStep } from "@components/auth/steps/PinLoginStep";
 import { AccountTypeStep } from "@components/auth/steps/AccountTypeStep";
 import { DetailsStep } from "@components/auth/steps/DetailsStep";
 import { WalletStep } from "@components/auth/steps/WalletStep";
+import { ConfirmEmailStep } from "@components/auth/steps/ConfirmEmailStep";
 import { AuthUserData } from "@type/auth";
 import { RETURNING_USER } from "@constants/authConstants";
 import { hasPin } from "@/lib/pinService";
@@ -48,12 +49,14 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
     walletStep,
     loadingWallet,
     loadingLogin,
+    loadingResendEmail,
     startSignup,
     startLogin,
     handleBack,
     handleChangeField,
     handleCreateAccount,
     handleLogin,
+    handleResendConfirmationEmail,
     handlePinDigit,
     setPin,
     setStage,
@@ -64,8 +67,6 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
     <AuthScreen.Container bg={t.bg} barStyle={t.statusBar}>
       {stage === "welcome" && (
         <WelcomeStep
-          onSignupWithApple={() => startSignup()}
-          onSignupWithGoogle={() => startSignup()}
           onSignupWithEmail={() => startSignup()}
           onPinLogin={() => {
             if (hasSavedPin) {
@@ -134,6 +135,19 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
           username={activeUsername}
           walletStep={walletStep}
           loading={loadingWallet}
+        />
+      )}
+
+      {stage === "confirmEmail" && (
+        <ConfirmEmailStep
+          email={form.email.trim().toLowerCase()}
+          error={error}
+          loading={loadingResendEmail}
+          onBack={handleBack}
+          onResend={handleResendConfirmationEmail}
+          onLogin={() => {
+            setStage("login");
+          }}
         />
       )}
     </AuthScreen.Container>

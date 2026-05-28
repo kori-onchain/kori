@@ -3,7 +3,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MOCK_AUTH } from "../constants/devConfig";
 
 const SUPABASE_URL = "https://rpvdoxbrhprmeqdievgf.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_W2ahdI2AIOOv22RaOamwCA__WBpTcHT";
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_ANON_KEY) {
+  throw new Error("Missing EXPO_PUBLIC_SUPABASE_ANON_KEY");
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {

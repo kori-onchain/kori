@@ -22,10 +22,16 @@ import { Feather } from "@/icons";
 
 interface AntecipacoesScreenProps {
   headerProps: React.ComponentProps<typeof Header>;
+  onAdvanceCredited?: (credit: {
+    amount: number;
+    formattedAmount: string;
+    protocol: string;
+  }) => void;
 }
 
 export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
   headerProps,
+  onAdvanceCredited,
 }) => {
   const { t } = useTheme();
   const entering = useFadeUp();
@@ -46,7 +52,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
     isProcessing,
     receipt,
     dismissReceipt,
-  } = useReceivables();
+  } = useReceivables({ onAdvanceCredited });
 
   return (
     <View style={[styles.root, { backgroundColor: t.bg }]}>

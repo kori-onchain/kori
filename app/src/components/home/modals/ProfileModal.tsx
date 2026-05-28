@@ -61,7 +61,12 @@ const ThemeSelectionDrawer: React.FC<ThemeDrawerProps> = ({
   toggle,
   t,
 }) => {
-  const options: { id: ThemePreference; name: string; icon: string; desc: string }[] = [
+  const options: {
+    id: ThemePreference;
+    name: string;
+    icon: React.ComponentProps<typeof Feather>["name"];
+    desc: string;
+  }[] = [
     { id: "light", name: "Tema Claro", icon: "sun", desc: "Interface clara de alto contraste" },
     { id: "dark", name: "Tema Escuro", icon: "moon", desc: "Interface escura otimizada para leitura" },
     { id: "system", name: "Padrão do Sistema", icon: "smartphone", desc: "Sincroniza com as configurações do dispositivo" },

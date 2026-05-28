@@ -81,6 +81,9 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
     walletHashFull,
     walletHashShort,
     userHandle,
+    balanceInteger,
+    balanceDecimals,
+    handleAdvanceCredited,
   } = useHomeLogic({ username, accountType });
 
   const headerProps = {
@@ -138,6 +141,8 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
           userHandle={userHandle}
           walletHashFull={walletHashFull}
           walletHashShort={walletHashShort}
+          balanceInteger={balanceInteger}
+          balanceDecimals={balanceDecimals}
         />
       )}
 
@@ -153,12 +158,17 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
           userHandle={userHandle}
           walletHashFull={walletHashFull}
           walletHashShort={walletHashShort}
+          balanceInteger={balanceInteger}
+          balanceDecimals={balanceDecimals}
         />
       )}
 
       {/* PJ: antecipacao */}
       {accountType === "PJ" && activeTab === "antecipacao" && (
-        <AntecipacoesScreen headerProps={headerProps} />
+        <AntecipacoesScreen
+          headerProps={headerProps}
+          onAdvanceCredited={handleAdvanceCredited}
+        />
       )}
 
      {activeTab === "inicio" && accountType === "PF" && (
@@ -179,6 +189,8 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
             userHandle={userHandle}
             walletHashFull={walletHashFull}
             walletHashShort={walletHashShort}
+            balanceInteger={balanceInteger}
+            balanceDecimals={balanceDecimals}
             balanceEntering={entering(120)}
             actionsEntering={entering(180)}
             onSendPress={handleSendManualPress}

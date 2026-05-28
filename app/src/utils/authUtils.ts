@@ -41,5 +41,6 @@ export const resolveSignupData = (form: AuthForm, accountType: AccountType): Aut
     email: form.email.trim().toLowerCase() || "usuario@kori.app",
     accountType,
     username: username || fallbackUsername,
+    businessName: isPF ? undefined : form.storeName.trim() || undefined,
   };
 };

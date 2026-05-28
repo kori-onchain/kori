@@ -650,7 +650,15 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           {/* Progress bar */}
           <View style={styles.refBarWrap}>
             <View style={[styles.refBarTrack, { backgroundColor: t.line }]}>
-              <View style={[styles.refBarFill, { width: cardVals.progressWidth, backgroundColor: t.inkFaint }]} />
+              <View
+                style={[
+                  styles.refBarFill,
+                  {
+                    width: cardVals.progressWidth as `${number}%`,
+                    backgroundColor: t.inkFaint,
+                  },
+                ]}
+              />
             </View>
             <View style={styles.refDots}>
               <View style={[styles.refDot, { backgroundColor: t.inkMute }]} />
@@ -837,7 +845,10 @@ const styles = StyleSheet.create({
   cardWrapper: {
     width: CARD_WIDTH,
     height: 220,
-    perspective: 1000,
+  },
+  card: {
+    width: "100%",
+    height: "100%",
   },
   cardFace: {
     width: "100%",
@@ -1098,53 +1109,6 @@ const styles = StyleSheet.create({
   limitLabel: {
     fontSize: 14,
     fontFamily: fonts.sans.regular,
-  },
-  cardWrapperContainer: {
-    width: CARD_WIDTH,
-    marginHorizontal: 6,
-    alignItems: "center",
-  },
-  cardWrapper: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    perspective: 1000,
-  },
-  cardFace: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 16,
-    position: "absolute",
-    backfaceVisibility: "hidden",
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  cardBack: {
-    transform: [{ rotateY: "180deg" }],
-  },
-  cardContent: {
-    flex: 1,
-    padding: 16,
-    justifyContent: "space-between",
-    zIndex: 2,
-  },
-  cardTopRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  cardCenterRow: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  cardBottomRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   /* ── Reference card styles ─────────────────────── */
   refCard: {

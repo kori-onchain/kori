@@ -37,7 +37,13 @@ export const IdentityNoticeDrawer: React.FC<IdentityNoticeDrawerProps> = ({
 
   const isWallet = identityType === "wallet";
 
-  const config = {
+  const config: {
+    icon: React.ComponentProps<typeof Feather>["name"];
+    title: string;
+    description: string;
+    badgeBg: string;
+    iconColor: string;
+  } = {
     icon: isWallet ? "shield" : "user",
     title: isWallet ? "Carteira Criptográfica" : "Identidade Pública",
     description: isWallet

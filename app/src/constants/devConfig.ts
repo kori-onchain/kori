@@ -9,4 +9,5 @@ export const MOCK_SESSION = {
   email: "kauamigueldev@gmail.com",
   accountType: "PJ" as const,
   username: "kauamiguel",
+  businessName: "Studio Kauã",
 };

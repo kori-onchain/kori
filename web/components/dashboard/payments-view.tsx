@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowLeft, ArrowRight, Check, Copy, QrCode, Search, Send, Star, User, Zap } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, Copy, Search, Send, Star, User, Zap } from "lucide-react"
+import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,6 +22,7 @@ export function PaymentsView() {
   const [amount, setAmount] = useState("")
   const [protocol] = useState(() => `KORI-${Math.random().toString(36).substring(2, 10).toUpperCase()}`)
   const [copied, setCopied] = useState(false)
+  const receivePayload = `kori://pay?to=${encodeURIComponent(MOCK_WALLET)}`
 
   const filtered = useMemo(() => {
     if (!search.trim()) return MOCK_CONTACTS
@@ -288,8 +290,15 @@ export function PaymentsView() {
           <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-ds-mute">Receber</div>
           <div className="mt-2 text-sm font-semibold">Sua wallet Kori</div>
 
-          <div className="mt-4 flex aspect-square items-center justify-center rounded-[12px] border border-ds-line bg-ds-elev">
-            <QrCode className="size-24 text-ds-mute" />
+          <div className="mt-4 flex aspect-square items-center justify-center rounded-[12px] border border-ds-line bg-white p-4">
+            <QRCodeSVG
+              value={receivePayload}
+              size={208}
+              bgColor="#ffffff"
+              fgColor="#0a0a0a"
+              level="M"
+              className="size-full"
+            />
           </div>
 
           <div className="mt-4 flex items-center gap-2 rounded-[10px] border border-ds-line bg-ds-bg-2 px-3 py-2.5">

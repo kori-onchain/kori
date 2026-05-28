@@ -10,7 +10,7 @@
   <h3 align="center">KORI</h3>
 
   <p align="center">
-    Conta digital on-chain para pagamentos, credito, yield local e beneficios tokenizados na Solana.
+    Ecossistema financeiro on-chain para pagamentos, credito, yield local e beneficios tokenizados na Solana.
     <br />
     <a href="DESIGN.MD" target="_blank">Ver Design System</a>
     |
@@ -53,7 +53,9 @@
 
 <div id="sobre-o-projeto"></div>
 
-Kori e uma proposta de banking on-chain feita para o usuario brasileiro: a experiencia parece a de um banco digital comum, mas a infraestrutura de saldo, pagamentos, reputacao, recebiveis e ativos tokenizados vive sobre Solana.
+Kori e um ecossistema financeiro on-chain feito para o usuario brasileiro: a experiencia e simples como os melhores apps financeiros, mas a infraestrutura de saldo, pagamentos, reputacao, recebiveis e ativos tokenizados vive sobre Solana.
+
+A Kori nao se posiciona como banco. Ela combina conta, identidade, pagamentos, antecipacao de recebiveis, yield local, ativos tokenizados e beneficios em uma unica camada financeira verificavel, com UX familiar e sem expor complexidade cripto para quem nao quer lidar com wallet, seed phrase ou endereco.
 
 O projeto nasceu para o Hackanation 2026 com uma tese simples: cripto nao precisa aparecer como complexidade para o usuario final. A Kori abstrai carteira, seed phrase, endereco e transacao, enquanto usa Solana para liquidacao rapida, baixo custo, rastreabilidade e composabilidade financeira.
 
@@ -100,7 +102,7 @@ API:
 **MVP atual**
 - [x] Landing page web do produto Kori.
 - [x] App mobile Expo com home de conta digital.
-- [x] Onboarding com experiencia de banco digital.
+- [x] Onboarding com experiencia de app financeiro moderno.
 - [x] Tela de seguranca com PIN/biometria como conceito de protecao.
 - [x] Envio e recebimento por `@username`, endereco de carteira, link e QR Code.
 - [x] Leitura de QR Code de pagamento Kori.
@@ -149,9 +151,9 @@ API:
 - USDC
 - SPL Tokens ou cNFTs para tokenizacao
 - Backend/indexer em Node.js ou TypeScript
-- Banco off-chain para dados de produto, perfis e documentos
+- Base off-chain para dados de produto, perfis e documentos
 
-**Banco de Dados:**
+**Dados:**
 
 Ainda nao implementado. Para ambientes futuros, a aplicacao deve usar variaveis de ambiente em vez de credenciais fixas no codigo:
 
@@ -266,7 +268,7 @@ A pasta `api/` existe como placeholder para o backend/indexer. No estado atual d
 
 **Diferencial economico:** lojistas acessam antecipacao de recebiveis com distribuicao direta para investidores, enquanto usuarios ganham acesso a yield lastreado em economia real local.
 
-**Diferencial de UX:** a interface se comporta como banco digital: `@username`, QR Code, cartao, saldo e beneficios. A carteira e a blockchain aparecem apenas quando agregam confianca, verificabilidade ou interoperabilidade.
+**Diferencial de UX:** a interface se comporta como um ecossistema financeiro familiar: `@username`, QR Code, cartao, saldo, yield, recebiveis e beneficios. A carteira e a blockchain aparecem apenas quando agregam confianca, verificabilidade ou interoperabilidade.
 
 Frase consolidada:
 
@@ -299,7 +301,7 @@ Frase consolidada:
 - Pilotos com comercios locais.
 
 **Visao 24 meses**
-- Uma conta digital brasileira com pagamentos, cartao, credito, investimentos locais e beneficios tokenizados, liquidada em Solana e simples o suficiente para usuarios que nunca abriram uma wallet.
+- Um ecossistema financeiro brasileiro com pagamentos, cartao, credito, investimentos locais e beneficios tokenizados, liquidado em Solana e simples o suficiente para usuarios que nunca abriram uma wallet.
 
 <p align="right">(<a href="#readme-top">Voltar ao Topo</a>)</p>
 

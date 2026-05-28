@@ -11,7 +11,7 @@ const ROADMAP = [
   },
   {
     num: "Visão",
-    title: "Neobanco onchain para a economia local",
+    title: "Ecossistema financeiro onchain para a economia local",
     body: "Cartão, pagamentos expandidos e benefícios em cima da mesma conta Kori.",
   },
 ]

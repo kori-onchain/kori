@@ -7,10 +7,18 @@ import { fonts, radii } from "@theme/tokens";
 const { width: SCREEN_W } = Dimensions.get("window");
 const CARD_W = (SCREEN_W - 40 - 12) / 2;
 
+type CategoryItem = {
+  id: string;
+  title: string;
+  icon: React.ComponentProps<typeof Feather>["name"];
+  isNew?: boolean;
+  isSoon?: boolean;
+};
+
 export const Categories: React.FC = () => {
   const { t } = useTheme();
 
-  const rwaCategories = [
+  const rwaCategories: CategoryItem[] = [
     {
       id: "renda-fixa",
       title: "Renda Fixa",
@@ -44,7 +52,7 @@ export const Categories: React.FC = () => {
     },
   ];
 
-  const onchainCategories = [
+  const onchainCategories: CategoryItem[] = [
     {
       id: "criptoativos",
       title: "Criptoativos",
@@ -83,7 +91,7 @@ export const Categories: React.FC = () => {
             activeOpacity={0.8}
             style={[
               styles.card,
-              { backgroundColor: t.bg2 || t.bgElev },
+              { backgroundColor: t.bg2 },
             ]}
           >
             <View style={styles.cardHeader}>
@@ -116,7 +124,7 @@ export const Categories: React.FC = () => {
             activeOpacity={0.8}
             style={[
               styles.card,
-              { backgroundColor: t.bg2 || t.bgElev },
+              { backgroundColor: t.bg2 },
             ]}
           >
             <View style={styles.cardHeader}>

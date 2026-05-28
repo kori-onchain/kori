@@ -130,7 +130,7 @@ Conteudo:
 
 - Tag: `O problema`.
 - Titulo: `Dois lados, o mesmo intermediario caro.`
-- Card 1, `A padaria`: vendeu a prazo, recebe depois, precisa de caixa agora, antecipar no banco custa caro.
+- Card 1, `A padaria`: vendeu a prazo, recebe depois, precisa de caixa agora, antecipar pelo caminho tradicional custa caro.
 - Card 2, `Voce`: tem dinheiro parado, quer rendimento melhor, mas produtos bons nao foram feitos para ticket pequeno.
 
 Visual/movimento:
@@ -207,7 +207,7 @@ Conteudo:
 
 - Label: `S:05 / ROADMAP`.
 - Tag: `Visao`.
-- Titulo: `Hoje: yield onchain funcionando. Amanha: o banco inteiro na sua chave.`
+- Titulo: `Hoje: yield onchain funcionando. Amanha: um ecossistema financeiro na sua chave.`
 - Intro: primeiro recebiveis locais; depois cartao, BNPL e beneficios na mesma conta self-custody.
 - Cards:
   - `Conta self-custody`

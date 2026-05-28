@@ -641,6 +641,8 @@ const CardScreen: React.FC<{
   setAmount: (a: string) => void;
   selectedProduct: Product | null;
   setSelectedProduct: (p: Product | null) => void;
+  mode: "free" | "fixed";
+  setMode: (m: "free" | "fixed") => void;
   onOpenAmountEntry: () => void;
 }> = ({
   onBack,
@@ -649,6 +651,8 @@ const CardScreen: React.FC<{
   setAmount,
   selectedProduct,
   setSelectedProduct,
+  mode: _mode,
+  setMode: _setMode,
   onOpenAmountEntry,
 }) => {
   const { t } = useTheme();
@@ -847,7 +851,9 @@ const CardScreen: React.FC<{
             )}
 
             {/* Calculations and Summary */}
-            <SectionTitle style={{ marginTop: 12 }}>Resumo Financeiro</SectionTitle>
+            <View style={{ marginTop: 12 }}>
+              <SectionTitle>Resumo Financeiro</SectionTitle>
+            </View>
             <View style={[styles.calcBlock, { backgroundColor: t.bg2, borderColor: t.cardBorder, marginVertical: 0 }]}>
               <View style={styles.calcRow}>
                 <Text style={[styles.calcLabel, { color: t.ink }]}>Cliente Paga</Text>

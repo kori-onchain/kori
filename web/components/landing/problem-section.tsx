@@ -8,7 +8,7 @@ export function ProblemSection() {
       <div className="sec-head">
         <div className="sec-tag">O problema</div>
         <h2 className="sec-title">
-          O banco cobra caro
+          O intermediário cobra caro
           <span className="dim">dos dois lados.</span>
         </h2>
       </div>
@@ -17,8 +17,8 @@ export function ProblemSection() {
         <div className="problem-card">
           <span className="problem-label">Para o comércio</span>
           <p>
-            Vendeu a prazo, mas precisa de caixa hoje. Antecipar no banco custa
-            caro ou nem chega.
+            Vendeu a prazo, mas precisa de caixa hoje. Antecipar pelo caminho
+            tradicional custa caro ou nem chega.
           </p>
         </div>
         <div className="problem-card">

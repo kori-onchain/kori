@@ -21,7 +21,7 @@ import { SplashScreen } from "./src/screens/Splash/SplashScreen";
 import { ThemeProvider } from "./src/theme/ThemeProvider";
 import { BusinessNameDrawer } from "./src/components/merchant/BusinessNameDrawer";
 import { useAuth } from "./src/hooks/useAuth";
-import { getProfile, upsertProfile, signOut } from "./src/lib/authService";
+import { getProfile, updateProfile, signOut } from "./src/lib/authService";
 import { savePin, clearPin } from "./src/lib/pinService";
 import { AuthUserData, AccountType } from "./src/types/auth";
 import { MOCK_AUTH } from "./src/constants/devConfig";
@@ -57,15 +57,20 @@ export default function App() {
 
     if (supabaseSession?.user) {
       (async () => {
-        const { data: profile } = await getProfile(supabaseSession.user.id);
-        setSession({
-          name: profile?.name || supabaseSession.user.email?.split("@")[0] || "Usuário",
-          email: supabaseSession.user.email || "",
-          accountType: (profile?.account_type as AccountType) || "PF",
-          username: profile?.username || supabaseSession.user.email?.split("@")[0] || "user",
-          supabaseId: supabaseSession.user.id,
-          businessName: profile?.business_name || undefined,
-        });
+        try {
+          const { data: profile, error } = await getProfile(supabaseSession.user.id);
+          if (error) throw error;
+          setSession({
+            name: profile?.name || supabaseSession.user.email?.split("@")[0] || "Usuário",
+            email: supabaseSession.user.email || "",
+            accountType: (profile?.account_type as AccountType) || "PF",
+            username: profile?.username || supabaseSession.user.email?.split("@")[0] || "user",
+            supabaseId: supabaseSession.user.id,
+            businessName: profile?.business_name || undefined,
+          });
+        } catch {
+          await signOut();
+        }
         setInitialCheckDone(true);
       })();
     } else {
@@ -95,13 +100,32 @@ export default function App() {
   };
 
   const handleSwitchAccount = async (newType: "PF" | "PJ") => {
+    const current = session;
+    if (!current) return;
+
+    const nextSession: UserSession = {
+      ...current,
+      accountType: newType,
+      username:
+        newType === "PJ" && !current.username.endsWith("_pj")
+          ? `${current.username}_pj`
+          : newType === "PF"
+            ? current.username.replace(/_pj$/, "")
+            : current.username,
+      businessName: newType === "PJ" ? current.businessName : undefined,
+    };
+
     setSession((prev) => {
       if (!prev) return null;
-      return { ...prev, accountType: newType };
+      return nextSession;
     });
 
-    if (!MOCK_AUTH && session?.supabaseId) {
-      await upsertProfile(session.supabaseId, { account_type: newType });
+    if (!MOCK_AUTH && current.supabaseId) {
+      await updateProfile(current.supabaseId, {
+        account_type: newType,
+        username: nextSession.username,
+        business_name: nextSession.businessName,
+      });
     }
   };
 
@@ -124,7 +148,7 @@ export default function App() {
 
   const handleSaveBusinessName = async (businessName: string) => {
     if (!MOCK_AUTH && session?.supabaseId) {
-      await upsertProfile(session.supabaseId, { business_name: businessName });
+      await updateProfile(session.supabaseId, { business_name: businessName });
     }
     setSession((prev) => (prev ? { ...prev, businessName } : prev));
   };

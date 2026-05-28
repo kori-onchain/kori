@@ -1,11 +1,28 @@
 import { supabase } from "./supabase";
 
-export async function signUpWithEmail(email: string, password: string) {
-  return supabase.auth.signUp({ email, password });
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+  metadata?: {
+    name?: string;
+    username?: string;
+    account_type?: "PF" | "PJ";
+    business_name?: string;
+  },
+) {
+  return supabase.auth.signUp({
+    email,
+    password,
+    options: metadata ? { data: metadata } : undefined,
+  });
 }
 
 export async function signInWithEmail(email: string, password: string) {
   return supabase.auth.signInWithPassword({ email, password });
+}
+
+export async function resendSignupEmail(email: string) {
+  return supabase.auth.resend({ type: "signup", email });
 }
 
 export async function signOut() {
@@ -27,6 +44,19 @@ export async function upsertProfile(
   },
 ) {
   return supabase.from("profiles").upsert({ id: userId, ...data });
+}
+
+export async function updateProfile(
+  userId: string,
+  data: {
+    name?: string;
+    username?: string;
+    account_type?: "PF" | "PJ";
+    business_name?: string;
+    wallet_pubkey?: string;
+  },
+) {
+  return supabase.from("profiles").update(data).eq("id", userId);
 }
 
 export async function getProfile(userId: string) {

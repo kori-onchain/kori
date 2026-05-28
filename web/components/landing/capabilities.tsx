@@ -36,7 +36,7 @@ export function Capabilities() {
         </h2>
         <p className="section-intro">
           A Kori conecta saldo parado com capital de giro local, sem depender de
-          ticket alto ou de uma camada bancária pesada.
+          ticket alto ou da estrutura pesada de bancos tradicionais.
         </p>
       </div>
 

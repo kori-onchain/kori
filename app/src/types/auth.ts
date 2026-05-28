@@ -1,6 +1,13 @@
 export type AccountType = "PF" | "PJ";
 
-export type AuthStage = "welcome" | "login" | "pin" | "accountType" | "details" | "wallet";
+export type AuthStage =
+  | "welcome"
+  | "login"
+  | "pin"
+  | "accountType"
+  | "details"
+  | "wallet"
+  | "confirmEmail";
 
 export type AuthUserData = {
   name: string;

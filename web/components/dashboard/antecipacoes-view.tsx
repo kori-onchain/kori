@@ -24,6 +24,10 @@ export function AntecipacoesView() {
   const [confirming, setConfirming] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [receipt, setReceipt] = useState<AdvanceReceipt | null>(null)
+  const [availableBalance, setAvailableBalance] = useState(74352.93)
+  const [advanceTransactions, setAdvanceTransactions] = useState<
+    { id: string; protocol: string; amount: number; date: string }[]
+  >([])
 
   const pending = useMemo(
     () => receivables.filter((r) => r.status === "pendente"),
@@ -62,22 +66,35 @@ export function AntecipacoesView() {
     const capturedSummary = { ...summary }
 
     setTimeout(() => {
+      const protocol = `ANT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+      const date = new Date().toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short",
+      })
+
       setReceivables((prev) =>
         prev.map((r) =>
           advancedIds.has(r.id) ? { ...r, status: "antecipado" as const } : r,
         ),
       )
+      setAvailableBalance((prev) => prev + capturedSummary.net)
+      setAdvanceTransactions((prev) => [
+        {
+          id: protocol,
+          protocol,
+          amount: capturedSummary.net,
+          date,
+        },
+        ...prev,
+      ])
 
       setReceipt({
         count: capturedSummary.count,
         gross: formatBRL(capturedSummary.gross),
         net: formatBRL(capturedSummary.net),
         rate: ADVANCE_RATE,
-        date: new Date().toLocaleString("pt-BR", {
-          dateStyle: "short",
-          timeStyle: "short",
-        }),
-        protocol: `ANT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+        date,
+        protocol,
       })
 
       setSelected(new Set())
@@ -129,6 +146,7 @@ export function AntecipacoesView() {
 
   return (
     <div className="flex flex-col gap-5 px-6 py-6">
+      <div className="grid grid-cols-[1fr_320px] gap-4">
       {/* Hero summary */}
       <div className="rounded-[16px] border border-ds-line bg-ds-bg-2 p-6">
         <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-ds-mute">
@@ -149,6 +167,40 @@ export function AntecipacoesView() {
             <div className="mt-1 font-mono text-sm font-semibold text-ds-orange">{ADVANCE_RATE}</div>
           </div>
         </div>
+      </div>
+
+      <div className="rounded-[16px] border border-ds-line bg-ds-bg-2 p-6">
+        <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-ds-mute">
+          Saldo disponível
+        </div>
+        <div className="mt-2 font-mono text-2xl font-bold text-ds-ink">
+          {formatBRL(availableBalance)}
+        </div>
+        <div className="mt-4 border-t border-ds-line pt-3">
+          <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-ds-mute">
+            Histórico de antecipações
+          </div>
+          {advanceTransactions.length === 0 ? (
+            <p className="mt-2 text-xs text-ds-dim">Nenhum crédito nesta sessão.</p>
+          ) : (
+            <div className="mt-2 space-y-2">
+              {advanceTransactions.slice(0, 3).map((tx) => (
+                <div key={tx.id} className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate font-mono text-[10px] text-ds-ink">
+                      {tx.protocol}
+                    </div>
+                    <div className="text-[10px] text-ds-mute">{tx.date}</div>
+                  </div>
+                  <div className="font-mono text-xs font-bold text-ds-green">
+                    +{formatBRL(tx.amount)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       </div>
 
       {/* List */}

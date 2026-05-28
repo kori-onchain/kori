@@ -11,8 +11,8 @@ export const useOnboardingData = () => {
   const slides: Slide[] = [
     {
       kind: "brand",
-      title: "O banco que\nnasce on-chain.",
-      body: "Sua conta vive na blockchain mais rápida do mundo. Sem agência, sem papel, sem fronteira.",
+      title: "O financeiro que\nnasce on-chain.",
+      body: "Sua conta vive em um ecossistema financeiro na blockchain mais rápida do mundo. Sem agência, sem papel, sem fronteira.",
     },
     {
       kind: "pay",
