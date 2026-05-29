@@ -21,7 +21,7 @@ const COLS: { title: string; links: { label: string; href: string }[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="section footer">
-      <span className="sec-label">S:08</span>
+      <span className="sec-label">S:11</span>
       <span className="corner bl" />
       <span className="corner br" />
 
@@ -34,8 +34,8 @@ export function SiteFooter() {
             <span className="word">KORI</span>
           </div>
           <p>
-            Yield local e conta self-custody para o Brasil. Settled on Solana
-            Devnet. Demo Hackanation 2026.
+            Ecossistema financeiro Web3 que liga capital global à economia local.
+            Built on Solana · Demo Hackanation 2026 (Devnet).
           </p>
         </div>
 

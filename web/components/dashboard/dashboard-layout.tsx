@@ -103,7 +103,7 @@ export function DashboardLayout({
           </div>
         </div>
 
-        <div className="mx-1 mt-3.5 mb-5 flex gap-0.5 rounded-[10px] border border-ds-line bg-[#0e0e11] p-0.5">
+        <div className="mx-1 mt-3.5 mb-5 flex gap-0.5 rounded-[10px] border border-ds-line bg-ds-bg p-0.5">
           <button
             onClick={() => handleSwitchAccountType("PF")}
             className={cn(
@@ -187,11 +187,11 @@ export function DashboardLayout({
             <div className="mt-0.5 font-mono text-[9px] text-ds-mute">último acesso: hoje, 09:12</div>
           </div>
           <div className="flex items-center gap-2.5">
-            <div className="flex w-[230px] items-center gap-2 rounded-full border border-white/5 bg-ds-bg-2 px-3.5 py-2">
+            <div className="flex w-[230px] items-center gap-2 rounded-full border border-ds-line bg-ds-bg-2 px-3.5 py-2">
               <Search className="size-3.5 text-ds-mute" />
               <span className="text-xs text-ds-mute">Buscar comércio, tx...</span>
             </div>
-            <Button variant="ghost" size="icon" className="relative size-9 rounded-full border border-white/5 bg-ds-bg-2 text-ds-dim" aria-label="Notificações">
+            <Button variant="ghost" size="icon" className="relative size-9 rounded-full border border-ds-line bg-ds-bg-2 text-ds-dim" aria-label="Notificações">
               <Bell className="size-[15px]" />
               <span className="absolute top-2 right-[9px] size-1.5 rounded-full border-[1.5px] border-ds-bg bg-ds-orange" />
             </Button>

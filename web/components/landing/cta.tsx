@@ -1,17 +1,17 @@
 export function Cta() {
   return (
     <section className="section cta">
-      <span className="sec-label">S:09</span>
+      <span className="sec-label">S:10</span>
       <span className="corner bl" />
       <span className="corner br" />
 
       <h2>
-        Invista no capital
-        <span className="dim">que move o bairro.</span>
+        O dinheiro chega.
+        <span className="dim">Onde precisa, quando precisa.</span>
       </h2>
       <p>
-        Uma conta onchain para transformar saldo parado em financiamento real
-        para pequenos negócios.
+        O ecossistema financeiro que liga capital global à economia local. Built
+        on Solana.
       </p>
       <div className="cta-ctas">
         <a href="#" className="btn">

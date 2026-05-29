@@ -1251,19 +1251,30 @@
 .problem-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: -24px;
+  margin: 0 calc(clamp(24px, 4vw, 64px) * -1);
+  border-top: 1px solid var(--line);
 }
 .problem-card {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.018) 0%,
+    rgba(255, 255, 255, 0.012) 0%,
     transparent 100%
   );
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: clamp(28px, 4vw, 44px);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 48px clamp(24px, 4vw, 44px);
   min-height: 220px;
+  transition: background 0.3s var(--ease);
+}
+.problem-card:last-child {
+  border-right: none;
+}
+.problem-card:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.028) 0%,
+    rgba(255, 255, 255, 0.005) 100%
+  );
 }
 .problem-label {
   font-family: var(--kori-mono);
@@ -1288,6 +1299,9 @@
 @media (max-width: 880px) {
   .problem-grid {
     grid-template-columns: 1fr;
+  }
+  .problem-card {
+    border-right: none;
   }
 }
 
@@ -1365,6 +1379,27 @@
   font-size: 14px;
   line-height: 1.65;
   max-width: 320px;
+}
+.feat-estimate {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--kori-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--ink-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+.audiences-note {
+  margin: 24px 0 0;
+  font-family: var(--kori-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+  max-width: 640px;
 }
 
 /* =========================================
@@ -1488,315 +1523,80 @@
 }
 
 /* =========================================
-   ARCHITECTURE
+   ARCHITECTURE — FLOW
    ========================================= */
-.arch {
+.flow {
   display: grid;
-  grid-template-columns: minmax(280px, 360px) 1fr;
-  gap: clamp(28px, 5vw, 56px);
-  align-items: start;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 0 calc(clamp(24px, 4vw, 64px) * -1);
+  border-top: 1px solid var(--line);
 }
-@media (max-width: 880px) {
-  .arch {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
+.flow-step {
+  padding: 44px clamp(20px, 2.2vw, 32px);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transition: background 0.3s var(--ease);
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.012) 0%,
+    transparent 100%
+  );
 }
-.arch-list {
+.flow-step:last-child {
+  border-right: none;
+}
+.flow-step:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.028) 0%,
+    rgba(255, 255, 255, 0.005) 100%
+  );
+}
+.flow-head {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.arch-list article {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 14px;
-  padding: 16px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent),
-    var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  transition:
-    border-color 0.2s var(--ease),
-    background 0.2s var(--ease),
-    transform 0.2s var(--ease);
-}
-.arch-list article:hover {
-  transform: translateY(-1px);
-  border-color: var(--line-2);
-}
-.arch-list article.active {
-  border-color: rgba(255, 255, 255, 0.2);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent),
-    var(--bg-1);
-}
-.arch-list .step-index {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  display: inline-flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  background: var(--bg-elev);
-  border: 1px solid var(--line);
+  margin-bottom: 30px;
+}
+.flow-num {
   font-family: var(--kori-mono);
   font-size: 11px;
   color: var(--ink);
-  font-weight: 600;
+  letter-spacing: 0.14em;
 }
-.arch-list .step-copy {
-  min-width: 0;
-}
-.arch-list .step-top {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-.arch-list .name {
-  font-size: 14px;
-  color: var(--ink);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-.arch-list .meta {
+.flow-meta {
   font-family: var(--kori-mono);
   font-size: 9px;
   color: var(--ink-mute);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  white-space: nowrap;
 }
-.arch-list p {
-  font-size: 12px;
-  color: var(--ink-dim);
-  line-height: 1.55;
-}
-.arch-canvas {
-  background:
-    radial-gradient(circle at 50% 46%, rgba(153, 69, 255, 0.09), transparent 36%),
-    radial-gradient(circle at 78% 58%, rgba(255, 107, 61, 0.06), transparent 34%),
-    var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 22px;
-  min-height: 430px;
-  position: relative;
-  overflow: hidden;
-}
-.arch-canvas::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      to right,
-      transparent 0 39px,
-      rgba(255, 255, 255, 0.022) 39px 40px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 39px,
-      rgba(255, 255, 255, 0.022) 39px 40px
-    );
-  pointer-events: none;
-}
-.arch-canvas-head {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
-}
-.arch-canvas-head span,
-.arch-payloads span {
-  font-family: var(--kori-mono);
-  font-size: 9px;
-  color: var(--ink-mute);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.arch-canvas-head b,
-.arch-payloads b {
-  color: var(--ink);
-  font-size: 13px;
+.flow-name {
+  font-size: 16px;
   font-weight: 600;
-}
-.arch-map {
-  position: relative;
-  z-index: 1;
-  height: 280px;
-  margin-top: 20px;
-}
-.arch-node {
-  position: absolute;
-  width: 168px;
-  min-height: 88px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-    var(--bg-2);
-  box-shadow: 0 10px 28px -22px rgba(0, 0, 0, 0.8);
-  z-index: 2;
-}
-.arch-node.featured {
-  border-color: rgba(255, 255, 255, 0.24);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 18px 42px -28px rgba(153, 69, 255, 0.7);
-}
-.arch-node .node-kicker {
-  display: block;
-  font-family: var(--kori-mono);
-  font-size: 8px;
-  color: var(--ink-mute);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: -0.015em;
   margin-bottom: 10px;
 }
-.arch-node strong {
-  display: block;
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.1;
-  margin-bottom: 7px;
-}
-.arch-node span:not(.node-kicker) {
-  display: block;
+.flow-detail {
   color: var(--ink-dim);
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 13px;
+  line-height: 1.6;
 }
-.node-app {
-  left: 0;
-  top: 96px;
-}
-.node-score {
-  left: 32%;
-  top: 0;
-}
-.node-program {
-  left: 34%;
-  top: 100px;
-}
-.node-usdc {
-  right: 0;
-  top: 80px;
-}
-.node-rep {
-  left: 32%;
-  bottom: 0;
-}
-.flow-line {
-  position: absolute;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--ink-dim), transparent);
-  opacity: 0.45;
-  transform-origin: left center;
-  z-index: 1;
-}
-.flow-line::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: -3px;
-  width: 7px;
-  height: 7px;
-  border-top: 1px solid var(--ink-dim);
-  border-right: 1px solid var(--ink-dim);
-  transform: rotate(45deg);
-}
-.line-app-program {
-  left: 150px;
-  top: 142px;
-  width: 115px;
-}
-.line-score-program {
-  left: calc(32% + 82px);
-  top: 92px;
-  width: 64px;
-  transform: rotate(90deg);
-  opacity: 0.3;
-}
-.line-program-usdc {
-  right: 150px;
-  top: 142px;
-  width: 120px;
-}
-.line-program-rep {
-  left: calc(34% + 82px);
-  top: 190px;
-  width: 74px;
-  transform: rotate(90deg);
-  opacity: 0.3;
-}
-.arch-payloads {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-}
-.arch-payloads div {
-  min-width: 0;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.018);
-}
-.arch-payloads b {
-  display: block;
-  margin-top: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-@media (max-width: 620px) {
-  .arch-list article {
-    grid-template-columns: 36px 1fr;
-    padding: 14px;
+@media (max-width: 1080px) {
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .arch-list .step-index {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
+  .flow-step:nth-child(2n) {
+    border-right: none;
   }
-  .arch-canvas {
-    padding: 16px;
-  }
-  .arch-canvas-head,
-  .arch-payloads {
+}
+@media (max-width: 560px) {
+  .flow {
     grid-template-columns: 1fr;
   }
-  .arch-canvas-head {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .arch-map {
-    height: auto;
-    display: grid;
-    gap: 10px;
-    margin-top: 16px;
-  }
-  .arch-node {
-    position: relative;
-    inset: auto;
-    width: 100%;
-  }
-  .flow-line {
-    display: none;
+  .flow-step {
+    border-right: none;
   }
 }
 
@@ -3278,7 +3078,14 @@
 
 /* Problem */
 .light .problem-card {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.015) 0%, transparent 100%);
+}
+.light .problem-card:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(0, 0, 0, 0.006) 100%
+  );
 }
 
 /* Parallax */
@@ -3302,6 +3109,9 @@
 .light .feat-icon {
   background: rgba(0, 0, 0, 0.02);
 }
+.light .feat-estimate {
+  background: rgba(0, 0, 0, 0.02);
+}
 
 /* Solana compare */
 .light .solana-panel {
@@ -3311,51 +3121,16 @@
   background: rgba(0, 0, 0, 0.02);
 }
 
-/* Architecture */
-.light .arch-list article {
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent),
-    var(--bg-1);
+/* Architecture flow */
+.light .flow-step {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.015) 0%, transparent 100%);
 }
-.light .arch-list article.active {
-  border-color: rgba(0, 0, 0, 0.18);
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.04), transparent),
-    var(--bg-1);
-}
-.light .arch-canvas {
-  background:
-    radial-gradient(circle at 50% 46%, rgba(124, 58, 237, 0.12), transparent 38%),
-    radial-gradient(circle at 78% 58%, rgba(241, 89, 31, 0.1), transparent 36%),
-    var(--bg-1);
-}
-.light .arch-canvas::before {
-  background-image:
-    repeating-linear-gradient(
-      to right,
-      transparent 0 39px,
-      rgba(0, 0, 0, 0.04) 39px 40px
-    ),
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 39px,
-      rgba(0, 0, 0, 0.04) 39px 40px
-    );
-}
-.light .arch-node {
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent),
-    var(--bg-2);
-  box-shadow: 0 12px 30px -22px rgba(0, 0, 0, 0.35);
-}
-.light .arch-node.featured {
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.04),
-    0 18px 42px -28px rgba(124, 58, 237, 0.55);
-}
-.light .arch-payloads div {
-  background: rgba(0, 0, 0, 0.02);
+.light .flow-step:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.035) 0%,
+    rgba(0, 0, 0, 0.008) 100%
+  );
 }
 
 /* Yield map (not in the default page, kept consistent) */

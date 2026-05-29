@@ -78,7 +78,7 @@ function InvestmentsPanel() {
       {/* COL PRINCIPAL */}
       <div className="flex min-w-0 flex-col gap-[18px]">
         {/* HERO PATRIMÔNIO */}
-        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-white/5 bg-ds-bg-1 p-[22px]">
+        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-ds-line bg-ds-bg-1 p-[22px]">
           <div className="flex flex-col">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ds-mute">
               Patrimônio total
@@ -112,13 +112,13 @@ function InvestmentsPanel() {
             </div>
 
             <div className="mt-auto flex gap-[9px] pt-5">
-              <Button className="h-auto gap-[7px] rounded-[11px] border-0 bg-gradient-to-b from-white to-[#f0f0f2] px-5 py-[11px] text-[13px] font-semibold text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+              <Button className="h-auto gap-[7px] rounded-[11px] border-0 bg-ds-ink px-5 py-[11px] text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
                 <Plus className="size-3.5" />
                 Aplicar
               </Button>
               <Button
                 variant="ghost"
-                className="h-auto gap-[7px] rounded-[11px] border border-white/5 bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink"
+                className="h-auto gap-[7px] rounded-[11px] border border-ds-line bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink"
               >
                 <ArrowRight className="size-3.5" />
                 Resgatar
@@ -129,14 +129,14 @@ function InvestmentsPanel() {
           <div className="flex flex-col">
             <div className="mb-2 flex items-center justify-between">
               <span className="font-mono text-[9px] text-ds-mute">Evolução do portfólio</span>
-              <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-[#0e0e11] p-0.5">
+              <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-ds-bg p-0.5">
                 {["1M", "6M", "Tudo"].map((t) => (
                   <span
                     key={t}
                     className={cn(
                       "rounded-md px-2 py-1 font-mono text-[9px]",
                       t === "6M"
-                        ? "border border-white/5 bg-ds-bg-2 text-ds-ink"
+                        ? "border border-ds-line bg-ds-bg-2 text-ds-ink"
                         : "text-ds-mute"
                     )}
                   >
@@ -154,7 +154,7 @@ function InvestmentsPanel() {
                   </linearGradient>
                 </defs>
                 {[40, 80, 120].map((y) => (
-                  <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(255,255,255,0.04)" strokeDasharray="2 6" />
+                  <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(128,128,128,0.18)" strokeDasharray="2 6" />
                 ))}
                 <path
                   d="M0 130 L50 120 L100 105 L150 115 L200 90 L250 80 L300 55 L350 40 L400 25"
@@ -187,7 +187,7 @@ function InvestmentsPanel() {
             { label: "Ativos na carteira", value: "5", detail: "diversificados" },
             { label: "Risco da carteira", value: "Moderado", detail: "score 62/100", detailColor: "text-ds-orange" },
           ].map((k) => (
-            <div key={k.label} className="rounded-[14px] border border-white/5 bg-ds-bg-1 p-[15px]">
+            <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
               <div className={cn("mt-2 text-[21px] font-bold tracking-tight", k.valueColor)}>{k.value}</div>
               <div className={cn("mt-[5px] font-mono text-[9px] text-ds-mute", k.detailColor)}>{k.detail}</div>
@@ -196,7 +196,7 @@ function InvestmentsPanel() {
         </div>
 
         {/* TABELA INVESTIMENTOS */}
-        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
+        <div className="rounded-2xl border border-ds-line bg-ds-bg-1 p-[18px]">
           <div className="mb-3.5 flex items-center justify-between">
             <div>
               <div className="text-base font-bold tracking-tight">Meus investimentos</div>
@@ -227,7 +227,7 @@ function InvestmentsPanel() {
               {cryptoAssets.map((asset) => (
                 <TableRow
                   key={asset.ticker}
-                  className="border-ds-line hover:bg-white/[0.02]"
+                  className="border-ds-line hover:bg-ds-ink/[0.03]"
                 >
                   <TableCell className="px-0 py-[11px]">
                     <div className="flex items-center gap-[11px]">
@@ -405,7 +405,7 @@ function ExperiencesPanel() {
             return (
               <div
                 key={exp.id}
-                className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]"
+                className="rounded-2xl border border-ds-line bg-ds-bg-1 p-[18px]"
               >
                 <div className="flex gap-3">
                   <div className="flex size-[38px] shrink-0 items-center justify-center rounded-[10px] border border-ds-line bg-ds-bg-2">
@@ -432,8 +432,8 @@ function ExperiencesPanel() {
                       className={cn(
                         "h-auto rounded-[11px] px-3.5 py-1.5 text-[11px] font-semibold",
                         exp.vip
-                          ? "border border-white/5 bg-ds-bg-1 text-ds-ink"
-                          : "border-0 bg-gradient-to-b from-white to-[#f0f0f2] text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]"
+                          ? "border border-ds-line bg-ds-bg-1 text-ds-ink"
+                          : "border-0 bg-ds-ink text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]"
                       )}
                     >
                       {exp.vip ? "Ver" : "Resgatar"}
@@ -441,7 +441,7 @@ function ExperiencesPanel() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="size-auto rounded-[11px] border border-white/5 bg-ds-bg-1 p-1.5 text-ds-dim"
+                      className="size-auto rounded-[11px] border border-ds-line bg-ds-bg-1 p-1.5 text-ds-dim"
                     >
                       <Share2 className="size-3.5" />
                     </Button>

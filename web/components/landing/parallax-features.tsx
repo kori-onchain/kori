@@ -16,49 +16,33 @@ const STEPS = [
     n: 1,
     eyebrow: "STEP 01",
     title: "Escolha.",
-    titleDim: "Veja prazo, risco e potencial.",
-    body: "Comércios locais captam capital de giro com dados simples antes do aporte.",
-    list: [
-      "Recebíveis locais",
-      "Mínimo por contrato",
-      "Risco antes de entrar",
-    ],
+    titleDim: "Prazo, risco, potencial.",
+    body: "Recebíveis de comércios reais. Tudo claro antes do aporte.",
+    list: ["Recebíveis locais", "Risco antes de entrar", "Mínimo por contrato"],
   },
   {
     n: 2,
     eyebrow: "STEP 02",
-    title: "Invista R$50.",
-    titleDim: "Sua cota fica registrada.",
-    body: "Você define o valor, revisa a estimativa e confirma no app.",
-    list: [
-      "Aporte fracionado",
-      "Estimativa clara",
-      "Liquidação em USDC",
-    ],
+    title: "Aporte R$50.",
+    titleDim: "Sua cota fica on-chain.",
+    body: "Você confirma no app. O programa na Solana registra a cota.",
+    list: ["Aporte fracionado", "Cota registrada", "Liquidação em USDC"],
   },
   {
     n: 3,
     eyebrow: "STEP 03",
-    title: "O comércio recebe.",
-    titleDim: "Capital de giro mais leve.",
-    body: "A captação libera caixa para o pequeno negócio antecipar o recebível.",
-    list: [
-      "Capital liberado",
-      "Vencimento claro",
-      "Status em tempo real",
-    ],
+    title: "O lojista recebe.",
+    titleDim: "Caixa no mesmo dia.",
+    body: "O capital chega direto no comércio. Sem banco no meio.",
+    list: ["Capital liberado", "Programa neutro", "Status em tempo real"],
   },
   {
     n: 4,
     eyebrow: "STEP 04",
-    title: "Receba.",
+    title: "Receba de volta.",
     titleDim: "Principal + rendimento.",
-    body: "No pagamento do recebível, o contrato distribui o retorno proporcional.",
-    list: [
-      "Distribuição automática",
-      "Portfolio atualizado",
-      "Saldo volta pra conta",
-    ],
+    body: "No vencimento, o contrato distribui o retorno. Automático.",
+    list: ["Distribuição automática", "Taxa de fração de centavo", "Saldo na conta"],
   },
 ] as const
 
@@ -112,7 +96,7 @@ export function ParallaxFeatures() {
 
   return (
     <section className="section parallax" ref={sectionRef}>
-      <span className="sec-label">S:02 / COMO INVESTIR</span>
+      <span className="sec-label">S:03 / COMO FUNCIONA</span>
       <span className="corner bl" />
       <span className="corner br" />
 

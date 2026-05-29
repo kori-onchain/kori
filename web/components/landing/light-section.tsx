@@ -1,23 +1,23 @@
 export function LightSection() {
   return (
     <section className="section light-section">
-      <span className="sec-label">S:03 / PRODUTO</span>
+      <span className="sec-label">S:04 / PRODUTO</span>
       <span className="corner bl" />
       <span className="corner br" />
 
       <div className="ls-eyebrow">
         <span className="tag">Devnet</span>
-        Conta digital + recebíveis locais
+        Web3 invisível
       </div>
 
       <h2>
-        Uma conta onde o dinheiro
-        <span className="dim">não fica parado.</span>
+        Toda a complexidade Web3,
+        <span className="dim">atrás de um toque.</span>
       </h2>
 
       <p className="ls-sub">
-        Saldo em stablecoin, oportunidades de recebíveis locais e pagamentos
-        instantâneos em uma experiência simples de conta digital.
+        Carteira, chaves e taxas de rede ficam nos bastidores. Você só clica em
+        Pagar, Receber ou Investir.
       </p>
 
       <div className="ls-ctas">

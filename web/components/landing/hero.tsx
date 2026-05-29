@@ -12,22 +12,22 @@ export function Hero() {
       <div className="reveal">
         <div className="eyebrow">
           <span className="tag">v1</span>
-          Demo Hackanation 2026 · Devnet
+          Built on Solana · Demo Hackanation 2026 · Devnet
         </div>
       </div>
 
       <h1 className="reveal d1">
-        Renda fixa do bairro.
-        <span className="dim">Caixa pro comércio local.</span>
+        Onde o dinheiro encontra
+        <span className="dim">quem precisa dele.</span>
       </h1>
 
       <p className="hero-sub reveal d2">
-        Financie recebíveis locais a partir de R$50. Prazo claro, rendimento
-        potencial e liquidação em USDC.
+        A ponte entre capital global e economia local. Cara de app comum, Web3
+        invisível.
       </p>
 
       <div className="hero-ctas reveal d3">
-        <GlossyOrangeButton href="#">
+        <GlossyOrangeButton href="/download">
           Baixar app Android
         </GlossyOrangeButton>
         <a href="#" className="btn btn-ghost">

@@ -1,10 +1,13 @@
+import { LogIn } from "lucide-react"
+
+import { GlossyOrangeButton } from "@/components/landing/glossy-orange-button"
 import { ThemeToggle } from "@/components/landing/theme-toggle"
 
 const links = [
-  { label: "App", href: "#" },
-  { label: "Yield", href: "#" },
-  { label: "Score", href: "#" },
-  { label: "Cartão", href: "#" },
+  { label: "Ecossistema", href: "#" },
+  { label: "Consumidor", href: "#" },
+  { label: "Lojista", href: "#" },
+  { label: "Investidor", href: "#" },
   { label: "Docs", href: "#" },
 ]
 
@@ -25,9 +28,6 @@ export function SiteNav() {
         ))}
       </ul>
       <div className="nav-right">
-        <span className="pill">
-          <span className="dot" /> DEVNET · Hackanation 2026
-        </span>
         <ThemeToggle />
         <a href="#" className="nav-social" aria-label="GitHub">
           <svg aria-hidden="true" viewBox="0 0 24 24" role="img">
@@ -45,6 +45,14 @@ export function SiteNav() {
             />
           </svg>
         </a>
+        <GlossyOrangeButton
+          href="/login"
+          size="sm"
+          icon={<LogIn />}
+          className="nav-login"
+        >
+          Entrar
+        </GlossyOrangeButton>
       </div>
     </nav>
   )

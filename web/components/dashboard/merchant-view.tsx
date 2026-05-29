@@ -90,13 +90,13 @@ function SalesDashboard() {
       {/* COL PRINCIPAL */}
       <div className="flex min-w-0 flex-col gap-[18px]">
         {/* HERO RECEITA */}
-        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-white/5 bg-ds-bg-1 p-[22px]">
+        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-ds-line bg-ds-bg-1 p-[22px]">
           <div className="flex flex-col">
             <div className="flex items-start justify-between">
               <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ds-mute">
                 Receita no período
               </span>
-              <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-[#0e0e11] p-0.5">
+              <div className="flex gap-0.5 rounded-[9px] border border-ds-line bg-ds-bg p-0.5">
                 {periods.map((p) => (
                   <button
                     key={p.id}
@@ -104,7 +104,7 @@ function SalesDashboard() {
                     className={cn(
                       "rounded-[7px] px-[11px] py-[5px] font-mono text-[9px] font-semibold transition-colors",
                       period === p.id
-                        ? "border border-white/5 bg-ds-bg-2 text-ds-ink"
+                        ? "border border-ds-line bg-ds-bg-2 text-ds-ink"
                         : "text-ds-mute"
                     )}
                   >
@@ -160,7 +160,7 @@ function SalesDashboard() {
                   </linearGradient>
                 </defs>
                 {[40, 80, 120].map((y) => (
-                  <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(255,255,255,0.04)" strokeDasharray="2 6" />
+                  <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="rgba(128,128,128,0.18)" strokeDasharray="2 6" />
                 ))}
                 <path
                   d="M0 120 L57 112 L114 100 L171 90 L228 68 L285 55 L342 38 L400 28"
@@ -193,7 +193,7 @@ function SalesDashboard() {
             { label: "Taxa de conversão", value: "3,8%", detail: "↑ +0,4%", detailColor: "text-ds-green" },
             { label: "Produtos ativos", value: "6", detail: "na vitrine" },
           ].map((k) => (
-            <div key={k.label} className="rounded-[14px] border border-white/5 bg-ds-bg-1 p-[15px]">
+            <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
               <div className={cn("mt-2 text-[21px] font-bold tracking-tight", k.valueColor)}>{k.value}</div>
               <div className={cn("mt-[5px] font-mono text-[9px] text-ds-mute", k.detailColor)}>{k.detail}</div>
@@ -202,7 +202,7 @@ function SalesDashboard() {
         </div>
 
         {/* MAIS VENDIDOS */}
-        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
+        <div className="rounded-2xl border border-ds-line bg-ds-bg-1 p-[18px]">
           <div className="mb-3.5 flex items-center justify-between">
             <div>
               <div className="text-base font-bold tracking-tight">Mais vendidos</div>
@@ -229,7 +229,7 @@ function SalesDashboard() {
             </TableHeader>
             <TableBody>
               {topSelling.map((p) => (
-                <TableRow key={p.rank} className="border-ds-line hover:bg-white/[0.02]">
+                <TableRow key={p.rank} className="border-ds-line hover:bg-ds-ink/[0.03]">
                   <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">
                     {p.rank}
                   </TableCell>
@@ -268,7 +268,7 @@ function SalesDashboard() {
           </div>
           <Button
             variant="ghost"
-            className="mt-4 h-auto w-full gap-[7px] rounded-[11px] border border-white/5 bg-ds-bg-1 px-4 py-[9px] text-[12px] font-semibold text-ds-ink"
+            className="mt-4 h-auto w-full gap-[7px] rounded-[11px] border border-ds-line bg-ds-bg-1 px-4 py-[9px] text-[12px] font-semibold text-ds-ink"
           >
             <Zap className="size-3.5" />
             Antecipar
@@ -387,7 +387,7 @@ function VitrinePanel() {
       <div className="flex min-w-0 flex-col gap-[18px]">
         {/* SEARCH + CATEGORIES */}
         <div className="flex items-center gap-3">
-          <div className="flex flex-1 items-center gap-2 rounded-full border border-white/5 bg-ds-bg-2 px-4 py-2.5">
+          <div className="flex flex-1 items-center gap-2 rounded-full border border-ds-line bg-ds-bg-2 px-4 py-2.5">
             <Search className="size-4 shrink-0 text-ds-mute" />
             <input
               type="text"
@@ -396,7 +396,7 @@ function VitrinePanel() {
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent text-[13px] text-ds-ink placeholder:text-ds-mute outline-none"
             />
-            <button className="rounded-lg border border-white/5 bg-ds-bg-1 p-1.5 text-ds-mute transition-colors hover:text-ds-dim">
+            <button className="rounded-lg border border-ds-line bg-ds-bg-1 p-1.5 text-ds-mute transition-colors hover:text-ds-dim">
               <SlidersHorizontal className="size-3.5" />
             </button>
           </div>
@@ -430,7 +430,7 @@ function VitrinePanel() {
         {filtered.length > 0 && (
           <div className="grid grid-cols-3 gap-3">
             {filtered[0] && (
-              <div className="col-span-2 row-span-2 relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2">
+              <div className="col-span-2 row-span-2 relative flex min-h-[280px] flex-col justify-end overflow-hidden rounded-2xl border border-ds-line bg-ds-bg-2">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Package className="size-20 text-ds-mute/20" />
                 </div>
@@ -464,7 +464,7 @@ function VitrinePanel() {
             {filtered.slice(1, 3).map((p) => (
               <div
                 key={p.id}
-                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
+                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-ds-line bg-ds-bg-2 p-4"
               >
                 <div className="mb-auto flex items-center justify-center py-6">
                   <Package className="size-10 text-ds-mute/20" />
@@ -492,7 +492,7 @@ function VitrinePanel() {
             ))}
 
             {filtered[3] && (
-              <div className="col-span-3 flex items-center gap-5 overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4">
+              <div className="col-span-3 flex items-center gap-5 overflow-hidden rounded-2xl border border-ds-line bg-ds-bg-2 p-4">
                 <div className="flex size-[80px] shrink-0 items-center justify-center rounded-xl bg-ds-bg-1">
                   <Package className="size-8 text-ds-mute/20" />
                 </div>
@@ -525,7 +525,7 @@ function VitrinePanel() {
             {filtered.slice(4).map((p) => (
               <div
                 key={p.id}
-                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-ds-bg-2 p-4"
+                className="relative flex flex-col justify-end overflow-hidden rounded-2xl border border-ds-line bg-ds-bg-2 p-4"
               >
                 <div className="mb-auto flex items-center justify-center py-6">
                   <Package className="size-10 text-ds-mute/20" />
@@ -624,7 +624,7 @@ function VitrinePanel() {
           <div className="mt-[3px] mb-3.5 font-mono text-[9px] text-ds-mute">
             cadastre novos itens na vitrine
           </div>
-          <Button className="h-auto w-full gap-2 rounded-xl border-0 bg-gradient-to-b from-white to-[#f0f0f2] py-3 text-[13px] font-semibold text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+          <Button className="h-auto w-full gap-2 rounded-xl border-0 bg-ds-ink py-3 text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
             <Package className="size-3.5" />
             Novo produto
           </Button>

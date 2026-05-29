@@ -1,26 +1,30 @@
 const FAQS = [
   {
+    q: "O Kori é um banco?",
+    a: "Não. É a ponte entre capital global e economia local — um ecossistema financeiro com Web3 invisível.",
+  },
+  {
+    q: "Preciso entender de cripto?",
+    a: "Não. Carteira, chaves e taxas de rede ficam nos bastidores. Você só usa o app.",
+  },
+  {
     q: "O rendimento é garantido?",
-    a: "Não. A Kori mostra rendimento potencial com base na operação, prazo e risco.",
+    a: "Não. É potencial e varia por operação, prazo e risco.",
   },
   {
-    q: "O que a Kori financia?",
-    a: "Recebíveis de pequenos negócios, como vendas a prazo ou valores a receber.",
-  },
-  {
-    q: "Por que usar blockchain?",
-    a: "Para tornar custódia, participação e distribuição mais transparentes e automáticas.",
+    q: "E a regulação?",
+    a: "Operamos com parceiros regulados (BaaS e RWA). O MVP roda em Devnet e o Pix está mockado nesta fase.",
   },
   {
     q: "Por que Solana?",
-    a: "Porque ticket baixo depende de transação barata. Se a taxa come o rendimento, o modelo deixa de fazer sentido.",
+    a: "Ticket baixo só fecha com taxa barata. E tudo fica auditável on-chain.",
   },
 ]
 
 export function Faq() {
   return (
     <section className="section faq-section">
-      <span className="sec-label">S:08 / FAQ</span>
+      <span className="sec-label">S:09 / FAQ</span>
       <span className="corner bl" />
       <span className="corner br" />
 

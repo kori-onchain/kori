@@ -292,9 +292,9 @@ export function ScreenYield({ active = false, dataScreen }: { active?: boolean; 
             letterSpacing: "-0.02em",
           }}
         >
-          Renda fixa
+          Crédito que
           <br />
-          do bairro.
+          move o bairro.
         </div>
         <div
           style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 5, lineHeight: 1.5 }}

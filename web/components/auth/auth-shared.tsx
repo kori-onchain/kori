@@ -39,7 +39,7 @@ export function ProviderButton({
   return (
     <button
       className={cn(
-        "flex w-full items-center gap-3 rounded-xl border border-white/5 bg-ds-bg-1 px-4 py-3 text-[13px] font-medium text-ds-ink transition-colors hover:border-ds-line-2",
+        "flex w-full items-center gap-3 rounded-xl border border-ds-line bg-ds-bg-1 px-4 py-3 text-[13px] font-medium text-ds-ink transition-colors hover:border-ds-line-2",
         className
       )}
       {...props}
@@ -73,17 +73,22 @@ export function AuthProviders() {
 
 export function AuthBackground() {
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
-      <img src="/login-bg.png" alt="" className="absolute inset-0 size-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#060607]/45 to-[#060607]/65" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_78%_78%_at_50%_45%,transparent_32%,rgba(0,0,0,0.62)_100%)]" />
+    <div className="absolute inset-0 z-0 overflow-hidden bg-ds-bg">
+      {/* Foto só no tema escuro; no claro fica um wash suave */}
+      <img
+        src="/login-bg.png"
+        alt=""
+        className="absolute inset-0 size-full object-cover opacity-0 transition-opacity dark:opacity-100"
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_25%,rgba(255,107,61,0.10),transparent_60%)] dark:bg-gradient-to-b dark:from-[#060607]/45 dark:to-[#060607]/65" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_78%_78%_at_50%_45%,transparent_50%,rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(ellipse_78%_78%_at_50%_45%,transparent_32%,rgba(0,0,0,0.62)_100%)]" />
     </div>
   )
 }
 
 export function AuthCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative z-10 w-full max-w-[410px] rounded-[22px] border border-ds-line-2 bg-gradient-to-b from-[rgba(28,28,33,0.92)] to-[rgba(18,18,22,0.92)] px-[34px] py-[38px] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_30px_80px_-24px_rgba(0,0,0,0.85)] backdrop-blur-[20px]">
+    <div className="relative z-10 w-full max-w-[410px] rounded-[22px] border border-ds-line-2 bg-ds-elev/90 px-[34px] py-[38px] shadow-[0_30px_80px_-24px_rgba(0,0,0,0.22)] backdrop-blur-[20px] dark:bg-gradient-to-b dark:from-[rgba(28,28,33,0.92)] dark:to-[rgba(18,18,22,0.92)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_30px_80px_-24px_rgba(0,0,0,0.85)]">
       {children}
     </div>
   )

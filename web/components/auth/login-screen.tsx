@@ -68,7 +68,7 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-[#060607] p-8">
+    <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-ds-bg p-8">
       <AuthBackground />
 
       <AuthCard>
@@ -92,7 +92,7 @@ export function LoginScreen() {
                   setEmail(e.target.value)
                   setError(null)
                 }}
-                className="h-auto rounded-xl border-ds-line-2 bg-[#0e0e11] py-3.5 pr-4 pl-11 text-sm text-ds-ink placeholder:text-ds-mute focus-visible:border-ds-orange/40 focus-visible:ring-ds-orange/8"
+                className="h-auto rounded-xl border-ds-line-2 bg-ds-bg-1 py-3.5 pr-4 pl-11 text-sm text-ds-ink placeholder:text-ds-mute focus-visible:border-ds-orange/40 focus-visible:ring-ds-orange/8"
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ export function LoginScreen() {
                   setPassword(e.target.value)
                   setError(null)
                 }}
-                className="h-auto rounded-xl border-ds-line-2 bg-[#0e0e11] py-3.5 pr-4 pl-11 text-sm text-ds-ink placeholder:text-ds-mute focus-visible:border-ds-orange/40 focus-visible:ring-ds-orange/8"
+                className="h-auto rounded-xl border-ds-line-2 bg-ds-bg-1 py-3.5 pr-4 pl-11 text-sm text-ds-ink placeholder:text-ds-mute focus-visible:border-ds-orange/40 focus-visible:ring-ds-orange/8"
               />
             </div>
           </div>
@@ -123,7 +123,7 @@ export function LoginScreen() {
           <Button
             type="submit"
             disabled={loading}
-            className="mt-1 h-auto w-full gap-2 rounded-[13px] border-0 bg-gradient-to-b from-white to-[#f0f0f2] py-[15px] text-sm font-semibold text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_6px_16px_-8px_rgba(0,0,0,0.5)] disabled:opacity-60"
+            className="mt-1 h-auto w-full gap-2 rounded-[13px] border-0 bg-ds-ink py-[15px] text-sm font-semibold text-ds-bg shadow-[0_6px_16px_-8px_rgba(0,0,0,0.5)] hover:opacity-90 disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Continuar"}
             {!loading && <ArrowRight className="size-[15px]" />}

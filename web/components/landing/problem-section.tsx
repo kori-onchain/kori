@@ -8,24 +8,26 @@ export function ProblemSection() {
       <div className="sec-head">
         <div className="sec-tag">O problema</div>
         <h2 className="sec-title">
-          O intermediário cobra caro
-          <span className="dim">dos dois lados.</span>
+          O problema não é a tela.
+          <span className="dim">É a estrutura por trás dela.</span>
         </h2>
+        <p className="section-intro">
+          A tela melhorou. A estrutura por trás não: adquirente, bandeira,
+          emissor, câmara. Cada camada cobra a sua parte.
+        </p>
       </div>
 
       <div className="problem-grid">
         <div className="problem-card">
-          <span className="problem-label">Para o comércio</span>
+          <span className="problem-label">Para o consumidor</span>
           <p>
-            Vendeu a prazo, mas precisa de caixa hoje. Antecipar pelo caminho
-            tradicional custa caro ou nem chega.
+            <b>8% a 15% ao mês</b> só pra acessar crédito.
           </p>
         </div>
         <div className="problem-card">
-          <span className="problem-label">Para você</span>
+          <span className="problem-label">Para o lojista</span>
           <p>
-            Seu dinheiro fica parado rendendo pouco. Produtos melhores exigem
-            ticket alto e burocracia.
+            Perde <b>2% a 5%</b> por venda e espera <b>30 dias</b> pra receber.
           </p>
         </div>
       </div>

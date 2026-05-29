@@ -1,42 +1,42 @@
 const FEATS = [
   {
     num: "01",
-    title: "Ticket baixo",
-    body: "Acesso a partir de R$50, não R$25 mil.",
+    title: "Open-loop",
+    body: "Você é dono das chaves. O rendimento vai pro seu bolso, não pro intermediário.",
   },
   {
     num: "02",
-    title: "Rendimento real",
-    body: "Vem de antecipação de recebíveis, não de tokenomics.",
+    title: "Global → local",
+    body: "USDC captado lá fora financia crédito brasileiro aqui.",
   },
   {
     num: "03",
-    title: "Custo menor",
-    body: "Sem estrutura bancária pesada no meio da operação.",
+    title: "Web3 invisível",
+    body: "A cripto roda nos bastidores. O usuário comum nunca vê.",
   },
   {
     num: "04",
-    title: "Transparência",
-    body: "Regras de custódia e distribuição ficam no contrato.",
+    title: "Sem intermediários",
+    body: "Liquidação on-chain corta as camadas entre quem precisa e quem fornece.",
   },
 ]
 
 export function Capabilities() {
   return (
     <section className="section">
-      <span className="sec-label">S:04 / DIFERENCIAIS</span>
+      <span className="sec-label">S:05 / DIFERENCIAIS</span>
       <span className="corner bl" />
       <span className="corner br" />
 
       <div className="sec-head">
         <div className="sec-tag">Por que é diferente</div>
         <h2 className="sec-title">
-          Pequenos aportes,
-          <span className="dim">financiamento real.</span>
+          Estrutural,
+          <span className="dim">não cosmético.</span>
         </h2>
         <p className="section-intro">
-          A Kori conecta saldo parado com capital de giro local, sem depender de
-          ticket alto ou da estrutura pesada de bancos tradicionais.
+          A diferença não está na tela. Está em cortar os intermediários e ligar
+          capital global direto à economia local.
         </p>
       </div>
 

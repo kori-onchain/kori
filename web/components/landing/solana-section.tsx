@@ -12,7 +12,7 @@ const COMPARISON = [
 export function SolanaSection() {
   return (
     <section className="section">
-      <span className="sec-label">S:05 / SOLANA</span>
+      <span className="sec-label">S:06 / SOLANA</span>
       <span className="corner bl" />
       <span className="corner br" />
 
@@ -23,9 +23,9 @@ export function SolanaSection() {
           <span className="dim">só fecha na Solana.</span>
         </h2>
         <p className="section-intro">
-          Muitas pessoas investindo pouco geram muitas transações pequenas. Em
-          redes caras, a taxa come o rendimento. Na Solana, a operação continua
-          viável.
+          É onde o dinheiro mora e a operação acontece — taxa de fração de
+          centavo e tudo auditável por qualquer um. Sem ela, sobraria um banco no
+          meio.
         </p>
       </div>
 

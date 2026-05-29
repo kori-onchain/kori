@@ -254,7 +254,7 @@ export function CardView() {
       {/* COL PRINCIPAL */}
       <div className="flex min-w-0 flex-col gap-[18px]">
         {/* HERO: CARTÃO + SALDO */}
-        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-white/5 bg-ds-bg-1 p-[22px]">
+        <div className="grid grid-cols-2 gap-5 rounded-[18px] border border-ds-line bg-ds-bg-1 p-[22px]">
           <div className="relative">
             <PremiumCard holder="KAUA MIGUEL" last4={last4} />
             {isFrozen && (
@@ -300,7 +300,7 @@ export function CardView() {
             <div className="mt-auto flex gap-[9px] pt-5">
               <Button
                 onClick={handleCopy}
-                className="h-auto gap-[7px] rounded-[11px] border-0 bg-gradient-to-b from-white to-[#f0f0f2] px-5 py-[11px] text-[13px] font-semibold text-[#0a0a0a] shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]"
+                className="h-auto gap-[7px] rounded-[11px] border-0 bg-ds-ink px-5 py-[11px] text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]"
               >
                 <Copy className="size-3.5" />
                 Copiar dados
@@ -308,7 +308,7 @@ export function CardView() {
               <Button
                 variant="ghost"
                 onClick={handleNewVirtual}
-                className="h-auto rounded-[11px] border border-white/5 bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink"
+                className="h-auto rounded-[11px] border border-ds-line bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink"
               >
                 <Plus className="size-3.5" />
                 Novo virtual
@@ -325,7 +325,7 @@ export function CardView() {
             { label: "Status", value: isFrozen ? "Congelado" : "Ativo", detail: isFrozen ? "bloqueado" : "operando normalmente", valueColor: isFrozen ? "text-ds-red" : "text-ds-green" },
             { label: "Fecha fatura", value: "15 dias", detail: "venc. 10 jul" },
           ].map((k) => (
-            <div key={k.label} className="rounded-[14px] border border-white/5 bg-ds-bg-1 p-[15px]">
+            <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
               <div className={cn("mt-2 text-[21px] font-bold tracking-tight", k.valueColor)}>{k.value}</div>
               <div className="mt-[5px] font-mono text-[9px] text-ds-mute">{k.detail}</div>
@@ -334,7 +334,7 @@ export function CardView() {
         </div>
 
         {/* CONTROLES */}
-        <div className="rounded-2xl border border-white/5 bg-ds-bg-1 p-[18px]">
+        <div className="rounded-2xl border border-ds-line bg-ds-bg-1 p-[18px]">
           <div className="mb-3.5 flex items-center justify-between">
             <div>
               <div className="text-base font-bold tracking-tight">Controles do cartão</div>

@@ -1,25 +1,25 @@
 const ROADMAP = [
   {
     num: "Hoje",
-    title: "Fundo coletivo + conta digital base",
-    body: "Recebíveis locais, carteira em stablecoin, pagamentos e portfolio do investidor.",
+    title: "Transferência e antecipação on-chain",
+    body: "Pagamento e factoring funcionando ponta a ponta na Solana.",
   },
   {
     num: "Depois",
-    title: "Score onchain e BNPL",
-    body: "Histórico de uso virando reputação portátil para limites e crédito futuro.",
+    title: "BNPL e score on-chain",
+    body: "Crédito com pool e escrow (em finalização) + reputação portátil.",
   },
   {
     num: "Visão",
-    title: "Ecossistema financeiro onchain para a economia local",
-    body: "Cartão, pagamentos expandidos e benefícios em cima da mesma conta Kori.",
+    title: "Ecossistema financeiro completo",
+    body: "Cartão real, Pix on/off-ramp e mais — sobre a mesma conta Kori.",
   },
 ]
 
 export function Roadmap() {
   return (
     <section className="section">
-      <span className="sec-label">S:07 / ROADMAP</span>
+      <span className="sec-label">S:08 / ROADMAP</span>
       <span className="corner bl" />
       <span className="corner br" />
 
@@ -30,8 +30,8 @@ export function Roadmap() {
           <span className="dim">Visão grande depois.</span>
         </h2>
         <p className="section-intro">
-          O MVP vende uma coisa só: pequenos aportes financiam recebíveis
-          locais. Cartão, BNPL e score entram como evolução natural.
+          O MVP entrega transferência e antecipação on-chain. BNPL, score e
+          cartão entram como evolução natural.
         </p>
       </div>
 
