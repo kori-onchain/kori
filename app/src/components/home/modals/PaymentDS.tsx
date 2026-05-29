@@ -168,8 +168,9 @@ export const PaymentCard: React.FC<{
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   padding?: number;
-}> = ({ children, style, padding = 16 }) => (
-  <SoftCard radius={radii.card} padding={padding} style={style}>
+  flat?: boolean;
+}> = ({ children, style, padding = 16, flat }) => (
+  <SoftCard radius={radii.card} padding={padding} style={style} flat={flat}>
     {children}
   </SoftCard>
 );

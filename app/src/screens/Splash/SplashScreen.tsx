@@ -61,7 +61,10 @@ const SplashScreenLogoWrapper: React.FC<{
   scale: any;
 }> = ({ children, opacity, scale }) => (
   <Animated.View
-    style={[styles.logoWrapper, { opacity, transform: [{ scale }] }]}
+    style={[
+      styles.logoWrapper,
+      { opacity, transform: [{ scale }, { translateX: 18 }] },
+    ]}
   >
     {children}
   </Animated.View>

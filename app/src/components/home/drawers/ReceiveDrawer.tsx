@@ -943,7 +943,7 @@ const PixReceiveScreen: React.FC<{
   const buildPixPayload = () => {
     const val = mode === "fixed" && amount ? amount.replace(",", ".") : "";
     // Mock EMV Pix payload
-    return `00020126580014br.gov.bcb.pix0114${PIX_MOCK_KEY}0206Kori${val ? `54${val.length.toString().padStart(2, "0")}${val}` : ""}5303986540${val || "0.00"}5802BR5913KORA PAGAMENTOS6009SAO PAULO62070503***6304ABCD`;
+    return `00020126580014br.gov.bcb.pix0114${PIX_MOCK_KEY}0206Kori${val ? `54${val.length.toString().padStart(2, "0")}${val}` : ""}5303986540${val || "0.00"}5802BR5913kori PAGAMENTOS6009SAO PAULO62070503***6304ABCD`;
   };
 
   const buildCopyPaste = () => {

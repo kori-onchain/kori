@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from "react-native";
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
@@ -37,7 +37,7 @@ export const Categories: React.FC = () => {
     {
       id: "acoes",
       title: "Ações",
-      icon: "sliders" as const, // Bulletproof candlestick representation
+      icon: "sliders" as const,
       isSoon: true,
     },
     {
@@ -83,8 +83,8 @@ export const Categories: React.FC = () => {
       <Text style={[styles.sectionTitle, { color: t.ink }]}>Categorias</Text>
 
       {/* Group 1: RWA */}
-      <Text style={[styles.groupTitle, { color: t.inkDim }]}>Real World Assets (RWA)</Text>
-      <View style={styles.grid}>
+      <Text style={[styles.groupTitle, { color: t.inkDim, marginBottom: 12 }]}>Real World Assets (RWA)</Text>
+      <View style={[styles.grid, { marginBottom: 10}]}>
         {rwaCategories.map((cat) => (
           <TouchableOpacity
             key={cat.id}
@@ -115,8 +115,25 @@ export const Categories: React.FC = () => {
         ))}
       </View>
 
+      <View style={styles.poweredByContainer}>
+        <Text style={[styles.poweredByText, { color: t.inkMute }]}>Provided by</Text>
+        <Image 
+          source={{ uri: "https://s2-valor.glbimg.com/hrZt4aAlAMl4RE03s6jUUdyOXJc=/0x0:1000x1000/924x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_63b422c2caee4269b8b34177e8876b93/internal_photos/bs/2023/n/8/rplZzsT3SKnpUMeZzxNw/liqi.png" }} 
+          style={styles.liqiLogo} 
+          resizeMode="contain"
+        />
+        <Text style={[styles.logoDot, { color: t.ink }]}>|</Text>
+        <Image 
+          source={{ uri: "https://www.drivewealth.com/wp-content/uploads/2024/03/drivewealth-favicon-1-150x150.png" }} 
+          style={styles.dwLogo} 
+          resizeMode="contain"
+        />
+      </View>
+
       {/* Group 2: On-Chain */}
-      <Text style={[styles.groupTitle, { color: t.inkDim, marginTop: 12 }]}>On-Chain</Text>
+      <View style={[styles.groupHeaderRow]}>
+        <Text style={[styles.groupTitle, { color: t.inkDim }]}>On-Chain</Text>
+      </View>
       <View style={styles.grid}>
         {onchainCategories.map((cat) => (
           <TouchableOpacity
@@ -161,12 +178,42 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
     marginBottom: 10,
   },
+  groupHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
   groupTitle: {
     fontFamily: fonts.sans.bold,
     fontSize: 11,
     letterSpacing: 0.8,
     textTransform: "uppercase",
-    marginBottom: 12,
+  },
+  poweredByContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: 8,
+    gap: 10,
+  },
+  liqiLogo: {
+    width: 46,
+    height: 42,
+  },
+  dwLogo: {
+    width: 18,
+    height: 18,
+  },
+  poweredByText: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
+  logoDot: {
+    fontSize: 12,
+    fontWeight: "900",
+    opacity: 0.5
   },
   grid: {
     flexDirection: "row",

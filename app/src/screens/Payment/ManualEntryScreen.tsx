@@ -224,7 +224,7 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({
       <Text style={[styles.label, { color: t.inkMute }]}>
         {method === "pix" ? "Chave Pix" : "ID ou carteira"}
       </Text>
-      <PaymentCard padding={14}>
+      <PaymentCard padding={14} flat>
         <View style={styles.inputRow}>
           {method === "pix" ? (
             <PixIcon size={18} color={t.ink} />
@@ -240,7 +240,7 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({
             placeholder={
               method === "pix"
                 ? "CPF, e-mail, telefone ou chave aleatória"
-                : "@usuario ou endereço da carteira"
+                : "@kori ou 4xJ...9yZ"
             }
             placeholderTextColor={t.inkMute}
             value={value}

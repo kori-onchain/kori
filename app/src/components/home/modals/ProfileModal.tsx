@@ -69,7 +69,7 @@ const ThemeSelectionDrawer: React.FC<ThemeDrawerProps> = ({
   }[] = [
     { id: "light", name: "Tema Claro", icon: "sun", desc: "Interface clara de alto contraste" },
     { id: "dark", name: "Tema Escuro", icon: "moon", desc: "Interface escura otimizada para leitura" },
-    { id: "system", name: "Padrão do Sistema", icon: "smartphone", desc: "Sincroniza com as configurações do dispositivo" },
+    { id: "system", name: "Padrão do Sistema", icon: "smartphone", desc: "Sincroniza com as configurações do sist..." },
   ];
 
   return (
