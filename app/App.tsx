@@ -49,6 +49,7 @@ export default function App() {
   const [session, setSession] = useState<UserSession | null>(null);
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  const [businessNameDismissed, setBusinessNameDismissed] = useState(false);
 
   const { session: supabaseSession, loading: authLoading } = useAuth();
 
@@ -142,8 +143,6 @@ export default function App() {
   const handleAddAccount = async () => {
     await handleLogout();
   };
-
-  const [businessNameDismissed, setBusinessNameDismissed] = useState(false);
 
   const needsBusinessName =
     !!session &&

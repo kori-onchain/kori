@@ -164,29 +164,32 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({
       activeOpacity={0.7}
       onPress={() => handleSelectContact(item)}
     >
-      <SoftCard radius={24} padding={0} flat style={styles.avatarCard}>
-        <View style={[styles.avatarInner, { backgroundColor: t.bgElev }]}>
-          <Text style={[styles.avatarText, { color: t.ink }]}>
-            {item.initials}
-          </Text>
-          {item.isFavorite && method === "kori" ? (
-            <View
-              style={[
-                styles.favoriteBadge,
-                { backgroundColor: t.bgElev, borderColor: t.line },
-              ]}
-            >
-              <FontAwesome name="star" size={8} color="#FFD700" />
-            </View>
-          ) : null}
-          {/* If Pix mode, show pix badge on avatar */}
-          {method === "pix" && (
-            <View style={[styles.channelBadgeAvatar, { backgroundColor: t.ink, borderColor: t.bg }]}>
-              <PixIcon size={8} color={t.bg} />
-            </View>
-          )}
-        </View>
-      </SoftCard>
+      <View style={styles.avatarWrap}>
+        <SoftCard radius={24} padding={0} flat style={styles.avatarCard}>
+          <View style={[styles.avatarInner, { backgroundColor: t.bgElev }]}>
+            <Text style={[styles.avatarText, { color: t.ink }]}>
+              {item.initials}
+            </Text>
+          </View>
+        </SoftCard>
+
+        {/* Badge no canto do avatar — fora do SoftCard pra não ser recortada */}
+        {item.isFavorite && method === "kori" ? (
+          <View
+            style={[
+              styles.favoriteBadge,
+              { backgroundColor: t.bgElev, borderColor: t.line },
+            ]}
+          >
+            <FontAwesome name="star" size={8} color="#FFD700" />
+          </View>
+        ) : null}
+        {method === "pix" && (
+          <View style={[styles.channelBadgeAvatar, { backgroundColor: t.ink, borderColor: t.bg }]}>
+            <PixIcon size={8} color={t.bg} />
+          </View>
+        )}
+      </View>
 
       <View style={styles.contactDetails}>
         <Text style={[styles.contactName, { color: t.ink }]} numberOfLines={1}>
@@ -525,6 +528,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     gap: 12,
+  },
+  avatarWrap: {
+    width: 48,
+    height: 48,
+    position: "relative",
   },
   avatarCard: {
     width: 48,

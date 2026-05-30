@@ -37,24 +37,24 @@ export const SimulateStep: React.FC<SimulateStepProps> = ({
       <SoftCard radius={70} padding={0} strong style={styles.scanBox}>
         <View style={styles.scanBoxInner}>
           <Ionicons name={iconName} size={80} color={theme.ink} />
-          {scanning ? (
-            <ActivityIndicator
-              size="large"
-              color={theme.orange}
-              style={{ marginTop: 24 }}
-            />
-          ) : (
-            <View
-              style={[
-                styles.successScanBadge,
-                { backgroundColor: theme.green, borderColor: theme.bg },
-              ]}
-            >
-              <Feather name="check" size={28} color={theme.bg} />
-            </View>
-          )}
         </View>
       </SoftCard>
+
+      <View style={styles.statusSlot}>
+        {scanning ? (
+          <ActivityIndicator size="large" color={theme.orange} />
+        ) : (
+          <View
+            style={[
+              styles.successScanBadge,
+              { backgroundColor: theme.green, borderColor: theme.bg },
+            ]}
+          >
+            <Feather name="check" size={28} color={theme.bg} />
+          </View>
+        )}
+      </View>
+
       <Text style={[styles.scanTitle, { color: theme.ink }]}>{title}</Text>
       <Text style={[styles.scanDesc, { color: theme.inkMute }]}>{desc}</Text>
     </View>
@@ -71,19 +71,21 @@ const styles = StyleSheet.create({
   scanBox: {
     width: 140,
     height: 140,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   scanBoxInner: {
     width: 140,
     height: 140,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
+  },
+  statusSlot: {
+    height: 44,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 24,
   },
   successScanBadge: {
-    position: "absolute",
-    bottom: -4,
-    right: -4,
     width: 44,
     height: 44,
     borderRadius: 22,

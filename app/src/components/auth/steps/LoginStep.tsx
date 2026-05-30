@@ -1,7 +1,6 @@
 import React from "react";
 import {
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -37,10 +36,7 @@ export const LoginStep: React.FC<LoginStepProps> = ({
   onLogin,
   onCreateAccount,
 }) => (
-  <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    className="flex-1"
-  >
+  <KeyboardAvoidingView behavior="padding" className="flex-1">
     <ScrollView
       contentContainerClassName="flex-grow px-[22px] pb-6 pt-11"
       showsVerticalScrollIndicator={false}

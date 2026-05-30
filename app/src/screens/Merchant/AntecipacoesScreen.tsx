@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
 import { Header } from "@components/home/Header";
@@ -34,6 +35,11 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
   onAdvanceCredited,
 }) => {
   const { t } = useTheme();
+  const insets = useSafeAreaInsets();
+  const drawerBottomPadding = Math.max(
+    insets.bottom + 12,
+    Platform.OS === "ios" ? 40 : 28,
+  );
   const entering = useFadeUp();
   const {
     receivables,
@@ -353,7 +359,11 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
             <View
               style={[
                 styles.drawer,
-                { backgroundColor: t.bg, borderColor: t.line },
+                {
+                  backgroundColor: t.bg,
+                  borderColor: t.line,
+                  paddingBottom: drawerBottomPadding,
+                },
               ]}
             >
               <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
@@ -433,14 +443,12 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                       label="Confirmar antecipação"
                       variant="primary"
                       onPress={confirmAdvance}
-                      full
                       icon={<Feather name="check" size={16} color={t.btnPrimaryFg} />}
                     />
                     <Button
                       label="Cancelar"
                       variant="secondary"
                       onPress={() => setShowConfirmation(false)}
-                      full
                     />
                   </View>
                 )}
@@ -641,7 +649,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    paddingBottom: Platform.OS === "ios" ? 40 : 28,
     overflow: "hidden",
   },
   handleBar: {

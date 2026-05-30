@@ -54,7 +54,7 @@ export const BusinessNameDrawer: React.FC<BusinessNameDrawerProps> = ({
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior="padding"
           style={styles.keyboardContainer}
         >
           <View

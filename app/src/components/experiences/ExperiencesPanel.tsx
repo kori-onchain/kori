@@ -17,16 +17,20 @@ import QRCode from "react-native-qrcode-svg";
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { useFadeUp } from "@hooks/useFadeUp";
-import { Button } from "@components/layout/Button";
+import { LinearGradient } from "expo-linear-gradient";
 import { SoftCard } from "@components/layout/SoftCard";
 import { fonts, radii } from "@theme/tokens";
 
 /* ─── Assets ───────────────────────────────────────── */
+const unsplash = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=800&q=80`;
+
 const IMG = {
-  concert:    { uri: "https://images.stockcake.com/public/3/d/1/3d182bb7-f9e3-4cd3-aae2-6c37874aef6e_large/epic-rock-concert-stockcake.jpg" },
-  restaurant: { uri: "https://images.stockcake.com/public/7/e/7/7e74a438-e1a5-48ea-b3fd-3c1bf3a514dd_large/delicious-steak-on-grill-stockcake.jpg" },
-  dj:         { uri: "https://images.stockcake.com/public/3/d/1/3d182bb7-f9e3-4cd3-aae2-6c37874aef6e_large/epic-rock-concert-stockcake.jpg" },
-  finedining: { uri: "https://images.stockcake.com/public/3/d/1/3d182bb7-f9e3-4cd3-aae2-6c37874aef6e_large/epic-rock-concert-stockcake.jpg" },
+  bmth:     { uri: unsplash("1470229722913-7c0e2dbbafd3") }, // crowd em show de rock
+  coldplay: { uri: unsplash("1501386761578-eac5c94b800a") }, // palco + plateia
+  alok:     { uri: unsplash("1459749411175-04bf5292ceea") }, // luzes de festival
+  fasano:   { uri: unsplash("1517248135467-4c7edcad34c4") }, // restaurante elegante
+  cipriani: { uri: unsplash("1414235077428-338989a2e8c0") }, // alta gastronomia
 };
 
 /* ─── Types ────────────────────────────────────────── */
@@ -60,11 +64,27 @@ interface Ticket {
 /* ─── Dados ────────────────────────────────────────── */
 const EXPERIENCES: Exp[] = [
   {
+    id: "bmth",
+    title: "Bring Me The Horizon",
+    subtitle: "Allianz Parque, São Paulo",
+    type: "show",
+    image: IMG.bmth,
+    dateLabel: "14 Mar",
+    month: "Mar",
+    price: "R$ 380,00",
+    diaLabel: "Sexta-feira",
+    horaLabel: "20h00",
+    local: "Allianz Parque",
+    categoria: "Show",
+    sobre: "A banda britânica de metalcore Bring Me The Horizon traz ao Brasil a turnê POST HUMAN, com produção visual imersiva, pirotecnia e a energia crua de clássicos como Throne e Can You Feel My Heart. Uma noite intensa para os fãs de rock pesado.",
+    ctaLabel: "Resgatar Ingresso",
+  },
+  {
     id: "coldplay",
     title: "Coldplay World Tour",
     subtitle: "Estádio Maracanã, Rio de Janeiro",
     type: "show",
-    image: IMG.concert,
+    image: IMG.coldplay,
     dateLabel: "9 Jan",
     month: "Jan",
     price: "R$ 490,00",
@@ -80,7 +100,7 @@ const EXPERIENCES: Exp[] = [
     title: "Fasano Al Mare",
     subtitle: "Ipanema, Rio de Janeiro",
     type: "restaurante",
-    image: IMG.finedining,
+    image: IMG.fasano,
     dateLabel: "22 Fev",
     month: "Fev",
     price: "Grátis",
@@ -96,7 +116,7 @@ const EXPERIENCES: Exp[] = [
     title: "Alok — Sunset Sessions",
     subtitle: "Praia de Copacabana — Posto 3",
     type: "show",
-    image: IMG.dj,
+    image: IMG.alok,
     dateLabel: "18 Jul",
     month: "Jul",
     price: "R$ 150,00",
@@ -112,7 +132,7 @@ const EXPERIENCES: Exp[] = [
     title: "Cipriani — Copa Palace",
     subtitle: "Copacabana Palace, Rio",
     type: "restaurante",
-    image: IMG.restaurant,
+    image: IMG.cipriani,
     dateLabel: "4 Jun",
     month: "Jun",
     price: "Grátis",
@@ -534,26 +554,42 @@ export const ExperiencesPanel: React.FC = () => {
       <View style={ls.cardList}>
         {visiveis.map((exp) => (
           <TouchableOpacity key={exp.id} activeOpacity={0.92} onPress={() => setDetalhe(exp)}>
-            <View style={[ls.eventCard, { borderColor: t.line }]}>
+            <View style={[ls.eventCard, { borderColor: t.cardBorder, backgroundColor: t.bg2 }]}>
               <Image source={exp.image} style={ls.eventCardImage} resizeMode="cover" />
-              <View style={ls.eventCardOverlay} />
+              <LinearGradient
+                colors={["transparent", "rgba(0,0,0,0.25)", "rgba(0,0,0,0.9)"]}
+                locations={[0, 0.5, 1]}
+                style={ls.eventGradient}
+              />
 
               {/* Badge de data */}
-              <View style={[ls.dateBadge, { backgroundColor: t.bgElev }]}>
+              <View style={[ls.dateBadge, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
                 <Text style={[ls.dateBadgeDay, { color: t.ink }]}>{exp.dateLabel.split(" ")[0]}</Text>
                 <Text style={[ls.dateBadgeMon, { color: t.orange }]}>{exp.month}</Text>
               </View>
 
-              {/* Barra inferior */}
-              <View style={[ls.eventBottom, { backgroundColor: "rgba(10,10,10,0.84)" }]}>
-                <View style={[ls.eventAvatar, { backgroundColor: t.bgElev, borderColor: t.orange }]}>
-                  <Feather name={exp.type === "show" ? "music" : "map-pin"} size={14} color={t.orange} />
-                </View>
-                <View style={{ flex: 1, marginHorizontal: 10 }}>
+              {/* Pílula de categoria */}
+              <View style={ls.catPill}>
+                <Feather name={exp.type === "show" ? "music" : "coffee"} size={11} color="#fff" />
+                <Text style={ls.catPillText}>{exp.categoria}</Text>
+              </View>
+
+              {/* Conteúdo inferior */}
+              <View style={ls.eventBottom}>
+                <View style={{ flex: 1, marginRight: 12 }}>
                   <Text style={[ls.eventTitle, { color: "#fff" }]} numberOfLines={1}>{exp.title}</Text>
-                  <Text style={[ls.eventSub,   { color: "rgba(255,255,255,0.7)" }]} numberOfLines={1}>{exp.subtitle}</Text>
+                  <View style={ls.eventSubRow}>
+                    <Feather name="map-pin" size={11} color="rgba(255,255,255,0.7)" />
+                    <Text style={[ls.eventSub, { color: "rgba(255,255,255,0.7)" }]} numberOfLines={1}>
+                      {exp.subtitle}
+                    </Text>
+                  </View>
+                  <Text style={[ls.eventPrice, { color: t.orange }]}>{exp.price}</Text>
                 </View>
-                <Button label="Ver" variant="primary" style={ls.verBtn} labelStyle={ls.verBtnText} />
+                <View style={[ls.verBtn, { backgroundColor: t.btnPrimaryBg }]}>
+                  <Text style={[ls.verBtnText, { color: t.btnPrimaryFg }]}>Ver</Text>
+                  <Feather name="arrow-right" size={14} color={t.btnPrimaryFg} />
+                </View>
               </View>
             </View>
           </TouchableOpacity>
@@ -620,23 +656,42 @@ const ls = StyleSheet.create({
 
   /* Cards de eventos */
   cardList:  { gap: 14 },
-  eventCard: { borderRadius: 18, borderWidth: 1, overflow: "hidden", height: 240, position: "relative" },
-  eventCardImage:   { ...StyleSheet.absoluteFillObject, width: "100%", height: "100%" },
-  eventCardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.32)" },
-  dateBadge: { position: "absolute", top: 14, right: 14, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10, alignItems: "center" },
-  dateBadgeDay: { fontFamily: fonts.sans.bold, fontSize: 16, fontWeight: "900" },
-  dateBadgeMon: { fontFamily: fonts.sans.bold, fontSize: 11, textTransform: "uppercase" },
+  eventCard: {
+    borderRadius: radii.card,
+    borderWidth: 1,
+    overflow: "hidden",
+    height: 230,
+    position: "relative",
+  },
+  eventCardImage: { ...StyleSheet.absoluteFillObject, width: "100%", height: "100%" },
+  eventGradient:  { ...StyleSheet.absoluteFillObject },
+  dateBadge: {
+    position: "absolute", top: 12, right: 12,
+    paddingHorizontal: 12, paddingVertical: 7,
+    borderRadius: radii.cardSm, borderWidth: 1, alignItems: "center",
+  },
+  dateBadgeDay: { fontFamily: fonts.sans.bold, fontSize: 16, fontWeight: "900", lineHeight: 18 },
+  dateBadgeMon: { fontFamily: fonts.mono.semibold, fontSize: 10, textTransform: "uppercase", letterSpacing: 0.5, marginTop: 1 },
+  catPill: {
+    position: "absolute", top: 14, left: 14,
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: radii.pill,
+  },
+  catPillText: { fontFamily: fonts.sans.semibold, fontSize: 10, color: "#fff", letterSpacing: 0.2 },
   eventBottom: {
     position: "absolute", bottom: 0, left: 0, right: 0,
-    flexDirection: "row", alignItems: "center",
-    paddingVertical: 14, paddingHorizontal: 14,
-    borderBottomLeftRadius: 18, borderBottomRightRadius: 18,
+    flexDirection: "row", alignItems: "flex-end", padding: 16,
   },
-  eventAvatar: { width: 38, height: 38, borderRadius: 19, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },
-  eventTitle:  { fontFamily: fonts.sans.bold, fontSize: 13, fontWeight: "700" },
-  eventSub:    { fontFamily: fonts.sans.semibold, fontSize: 11, marginTop: 1 },
-  verBtn:      { paddingHorizontal: 14, paddingVertical: 8, borderRadius: radii.pill },
-  verBtnText:  { fontFamily: fonts.sans.bold, fontSize: 12 },
+  eventTitle:  { fontFamily: fonts.sans.bold, fontSize: 16, fontWeight: "800", letterSpacing: -0.3 },
+  eventSubRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 4 },
+  eventSub:    { fontFamily: fonts.sans.medium, fontSize: 11, flex: 1 },
+  eventPrice:  { fontFamily: fonts.mono.semibold, fontSize: 13, marginTop: 6, letterSpacing: 0.2 },
+  verBtn: {
+    flexDirection: "row", alignItems: "center", gap: 5,
+    paddingHorizontal: 14, height: 38, borderRadius: radii.pill,
+  },
+  verBtnText:  { fontFamily: fonts.sans.bold, fontSize: 13, fontWeight: "700" },
 });
 
 const ds = StyleSheet.create({

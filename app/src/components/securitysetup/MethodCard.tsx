@@ -45,8 +45,8 @@ export const MethodCard: React.FC<MethodCardProps> = ({
             style={[
               styles.cardIconBox,
               selected && {
-                backgroundColor: theme.btnPrimaryBg,
-                borderColor: theme.btnPrimaryBg,
+                backgroundColor: "rgba(255,107,61,0.14)",
+                borderColor: theme.orange,
               },
             ]}
           >
@@ -54,7 +54,7 @@ export const MethodCard: React.FC<MethodCardProps> = ({
               <Ionicons
                 name={iconName}
                 size={24}
-                color={selected ? theme.btnPrimaryFg : theme.ink}
+                color={selected ? theme.orange : theme.ink}
               />
             </View>
           </SoftCard>
