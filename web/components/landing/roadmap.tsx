@@ -19,7 +19,7 @@ const ROADMAP = [
 export function Roadmap() {
   return (
     <section className="section">
-      <span className="sec-label">S:08 / ROADMAP</span>
+      <span className="sec-label">S:09 / ROADMAP</span>
       <span className="corner bl" />
       <span className="corner br" />
 

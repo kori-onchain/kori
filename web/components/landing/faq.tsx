@@ -24,7 +24,7 @@ const FAQS = [
 export function Faq() {
   return (
     <section className="section faq-section">
-      <span className="sec-label">S:09 / FAQ</span>
+      <span className="sec-label">S:10 / FAQ</span>
       <span className="corner bl" />
       <span className="corner br" />
 

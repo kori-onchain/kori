@@ -34,7 +34,7 @@ const STEPS = [
 export function Architecture() {
   return (
     <section className="section">
-      <span className="sec-label">S:07 / ARQUITETURA</span>
+      <span className="sec-label">S:08 / ARQUITETURA</span>
       <span className="corner bl" />
       <span className="corner br" />
 

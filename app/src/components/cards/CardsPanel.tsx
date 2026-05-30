@@ -701,7 +701,6 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
 
       {/* CreditCardSection from components/home */}
       <ReAnimated.View entering={entering(120)}>
-      <View style={styles.comingSoonWrapper}>
         <CreditCardSection
         userName={userName}
         cards={displayCards}
@@ -718,13 +717,6 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           setMainActiveIndex(index);
         }}
       />
-        <View style={styles.comingSoonOverlay}>
-          <View style={styles.comingSoonBadge}>
-            <Feather name="clock" size={14} color="#FFF" />
-            <Text style={styles.comingSoonText}>Em breve</Text>
-          </View>
-        </View>
-      </View>
       </ReAnimated.View>
 
       <ReAnimated.View entering={entering(180)}>

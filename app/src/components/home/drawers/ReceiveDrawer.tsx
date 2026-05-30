@@ -1279,7 +1279,7 @@ export const ReceiveDrawer: React.FC<ReceiveDrawerProps> = ({ visible, onClose, 
     }, 300);
   };
 
-  const openAmountEntry = (origin: "payment_link" | "qrcode" | "card") => {
+  const openAmountEntry = (origin: "payment_link" | "qrcode" | "card" | "pix") => {
     setOriginScreen(origin);
     navigate("amount_entry", 1);
   };

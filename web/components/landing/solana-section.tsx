@@ -12,7 +12,7 @@ const COMPARISON = [
 export function SolanaSection() {
   return (
     <section className="section">
-      <span className="sec-label">S:06 / SOLANA</span>
+      <span className="sec-label">S:07 / SOLANA</span>
       <span className="corner bl" />
       <span className="corner br" />
 

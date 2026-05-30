@@ -143,14 +143,20 @@ export default function App() {
     await handleLogout();
   };
 
+  const [businessNameDismissed, setBusinessNameDismissed] = useState(false);
+
   const needsBusinessName =
-    !!session && session.accountType === "PJ" && !session.businessName;
+    !!session &&
+    session.accountType === "PJ" &&
+    !session.businessName &&
+    !businessNameDismissed;
 
   const handleSaveBusinessName = async (businessName: string) => {
     if (!MOCK_AUTH && session?.supabaseId) {
       await updateProfile(session.supabaseId, { business_name: businessName });
     }
     setSession((prev) => (prev ? { ...prev, businessName } : prev));
+    setBusinessNameDismissed(false);
   };
 
   let screen: React.ReactNode;
@@ -192,6 +198,7 @@ export default function App() {
         <BusinessNameDrawer
           visible={needsBusinessName}
           onSave={handleSaveBusinessName}
+          onClose={() => setBusinessNameDismissed(true)}
         />
       </ThemeProvider>
     </SafeAreaProvider>

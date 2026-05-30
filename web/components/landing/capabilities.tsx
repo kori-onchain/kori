@@ -24,7 +24,7 @@ const FEATS = [
 export function Capabilities() {
   return (
     <section className="section">
-      <span className="sec-label">S:05 / DIFERENCIAIS</span>
+      <span className="sec-label">S:06 / DIFERENCIAIS</span>
       <span className="corner bl" />
       <span className="corner br" />
 

@@ -550,8 +550,8 @@ export const ExperiencesPanel: React.FC = () => {
                   <Feather name={exp.type === "show" ? "music" : "map-pin"} size={14} color={t.orange} />
                 </View>
                 <View style={{ flex: 1, marginHorizontal: 10 }}>
-                  <Text style={[ls.eventTitle, { color: t.ink }]} numberOfLines={1}>{exp.title}</Text>
-                  <Text style={[ls.eventSub,   { color: t.inkMute }]} numberOfLines={1}>{exp.subtitle}</Text>
+                  <Text style={[ls.eventTitle, { color: "#fff" }]} numberOfLines={1}>{exp.title}</Text>
+                  <Text style={[ls.eventSub,   { color: "rgba(255,255,255,0.7)" }]} numberOfLines={1}>{exp.subtitle}</Text>
                 </View>
                 <Button label="Ver" variant="primary" style={ls.verBtn} labelStyle={ls.verBtnText} />
               </View>

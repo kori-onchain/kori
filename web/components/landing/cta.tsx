@@ -1,7 +1,7 @@
 export function Cta() {
   return (
     <section className="section cta">
-      <span className="sec-label">S:10</span>
+      <span className="sec-label">S:11</span>
       <span className="corner bl" />
       <span className="corner br" />
 

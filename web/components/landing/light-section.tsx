@@ -1,7 +1,7 @@
 export function LightSection() {
   return (
     <section className="section light-section">
-      <span className="sec-label">S:04 / PRODUTO</span>
+      <span className="sec-label">S:05 / PRODUTO</span>
       <span className="corner bl" />
       <span className="corner br" />
 

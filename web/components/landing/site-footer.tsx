@@ -21,7 +21,7 @@ const COLS: { title: string; links: { label: string; href: string }[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="section footer">
-      <span className="sec-label">S:11</span>
+      <span className="sec-label">S:12</span>
       <span className="corner bl" />
       <span className="corner br" />
 

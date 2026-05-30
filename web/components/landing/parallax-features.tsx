@@ -96,7 +96,7 @@ export function ParallaxFeatures() {
 
   return (
     <section className="section parallax" ref={sectionRef}>
-      <span className="sec-label">S:03 / COMO FUNCIONA</span>
+      <span className="sec-label">S:04 / COMO FUNCIONA</span>
       <span className="corner bl" />
       <span className="corner br" />
 
