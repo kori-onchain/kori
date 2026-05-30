@@ -217,9 +217,13 @@
 .nav-links a:hover {
   color: var(--ink);
 }
-@media (max-width: 880px) {
+@media (max-width: 1024px) {
   .nav-links {
     display: none;
+  }
+  /* Sem os links no meio, vira 2 colunas: marca à esquerda, ações à direita */
+  .nav-bar {
+    grid-template-columns: 1fr auto;
   }
 }
 .nav-right {
@@ -494,7 +498,8 @@
 
 .hero-phone-wrap {
   position: relative;
-  margin-top: clamp(34px, 5vh, 56px);
+  margin-top: auto;
+  padding-top: clamp(34px, 5vh, 56px);
   padding-bottom: 0;
   width: clamp(300px, 31vw, 405px);
   max-width: 92vw;
@@ -1522,10 +1527,7 @@
   position: relative;
   min-height: 420px;
   border: 1px solid var(--line);
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255, 107, 61, 0.18), transparent 36%),
-    radial-gradient(circle at 80% 78%, rgba(74, 222, 128, 0.12), transparent 40%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent);
+  background: rgba(255, 255, 255, 0.02);
   overflow: hidden;
 }
 .calc-route {
@@ -1576,30 +1578,17 @@
   border-radius: 999px;
   background: var(--orange);
   transform: translateX(-50%);
-  animation: routePulse 2.6s ease-in-out infinite;
+  opacity: 0.7;
 }
 .calc-route-line span:nth-child(1) {
   top: 0;
 }
 .calc-route-line span:nth-child(2) {
   top: 50%;
-  animation-delay: 0.25s;
 }
 .calc-route-line span:nth-child(3) {
   bottom: 0;
   background: var(--green);
-  animation-delay: 0.5s;
-}
-@keyframes routePulse {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: translateX(-50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1.35);
-  }
 }
 .calc-toggle {
   display: inline-flex;
