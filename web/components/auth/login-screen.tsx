@@ -6,8 +6,8 @@ import { ArrowRight, Lock, Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ensureAccountProfile } from "@/lib/account"
 import { createClient } from "@/lib/supabase/client"
-import { createWallet, hasWallet } from "@/lib/wallet"
 
 import {
   AuthBackground,
@@ -52,15 +52,12 @@ export function LoginScreen() {
       return
     }
 
-    if (!hasWallet()) {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const pubkey = createWallet()
-        await supabase
-          .from("profiles")
-          .update({ wallet_pubkey: pubkey })
-          .eq("id", user.id)
-      }
+    try {
+      await ensureAccountProfile({ email: email.trim().toLowerCase() })
+    } catch (profileError) {
+      setError(profileError instanceof Error ? profileError.message : "Erro ao preparar sua conta.")
+      setLoading(false)
+      return
     }
 
     router.push("/dashboard")

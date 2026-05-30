@@ -1,5 +1,4 @@
 import { Architecture } from "@/components/landing/architecture"
-import { Audiences } from "@/components/landing/audiences"
 import { Calculator } from "@/components/landing/calculator"
 import { Capabilities } from "@/components/landing/capabilities"
 import { Cta } from "@/components/landing/cta"
@@ -23,9 +22,8 @@ export default function Page() {
           <Hero />
           <TrustBar />
           <ProblemSection />
-          <Audiences />
-          <Calculator />
           <ParallaxFeatures />
+          <Calculator />
           <LightSection />
           <Capabilities />
           <SolanaSection />

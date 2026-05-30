@@ -1,19 +1,20 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ArrowLeft, ArrowRight, Check, Copy, Search, Send, Star, User, Zap } from "lucide-react"
 import { QRCodeSVG } from "qrcode.react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/lib/supabase/client"
 import { MOCK_CONTACTS, MOCK_TRANSACTIONS, type Contact, formatBRL } from "@/lib/mock-data"
+import { getBalance, getTransactions, transferToRecipient } from "@/lib/transfer-ledger"
+import { getOrCreateWallet, shortWallet } from "@/lib/wallet"
 
 type Step = "recipient" | "amount" | "review" | "receipt"
 
 const PRESETS = [25, 50, 100, 1000]
-
-const MOCK_WALLET = "7nxB8WnK4...4X1a3kPM2"
 
 export function PaymentsView() {
   const [step, setStep] = useState<Step>("recipient")
@@ -22,7 +23,38 @@ export function PaymentsView() {
   const [amount, setAmount] = useState("")
   const [protocol] = useState(() => `KORI-${Math.random().toString(36).substring(2, 10).toUpperCase()}`)
   const [copied, setCopied] = useState(false)
-  const receivePayload = `kori://pay?to=${encodeURIComponent(MOCK_WALLET)}`
+  const [wallet, setWallet] = useState("")
+  const [accountId, setAccountId] = useState("")
+  const [balance, setBalance] = useState(0)
+  const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS)
+  const [transferError, setTransferError] = useState<string | null>(null)
+  const receivePayload = `kori://pay?to=${encodeURIComponent(wallet)}`
+
+  useEffect(() => {
+    let active = true
+
+    async function loadAccount() {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!active || !user) return
+
+      const pubkey = getOrCreateWallet(user.id)
+      setAccountId(user.id)
+      setWallet(pubkey)
+      setBalance(getBalance(user.id))
+      setTransactions(getTransactions(user.id))
+      await supabase.from("profiles").update({ wallet_pubkey: pubkey }).eq("id", user.id)
+    }
+
+    loadAccount()
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const filtered = useMemo(() => {
     if (!search.trim()) return MOCK_CONTACTS
@@ -35,15 +67,53 @@ export function PaymentsView() {
   const amountValue = Number(amount.replace(/\D/g, "")) / 100
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(MOCK_WALLET)
+    if (!wallet) return
+    navigator.clipboard.writeText(wallet)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const selectManualRecipient = () => {
+    const value = search.trim()
+    if (!value) return
+
+    setRecipient({
+      id: `manual-${value}`,
+      name: null,
+      initials: value.slice(0, 2).toUpperCase(),
+      walletId: value,
+      isFavorite: false,
+    })
+    setTransferError(null)
+    setStep("amount")
+  }
+
+  const confirmTransfer = () => {
+    if (!recipient) return
+
+    try {
+      const result = transferToRecipient({
+        amount: amountValue,
+        recipientName: recipient.name || recipient.walletId,
+        recipientWallet: recipient.walletId,
+        initials: recipient.initials,
+        accountId,
+      })
+      setBalance(result.balance)
+      setTransactions(result.transactions)
+      setTransferError(null)
+      setStep("receipt")
+    } catch (err) {
+      setTransferError(err instanceof Error ? err.message : "Não foi possível enviar.")
+    }
   }
 
   const resetFlow = () => {
     setStep("recipient")
     setRecipient(null)
     setAmount("")
+    setSearch("")
+    setTransferError(null)
   }
 
   return (
@@ -84,7 +154,9 @@ export function PaymentsView() {
           <div className="flex flex-col gap-4">
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Para quem você quer enviar?</h1>
-              <p className="mt-1 text-sm text-ds-dim">Busque um contato ou cole o @ ou wallet do destinatário.</p>
+              <p className="mt-1 text-sm text-ds-dim">
+                Saldo disponível: <span className="font-mono text-ds-ink">{formatBRL(balance)}</span>
+              </p>
             </div>
 
             <div className="flex items-center gap-2 rounded-[12px] border border-ds-line bg-ds-bg-2 px-3.5 py-3">
@@ -96,6 +168,13 @@ export function PaymentsView() {
                 className="h-auto flex-1 border-0 bg-transparent p-0 text-sm focus-visible:ring-0"
               />
             </div>
+
+            {search.trim() && (
+              <Button onClick={selectManualRecipient} variant="outline" className="h-11 border-ds-line">
+                Usar {search.trim()} como destinatário
+                <ArrowRight className="ml-2 size-4" />
+              </Button>
+            )}
 
             <div className="mt-2">
               <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.15em] text-ds-mute">
@@ -154,6 +233,9 @@ export function PaymentsView() {
                 <div className="mt-3 text-5xl font-bold tracking-tight text-ds-ink">
                   {formatBRL(amountValue)}
                 </div>
+                <div className="mt-2 font-mono text-[10px] text-ds-mute">
+                  Disponível {formatBRL(balance)}
+                </div>
               </div>
 
               <Input
@@ -180,10 +262,10 @@ export function PaymentsView() {
 
             <Button
               onClick={() => setStep("review")}
-              disabled={amountValue <= 0}
+              disabled={amountValue <= 0 || amountValue > balance}
               className="h-12 bg-ds-orange hover:bg-ds-orange/90 disabled:opacity-50"
             >
-              Continuar
+              {amountValue > balance ? "Saldo insuficiente" : "Continuar"}
               <ArrowRight className="ml-2 size-4" />
             </Button>
           </div>
@@ -231,12 +313,17 @@ export function PaymentsView() {
             </div>
 
             <Button
-              onClick={() => setStep("receipt")}
+              onClick={confirmTransfer}
               className="h-12 bg-ds-orange hover:bg-ds-orange/90"
             >
               <Zap className="mr-2 size-4" />
               Confirmar e enviar
             </Button>
+            {transferError && (
+              <div className="rounded-xl border border-ds-red/20 bg-ds-red/5 px-4 py-3 text-[12px] font-medium text-ds-red">
+                {transferError}
+              </div>
+            )}
           </div>
         )}
 
@@ -302,7 +389,7 @@ export function PaymentsView() {
           </div>
 
           <div className="mt-4 flex items-center gap-2 rounded-[10px] border border-ds-line bg-ds-bg-2 px-3 py-2.5">
-            <span className="flex-1 truncate font-mono text-[11px] text-ds-dim">{MOCK_WALLET}</span>
+            <span className="flex-1 truncate font-mono text-[11px] text-ds-dim">{wallet || "Carregando wallet..."}</span>
             <button
               onClick={handleCopy}
               className="text-ds-mute transition-colors hover:text-ds-ink"
@@ -314,7 +401,7 @@ export function PaymentsView() {
 
           <Button variant="outline" className="mt-4 w-full border-ds-line">
             <Send className="mr-2 size-3.5" />
-            Compartilhar
+            {wallet ? shortWallet(wallet) : "Compartilhar"}
           </Button>
         </div>
 
@@ -323,7 +410,7 @@ export function PaymentsView() {
             Pagamentos recentes
           </div>
           <div className="space-y-2">
-            {MOCK_TRANSACTIONS.slice(0, 4).map((tx) => (
+            {transactions.slice(0, 4).map((tx) => (
               <div
                 key={tx.id}
                 className="flex items-center gap-2.5 rounded-[10px] border border-ds-line bg-ds-bg p-2.5"

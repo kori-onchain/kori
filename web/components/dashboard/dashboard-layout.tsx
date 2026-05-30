@@ -12,13 +12,13 @@ import {
   Send,
   Store,
   TicketCheck,
-  Wallet,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
+import { shortWallet } from "@/lib/wallet"
 import { SolanaLogo } from "./shared"
 
 type AccountType = "PF" | "PJ"
@@ -64,12 +64,14 @@ export function DashboardLayout({
   accountType = "PF",
   businessName,
   username,
+  walletPubkey,
   children,
 }: {
   userName?: string
   accountType?: AccountType
   businessName?: string
   username?: string
+  walletPubkey?: string
   children: React.ReactNode
 }) {
   const router = useRouter()
@@ -158,7 +160,7 @@ export function DashboardLayout({
             <div className="min-w-0 flex-1">
               <div className="text-xs font-semibold truncate">{displayName || "Usuário"}</div>
               <div className="font-mono text-[8px] text-ds-mute">
-                {username ? `@${username}` : "7nxB...4X1a"}
+                {username ? `@${username}` : shortWallet(walletPubkey)}
               </div>
             </div>
             <button

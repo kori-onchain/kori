@@ -6,8 +6,8 @@ import { ArrowRight, Lock, Mail, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ensureAccountProfile, usernameFromEmail } from "@/lib/account"
 import { createClient } from "@/lib/supabase/client"
-import { createWallet } from "@/lib/wallet"
 
 import {
   AuthBackground,
@@ -50,6 +50,13 @@ export function RegisterScreen() {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
+      options: {
+        data: {
+          name: name.trim(),
+          username: usernameFromEmail(email.trim().toLowerCase()),
+          account_type: "PF",
+        },
+      },
     })
 
     if (signUpError) {
@@ -58,12 +65,21 @@ export function RegisterScreen() {
       return
     }
 
-    if (data.user) {
-      const pubkey = createWallet()
-      await supabase
-        .from("profiles")
-        .update({ name: name.trim(), wallet_pubkey: pubkey })
-        .eq("id", data.user.id)
+    if (!data.session) {
+      setError("Conta criada. Confirme seu e-mail antes de entrar.")
+      setLoading(false)
+      return
+    }
+
+    try {
+      await ensureAccountProfile({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+      })
+    } catch (profileError) {
+      setError(profileError instanceof Error ? profileError.message : "Erro ao criar perfil.")
+      setLoading(false)
+      return
     }
 
     router.push("/dashboard")

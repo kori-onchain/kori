@@ -17,7 +17,7 @@ export default async function DashboardRootLayout({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("name, username, account_type, business_name")
+    .select("name, username, account_type, business_name, wallet_pubkey")
     .eq("id", user.id)
     .single()
 
@@ -27,6 +27,7 @@ export default async function DashboardRootLayout({
       accountType={(profile?.account_type as "PF" | "PJ") || "PF"}
       businessName={profile?.business_name || undefined}
       username={profile?.username || undefined}
+      walletPubkey={profile?.wallet_pubkey || undefined}
     >
       {children}
     </DashboardLayout>
