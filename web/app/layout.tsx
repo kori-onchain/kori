@@ -59,11 +59,20 @@ export const metadata: Metadata = {
     siteName: "Kori",
     title,
     description,
+    images: [
+      {
+        url: "/banner.png",
+        width: 2002,
+        height: 1184,
+        alt: "Kori — Onde o dinheiro encontra quem precisa dele. Built on Solana.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
+    images: ["/banner.png"],
   },
   robots: {
     index: true,
