@@ -1,0 +1,20 @@
+# Artefatos de build (gerados por run-build.ps1 / cargo-build-sbf)
+target/
+.anchor/
+test-ledger/
+
+# Dependencias
+node_modules/
+
+# Skills vendoradas — reinstalaveis a partir do skills-lock.json (que E commitado)
+.agents/skills/
+
+# Wallets / keypairs (NUNCA commitar chave)
+wallet/
+*-keypair.json
+id.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp

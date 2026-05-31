@@ -1,0 +1,28 @@
+[toolchain]
+anchor_version = "0.30.1"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+kora_pool = "7i5RcmG4gwHgftiHTut2vWPsowYsAo9ZBdRvQuc6hjyB"
+kora_business = "E2LPGxULGzSypzM4h9H5sSXmo3DgBQuFjCUf1wpJvW4L"
+kora_credit = "2yhkji6YeS9r3qUbUfmJQVbMmwke7zSjR2pjCam71woD"
+
+[registry]
+url = "https://api.apr.dev"
+
+# Adicione aqui:
+[test]
+startup_wait = 20000
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[workspace]
+members = ["kora_pool", "kora_business", "kora_credit"]
+
+[scripts]
+test = "npm run test"

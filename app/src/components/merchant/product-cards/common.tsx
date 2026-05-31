@@ -44,7 +44,9 @@ export const NftBadge: React.FC<{ label: "NFT" | "cNFT" }> = ({ label }) => {
 export const RatingTag: React.FC<{
   value: number;
   size?: number;
-}> = ({ value, size = 12 }) => {
+  /** Override quando o texto fica sobre a imagem/scrim (precisa ser claro nos dois temas). */
+  color?: string;
+}> = ({ value, size = 12, color }) => {
   const { t } = useTheme();
   return (
     <View style={badgeStyles.rating}>
@@ -52,7 +54,7 @@ export const RatingTag: React.FC<{
       <Text
         style={[
           badgeStyles.ratingText,
-          { color: t.ink, fontSize: size - 1 },
+          { color: color ?? t.ink, fontSize: size - 1 },
         ]}
       >
         {value.toFixed(1)}
@@ -61,16 +63,18 @@ export const RatingTag: React.FC<{
   );
 };
 
-export const BrandLabel: React.FC<{ text: string; size?: number }> = ({
-  text,
-  size = 10,
-}) => {
+export const BrandLabel: React.FC<{
+  text: string;
+  size?: number;
+  /** Override quando o texto fica sobre a imagem/scrim. */
+  color?: string;
+}> = ({ text, size = 10, color }) => {
   const { t } = useTheme();
   return (
     <Text
       style={[
         badgeStyles.brand,
-        { color: t.inkMute, fontSize: size, letterSpacing: 1 },
+        { color: color ?? t.inkMute, fontSize: size, letterSpacing: 1 },
       ]}
     >
       {text.toUpperCase()}

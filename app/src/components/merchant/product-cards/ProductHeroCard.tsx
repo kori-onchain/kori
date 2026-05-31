@@ -55,23 +55,22 @@ export const ProductHeroCard: React.FC<ProductCardProps> = ({
 
       <View style={styles.info}>
         <View style={styles.topRow}>
-          <BrandLabel text={brand} size={10} />
-          {rating !== undefined && <RatingTag value={rating} size={13} />}
+          <BrandLabel text={brand} size={10} color="rgba(255,255,255,0.72)" />
+          {rating !== undefined && (
+            <RatingTag value={rating} size={13} color="#fafafa" />
+          )}
         </View>
 
-        <Text
-          style={[styles.name, { color: t.ink }]}
-          numberOfLines={2}
-        >
+        <Text style={[styles.name, { color: "#fafafa" }]} numberOfLines={2}>
           {name}
         </Text>
 
         <View style={styles.priceRow}>
-          <Text style={[styles.priceNow, { color: t.ink }]}>
+          <Text style={[styles.priceNow, { color: "#fafafa" }]}>
             {formatBRL(priceNow)}
           </Text>
           {priceOld !== undefined && (
-            <Text style={[styles.priceOld, { color: t.inkMute }]}>
+            <Text style={[styles.priceOld, { color: "rgba(255,255,255,0.6)" }]}>
               {formatBRL(priceOld)}
             </Text>
           )}
