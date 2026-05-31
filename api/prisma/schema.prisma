@@ -1,0 +1,438 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountType {
+  PF
+  PJ
+}
+
+enum Currency {
+  BRL
+  USD
+  EUR
+  SOL
+  USDC
+}
+
+enum CardNetwork {
+  VISA
+  MASTERCARD
+}
+
+enum CardStatus {
+  ACTIVE
+  FROZEN
+  CANCELED
+}
+
+enum TransactionStatus {
+  PENDING
+  AUTHORIZED
+  SETTLED
+  DECLINED
+  CANCELED
+}
+
+enum InvoiceStatus {
+  OPEN
+  CLOSED
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum InstallmentStatus {
+  OPEN
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum LedgerAccountType {
+  USER_BALANCE
+  CARD_RECEIVABLE
+  MERCHANT_BALANCE
+  PLATFORM
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELED
+}
+
+enum PaymentMethod {
+  INTERNAL_LEDGER
+  SOLANA_WALLET
+  KORA_USERNAME
+  PIX
+}
+
+enum SaleStatus {
+  CREATED
+  PAID
+  CANCELED
+}
+
+enum ReceivableStatus {
+  REGISTERED
+  ANTICIPATED
+  SETTLED
+  CANCELED
+}
+
+enum OnchainIntentStatus {
+  PENDING_SIGNATURE
+  SUBMITTED
+  CONFIRMED
+  FAILED
+  EXPIRED
+}
+
+model User {
+  id            String      @id @default(uuid())
+  privyId       String
+  name          String
+  email         String
+  username      String      @unique
+  accountType   AccountType
+  walletAddress String?     @unique
+  walletIndex   Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  stores             Store[]
+  cards              Card[]
+  cardTransactions   CardTransaction[]
+  creditProfile      CreditProfile?
+  invoices           Invoice[]
+  installments       Installment[]
+  ledgerAccounts     LedgerAccount[]
+  payments           Payment[]
+  buyerSales         Sale[]              @relation("BuyerSales")
+  onchainIntents     OnchainIntent[]
+
+  @@unique([privyId, walletIndex])
+  @@unique([privyId, accountType])
+}
+
+model OnchainIntent {
+  id                  String              @id @default(uuid())
+  userId              String
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referenceType       String
+  referenceId         String
+  instruction         String
+  cluster             String
+  status              OnchainIntentStatus @default(PENDING_SIGNATURE)
+  unsignedTransaction String
+  txHash              String?
+  error               String?
+  metadata            Json?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([referenceType, referenceId])
+  @@index([status])
+}
+
+model Store {
+  id               String   @id @default(uuid())
+  ownerUserId      String
+  ownerUser        User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  name             String
+  slug             String   @unique
+  category         String?
+  settlementWallet String?
+  enabled          Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  products           Product[]
+  sales              Sale[]
+  receivables        Receivable[]
+  receivableAdvances ReceivableAdvance[]
+
+  @@index([ownerUserId])
+}
+
+model Card {
+  id              String       @id @default(uuid())
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  network         CardNetwork  @default(VISA)
+  currency        Currency     @default(BRL)
+  cardNumber      String
+  last4           String
+  expiry          String
+  cvv             String
+  isDemo          Boolean      @default(true)
+  isFrozen        Boolean      @default(false)
+  isOnlineEnabled Boolean      @default(true)
+  status          CardStatus   @default(ACTIVE)
+  limitTotalCents Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  transactions CardTransaction[]
+  invoices     Invoice[]
+
+  @@index([userId])
+}
+
+model CardTransaction {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId            String
+  card              Card              @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  invoiceId         String?
+  invoice           Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  merchantName      String
+  amountCents       Int
+  currency          Currency          @default(BRL)
+  installmentsCount Int               @default(1)
+  status            TransactionStatus @default(SETTLED)
+  saleId            String?
+  txHash            String?
+  programStatus     String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  installments Installment[]
+  invoiceItems InvoiceItem[]
+
+  @@index([userId])
+  @@index([cardId])
+}
+
+model CreditProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creditLimitCents Int      @default(0)
+  lockedLimitCents Int      @default(0)
+  score            Int      @default(650)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardId         String?
+  card           Card?         @relation(fields: [cardId], references: [id], onDelete: SetNull)
+  cycleMonth     String
+  closeDate      DateTime
+  dueDate        DateTime
+  totalCents     Int           @default(0)
+  paidCents      Int           @default(0)
+  status         InvoiceStatus @default(OPEN)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  cardTransactions CardTransaction[]
+  items            InvoiceItem[]
+  installments     Installment[]
+  payments         Payment[]
+
+  @@unique([userId, cardId, cycleMonth])
+  @@index([userId])
+}
+
+model InvoiceItem {
+  id                String           @id @default(uuid())
+  invoiceId         String
+  invoice           Invoice          @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  cardTransactionId String?
+  cardTransaction   CardTransaction? @relation(fields: [cardTransactionId], references: [id], onDelete: SetNull)
+  installmentId     String?
+  installment       Installment?     @relation(fields: [installmentId], references: [id], onDelete: SetNull)
+  description       String
+  amountCents       Int
+  createdAt         DateTime         @default(now())
+}
+
+model Installment {
+  id                String            @id @default(uuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardTransactionId String
+  cardTransaction   CardTransaction   @relation(fields: [cardTransactionId], references: [id], onDelete: Cascade)
+  invoiceId         String?
+  invoice           Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  number            Int
+  total             Int
+  principalCents    Int
+  interestCents     Int               @default(0)
+  dueDate           DateTime
+  status            InstallmentStatus @default(OPEN)
+  saleId            String?
+  receivableId      String?
+  assetId           String?
+  txHash            String?
+  programStatus     String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  invoiceItems InvoiceItem[]
+
+  @@index([userId])
+}
+
+model LedgerAccount {
+  id           String            @id @default(uuid())
+  userId       String?
+  user         User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         LedgerAccountType
+  currency     Currency          @default(BRL)
+  balanceCents Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  entries LedgerEntry[]
+
+  @@unique([userId, type, currency])
+  @@index([userId])
+}
+
+model LedgerEntry {
+  id            String          @id @default(uuid())
+  accountId     String
+  account       LedgerAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  direction     LedgerDirection
+  amountCents   Int
+  referenceType String
+  referenceId   String
+  description   String
+  createdAt     DateTime        @default(now())
+
+  @@index([accountId])
+  @@index([referenceType, referenceId])
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invoiceId     String?
+  invoice       Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  method        PaymentMethod @default(INTERNAL_LEDGER)
+  status        PaymentStatus @default(PENDING)
+  amountCents   Int
+  currency      Currency      @default(BRL)
+  recipientType String?
+  recipientId   String?
+  txHash        String?
+  programStatus String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model Product {
+  id             String     @id @default(uuid())
+  storeId        String
+  store          Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  category       String     @default("Other")
+  priceCents     Int
+  imageUrl       String?
+  isNft          Boolean    @default(false)
+  nftLabel       String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  saleItems SaleItem[]
+
+  @@index([storeId])
+}
+
+model Sale {
+  id             String     @id @default(uuid())
+  storeId        String
+  store          Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  buyerUserId    String?
+  buyerUser      User?      @relation("BuyerSales", fields: [buyerUserId], references: [id], onDelete: SetNull)
+  buyerName      String
+  amountCents    Int
+  status         SaleStatus @default(PAID)
+  txHash         String?
+  programStatus  String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  items      SaleItem[]
+  receivable Receivable?
+
+  @@index([storeId])
+}
+
+model SaleItem {
+  id         String  @id @default(uuid())
+  saleId     String
+  sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId  String?
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name       String
+  qty        Int
+  priceCents Int
+}
+
+model Receivable {
+  id                String           @id @default(uuid())
+  storeId           String
+  store             Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  saleId            String           @unique
+  sale              Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  description       String
+  grossAmountCents  Int
+  netAmountCents    Int
+  feeBps            Int
+  installmentsCount Int              @default(1)
+  dueDate           DateTime
+  status            ReceivableStatus @default(REGISTERED)
+  receivableId      String?
+  assetId           String?
+  txHash            String?
+  programStatus     String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  advance ReceivableAdvance?
+
+  @@index([storeId])
+}
+
+model ReceivableAdvance {
+  id             String     @id @default(uuid())
+  storeId        String
+  store          Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  receivableId   String     @unique
+  receivable     Receivable @relation(fields: [receivableId], references: [id], onDelete: Cascade)
+  grossCents     Int
+  netCents       Int
+  feeCents       Int
+  protocol       String     @unique
+  txHash         String?
+  programStatus  String?
+  createdAt      DateTime   @default(now())
+
+  @@index([storeId])
+}
