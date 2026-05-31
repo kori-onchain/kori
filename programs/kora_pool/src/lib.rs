@@ -1,8 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::{
-    self, Burn, Mint, MintTo, Token, TokenAccount, TransferChecked,
-};
+use anchor_spl::token::{self, Burn, Mint, MintTo, Token, TokenAccount, TransferChecked};
 
 declare_id!("7i5RcmG4gwHgftiHTut2vWPsowYsAo9ZBdRvQuc6hjyB");
 
@@ -186,7 +184,7 @@ pub mod kora_pool {
     ) -> Result<()> {
         validate_authorized_caller(
             &ctx.accounts.pool_config,
-            &ctx.accounts.authorized_caller,
+            ctx.accounts.authorized_caller.to_account_info(),
             ctx.accounts.caller_authority.key(),
         )?;
         require!(
@@ -236,7 +234,7 @@ pub mod kora_pool {
     ) -> Result<()> {
         validate_authorized_caller(
             &ctx.accounts.pool_config,
-            &ctx.accounts.authorized_caller,
+            ctx.accounts.authorized_caller.to_account_info(),
             ctx.accounts.caller_authority.key(),
         )?;
         require!(amount > 0, KoraPoolError::InvalidAmount);
@@ -495,9 +493,9 @@ pub struct WithdrawForAnticipation<'info> {
     pub caller_authority: Signer<'info>,
     #[account(
         seeds = [AUTHORIZED_CALLER_SEED, caller_authority.key().as_ref()],
-        bump = authorized_caller.bump
+        bump
     )]
-    pub authorized_caller: Account<'info, AuthorizedCaller>,
+    pub authorized_caller: UncheckedAccount<'info>,
     pub token_program: Program<'info, Token>,
 }
 
@@ -531,16 +529,14 @@ pub struct ReceiveSettlement<'info> {
     pub caller_authority: Signer<'info>,
     #[account(
         seeds = [AUTHORIZED_CALLER_SEED, caller_authority.key().as_ref()],
-        bump = authorized_caller.bump
+        bump
     )]
-    pub authorized_caller: Account<'info, AuthorizedCaller>,
+    pub authorized_caller: UncheckedAccount<'info>,
     pub token_program: Program<'info, Token>,
 }
 
 impl<'info> ReceiveSettlement<'info> {
-    fn receive_settlement_context(
-        &self,
-    ) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
+    fn receive_settlement_context(&self) -> CpiContext<'_, '_, '_, 'info, TransferChecked<'info>> {
         CpiContext::new(
             self.token_program.to_account_info(),
             TransferChecked {
@@ -555,9 +551,11 @@ impl<'info> ReceiveSettlement<'info> {
 
 fn validate_authorized_caller(
     pool: &Account<PoolConfig>,
-    caller: &Account<AuthorizedCaller>,
+    caller_info: AccountInfo<'_>,
     caller_authority: Pubkey,
 ) -> Result<()> {
+    let caller = Account::<AuthorizedCaller>::try_from(&caller_info)
+        .map_err(|_| error!(KoraPoolError::Unauthorized))?;
     require!(caller.enabled, KoraPoolError::Unauthorized);
     require_keys_eq!(caller.pool_config, pool.key(), KoraPoolError::Unauthorized);
     require_keys_eq!(

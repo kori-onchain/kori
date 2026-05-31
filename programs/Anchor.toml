@@ -25,4 +25,4 @@ wallet = "~/.config/solana/id.json"
 members = ["kora_pool", "kora_business", "kora_credit"]
 
 [scripts]
-test = "npm run test"
+test = "npx ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

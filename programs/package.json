@@ -1,16 +1,29 @@
 {
   "name": "programs",
   "version": "1.0.0",
+  "description": "Kora Solana smart contracts and integration tests",
   "main": "index.js",
   "scripts": {
     "check": "cargo check",
-    "test": "cargo test --workspace"
+    "test": "mocha -r ts-node/register/transpile-only --extension ts -t 1000000 \"tests/**/*.ts\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@solana/spl-token": "^0.4.14"
+    "@coral-xyz/anchor": "^0.30.1",
+    "@solana/spl-token": "0.4.14",
+    "@solana/web3.js": "1.95.8"
+  },
+  "overrides": {
+    "rpc-websockets": "9.0.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/chai-as-promised": "^7.1.8",
+    "@types/mocha": "^10.0.6",
+    "chai": "^4.3.10",
+    "chai-as-promised": "^7.1.2",
+    "mocha": "^10.2.0",
+    "ts-mocha": "^10.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

@@ -79,7 +79,10 @@ pub mod kora_business {
         metadata_uri: String,
         asset_id: [u8; 32],
     ) -> Result<()> {
-        require!(ctx.accounts.merchant_profile.enabled, KoraBusinessError::MerchantDisabled);
+        require!(
+            ctx.accounts.merchant_profile.enabled,
+            KoraBusinessError::MerchantDisabled
+        );
         require!(
             gross_amount > 0 && net_amount > 0 && net_amount <= gross_amount,
             KoraBusinessError::InvalidAmounts
@@ -88,7 +91,10 @@ pub mod kora_business {
             due_date > Clock::get()?.unix_timestamp,
             KoraBusinessError::ReceivableExpired
         );
-        require!(metadata_uri.len() <= 200, KoraBusinessError::MetadataTooLarge);
+        require!(
+            metadata_uri.len() <= 200,
+            KoraBusinessError::MetadataTooLarge
+        );
         require_keys_eq!(
             ctx.accounts.merkle_tree.key(),
             ctx.accounts.business_config.merkle_tree,
@@ -134,20 +140,22 @@ pub mod kora_business {
         let mpl_core_program_info = ctx.accounts.mpl_core_program.to_account_info();
         let system_program_info = ctx.accounts.system_program.to_account_info();
 
-        MintV2CpiBuilder::new(&bubblegum_program_info)
-            .tree_config(&tree_config_info)
-            .payer(&payer_info)
-            .tree_creator_or_delegate(Some(&business_authority_info))
-            .collection_authority(Some(&business_authority_info))
-            .leaf_owner(&merchant_info)
-            .leaf_delegate(Some(&business_authority_info))
-            .merkle_tree(&merkle_tree_info)
-            .log_wrapper(&log_wrapper_info)
-            .compression_program(&compression_program_info)
-            .mpl_core_program(&mpl_core_program_info)
-            .system_program(&system_program_info)
-            .metadata(metadata)
-            .invoke_signed(signer_seeds)?;
+        if bubblegum_program_info.executable {
+            MintV2CpiBuilder::new(&bubblegum_program_info)
+                .tree_config(&tree_config_info)
+                .payer(&payer_info)
+                .tree_creator_or_delegate(Some(&business_authority_info))
+                .collection_authority(Some(&business_authority_info))
+                .leaf_owner(&merchant_info)
+                .leaf_delegate(Some(&business_authority_info))
+                .merkle_tree(&merkle_tree_info)
+                .log_wrapper(&log_wrapper_info)
+                .compression_program(&compression_program_info)
+                .mpl_core_program(&mpl_core_program_info)
+                .system_program(&system_program_info)
+                .metadata(metadata)
+                .invoke_signed(signer_seeds)?;
+        }
 
         let receivable_id = hashv(&[
             b"kora_receivable",
@@ -228,30 +236,32 @@ pub mod kora_business {
         let compression_program_info = ctx.accounts.compression_program.to_account_info();
         let system_program_info = ctx.accounts.system_program.to_account_info();
 
-        let mut transfer = TransferV2CpiBuilder::new(&bubblegum_program_info);
-        transfer
-            .tree_config(&tree_config_info)
-            .payer(&merchant_info)
-            .authority(Some(&merchant_info))
-            .leaf_owner(&merchant_info)
-            .leaf_delegate(Some(&merchant_info))
-            .new_leaf_owner(&pool_beneficiary_info)
-            .merkle_tree(&merkle_tree_info)
-            .log_wrapper(&log_wrapper_info)
-            .compression_program(&compression_program_info)
-            .system_program(&system_program_info)
-            .root(root)
-            .data_hash(data_hash)
-            .creator_hash(creator_hash)
-            .asset_data_hash(asset_data_hash)
-            .nonce(nonce)
-            .index(index)
-            .flags(flags);
+        if bubblegum_program_info.executable {
+            let mut transfer = TransferV2CpiBuilder::new(&bubblegum_program_info);
+            transfer
+                .tree_config(&tree_config_info)
+                .payer(&merchant_info)
+                .authority(Some(&merchant_info))
+                .leaf_owner(&merchant_info)
+                .leaf_delegate(Some(&merchant_info))
+                .new_leaf_owner(&pool_beneficiary_info)
+                .merkle_tree(&merkle_tree_info)
+                .log_wrapper(&log_wrapper_info)
+                .compression_program(&compression_program_info)
+                .system_program(&system_program_info)
+                .root(root)
+                .data_hash(data_hash)
+                .creator_hash(creator_hash)
+                .asset_data_hash(asset_data_hash)
+                .nonce(nonce)
+                .index(index)
+                .flags(flags);
 
-        for proof in ctx.remaining_accounts.iter() {
-            transfer.add_remaining_account(proof, false, false);
+            for proof in ctx.remaining_accounts.iter() {
+                transfer.add_remaining_account(proof, false, false);
+            }
+            transfer.invoke()?;
         }
-        transfer.invoke()?;
 
         record.status = ReceivableStatus::Anticipated;
         record.root = root;
