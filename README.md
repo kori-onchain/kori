@@ -135,7 +135,8 @@ On-chain (Anchor):
 - [x] `kora_credit` — perfis de crédito, limites e compras parceladas liquidadas pelo pool.
 
 **Roadmap funcional**
-- [ ] Deploy dos contratos em Solana Devnet/Mainnet com mints reais de USDC.
+- [x] Deploy dos três programas em Solana Devnet.
+- [ ] Deploy em Mainnet com mints reais de USDC.
 - [ ] Marketplace Kori Yield para usuários financiarem recebíveis locais.
 - [ ] Reputation Token (score on-chain) mintado na carteira do usuário.
 - [ ] Integração com Solana Pay.
@@ -307,7 +308,23 @@ O app mobile lê o ID da Privy e a URL da API a partir de `app/app.json` (`extra
 
 <div id="contratos-on-chain"></div>
 
-Três programas Anchor compõem a camada on-chain (program IDs de `programs/Anchor.toml`):
+### Programas publicados (Devnet)
+
+Os três programas Anchor estão publicados na **Solana Devnet**:
+
+| Programa        | Pasta                 | Program ID (Devnet)                            | Explorer                                                                                                |
+| --------------- | --------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `kora_pool`     | `programs/kora_pool`     | `8Y4VvUgJddUw5BSvv152EhPRueF6kKXp5eBzmo6cBXTG`  | [ver](https://explorer.solana.com/address/8Y4VvUgJddUw5BSvv152EhPRueF6kKXp5eBzmo6cBXTG?cluster=devnet)  |
+| `kora_business` | `programs/kora_business` | `8mTdaiDoGCZEfZs1fkvND7NYqv39qZV9HX12j8seeCz2`  | [ver](https://explorer.solana.com/address/8mTdaiDoGCZEfZs1fkvND7NYqv39qZV9HX12j8seeCz2?cluster=devnet)  |
+| `kora_credit`   | `programs/kora_credit`   | `HvnPdZpLDcpwYMxppuF43UXMNZNpmerKvrn1AMRNA5wT`  | [ver](https://explorer.solana.com/address/HvnPdZpLDcpwYMxppuF43UXMNZNpmerKvrn1AMRNA5wT?cluster=devnet)  |
+
+> **Nota sobre o nome.** Os programas foram publicados sob o nome original do projeto, **"Kora"**. A renomeação para **"Kori"** aconteceu por conflito de identidade com uma ferramenta da Solana Foundation. A migração dos identificadores on-chain (program IDs) está prevista para uma próxima versão.
+
+Para configurar a API contra a Devnet, use esses program IDs nas variáveis `KORA_POOL_PROGRAM_ID`, `KORA_BUSINESS_PROGRAM_ID` e `KORA_CREDIT_PROGRAM_ID` (veja [Variáveis de Ambiente](#variaveis-de-ambiente)) e defina `SOLANA_CLUSTER=devnet`.
+
+### Programas
+
+Três programas Anchor compõem a camada on-chain (os program IDs de localnet ficam em `programs/Anchor.toml`):
 
 ### `kora_pool`
 Pool de liquidez compartilhada em USDC.
@@ -392,10 +409,10 @@ A API não custodia chaves do usuário. Operações on-chain seguem o padrão de
 - App mobile navegável com Privy.
 - Landing page e dashboard demo.
 - Backend NestJS com ledger, cartões, crédito, pagamentos e recebíveis.
-- Três programas Anchor (pool, business, credit) com testes em localnet.
+- Três programas Anchor (pool, business, credit) com testes em localnet e publicados em Devnet.
 
 **Fase 2 - 3 a 6 meses**
-- Deploy em Devnet/Mainnet com USDC real.
+- Deploy em Mainnet com USDC real.
 - Solana Pay.
 - Portal de lojistas em produção.
 - Validação documental de vendas.

@@ -3587,3 +3587,46 @@
     flex-shrink: 0;
   }
 }
+
+/* =========================================
+   DEMO — section (previews + modal em demo.css)
+   ========================================= */
+.demo-cta {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(72px, 9vw, 130px);
+}
+.demo-cta-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.demo-cta-inner .eyebrow {
+  margin-bottom: 20px;
+}
+.demo-cta h2 {
+  font-size: clamp(34px, 5.4vw, 68px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: 0 0 20px;
+}
+.demo-cta h2 .dim {
+  display: block;
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+.demo-cta-inner > p {
+  color: var(--ink-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 540px;
+  margin: 0 auto;
+}
+.demo-cta-stage {
+  margin-top: clamp(44px, 6vw, 80px);
+  width: 100%;
+}
