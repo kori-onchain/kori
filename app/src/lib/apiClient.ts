@@ -41,6 +41,9 @@ if (__DEV__ && !configuredBaseUrl && BASE_URL.includes("localhost")) {
   }
 }
 
+// Remove trailing slash to avoid double slashes when concatenating paths (e.g. "//users/...")
+BASE_URL = BASE_URL.replace(/\/+$/, "");
+
 if (__DEV__) {
   console.log(`[apiClient] Backend URL: ${BASE_URL}`);
 }

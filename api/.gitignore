@@ -7,3 +7,5 @@ id.json
 
 /generated/prisma
 /prisma/migrations
+
+dist

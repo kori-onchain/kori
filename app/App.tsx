@@ -33,6 +33,8 @@ import PrivyUI from "@/screens/Privy";
 import { useAccountSwitcher } from "./src/hooks/useAccountSwitcher";
 import * as LocalAuthentication from "expo-local-authentication";
 import { UnlockScreen } from "./src/screens/SecuritySetup/UnlockScreen";
+import { BusinessNameDrawer } from "./src/components/merchant/BusinessNameDrawer";
+import { updateProfile } from "./src/lib/authService";
 
 interface UserSession {
   name: string;
@@ -40,6 +42,7 @@ interface UserSession {
   accountType: "PF" | "PJ";
   username: string;
   privyUserId?: string;
+  supabaseId?: string;
   businessName?: string;
   store?: { name?: string; username?: string; category?: string } | null;
 }
@@ -58,15 +61,12 @@ function AppContent() {
   const [session, setSession] = useState<UserSession | null>(null);
   const [tempSession, setTempSession] = useState<UserSession | null>(null);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
-<<<<<<< HEAD
   const [accounts, setAccounts] = useState<any[]>([]);
   const [isAppUnlocked, setIsAppUnlocked] = useState(false);
   const [biometricLockEnabled, setBiometricLockEnabled] = useState(false);
   const [isSecurityCheckLoading, setIsSecurityCheckLoading] = useState(true);
   const [isAddingBusinessAccount, setIsAddingBusinessAccount] = useState(false);
-=======
   const [businessNameDismissed, setBusinessNameDismissed] = useState(false);
->>>>>>> 0fef6977945b5d32121ec4a9ff19b92b3a715b19
 
   const { session: privySession, loading: authLoading, logout: privyLogout } = useAuth();
   const { getAccessToken } = usePrivy();
@@ -305,10 +305,7 @@ function AppContent() {
   };
 
   const handleAddAccount = async () => {
-<<<<<<< HEAD
     setIsAddingBusinessAccount(true);
-=======
-    await handleLogout();
   };
 
   const needsBusinessName =
@@ -323,7 +320,6 @@ function AppContent() {
     }
     setSession((prev) => (prev ? { ...prev, businessName } : prev));
     setBusinessNameDismissed(false);
->>>>>>> 0fef6977945b5d32121ec4a9ff19b92b3a715b19
   };
 
   let screen: React.ReactNode;
@@ -408,14 +404,11 @@ function AppContent() {
     <SafeAreaProvider>
       <ThemeProvider>
         {screen}
-<<<<<<< HEAD
-=======
         <BusinessNameDrawer
           visible={needsBusinessName}
           onSave={handleSaveBusinessName}
           onClose={() => setBusinessNameDismissed(true)}
         />
->>>>>>> 0fef6977945b5d32121ec4a9ff19b92b3a715b19
       </ThemeProvider>
     </SafeAreaProvider>
   );

@@ -45,7 +45,7 @@
       },
       "privyAppId": "cmpr1els201hw0dl4wbg6ckqw",
       "privyClientId": "client-WY6ZaaiWzRZk9PwWwDtjpGyvhSn8WLKqa1qJ4m4RQzYc8",
-      "apiUrl": "http://192.168.15.9:3333"
+      "apiUrl": "http://192.168.15.5:3333"
     }
   }
 }

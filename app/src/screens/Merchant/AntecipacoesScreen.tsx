@@ -782,10 +782,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-<<<<<<< HEAD
     maxHeight: SCREEN_HEIGHT * 0.86,
-=======
->>>>>>> 0fef6977945b5d32121ec4a9ff19b92b3a715b19
     overflow: "hidden",
   },
   handleBar: {

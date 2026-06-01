@@ -671,7 +671,8 @@ const CardScreen: React.FC<{
 
   useEffect(() => {
     if (posStage === "customer") {
-      const timer = setTimeout(() => setPosStage("processing"), 850);
+      // Espera 5s ("cliente aproximou") antes de finalizar a transacao
+      const timer = setTimeout(() => setPosStage("processing"), 5000);
       return () => clearTimeout(timer);
     }
   }, [posStage]);
