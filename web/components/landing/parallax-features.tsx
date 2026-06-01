@@ -2,47 +2,36 @@
 
 import { useEffect, useRef, useState } from "react"
 
-import {
-  BottomNav,
-  PhoneFrame,
-  ScreenInvestmentConfirm,
-  ScreenInvestmentPortfolio,
-  ScreenInvestmentStatus,
-  ScreenYieldMarketplace,
-} from "./phone-screens"
-
 const STEPS = [
   {
     n: 1,
     eyebrow: "STEP 01",
-    title: "Escolha.",
-    titleDim: "Prazo, risco, potencial.",
-    body: "Recebíveis de comércios reais. Tudo claro antes do aporte.",
-    list: ["Recebíveis locais", "Risco antes de entrar", "Mínimo por contrato"],
+    title: "Financie o comércio local.",
+    titleDim: "A partir de R$ 50.",
+    body: "Aporte em recebíveis de comércios reais. Rendimento acima do CDI, tudo auditável on-chain.",
+    list: ["A partir de R$ 50", "~15% a.a. · 198% CDI", "Liquidez e custódia on-chain"],
+    shot: "/app-screens/tela-de-investimento.png",
+    alt: "Tela de investimentos do app Kori",
   },
   {
     n: 2,
     eyebrow: "STEP 02",
-    title: "Aporte R$50.",
-    titleDim: "Sua cota fica on-chain.",
-    body: "Você confirma no app. O programa na Solana registra a cota.",
-    list: ["Aporte fracionado", "Cota registrada", "Liquidação em USDC"],
+    title: "O lojista recebe hoje.",
+    titleDim: "Não em 30 dias.",
+    body: "O comércio antecipa os recebíveis e recebe o líquido na conta na hora — financiado pelo pool de investidores.",
+    list: ["Antecipação em 1 toque", "Taxa a partir de 3% a.m.", "Líquido na conta na hora"],
+    shot: "/app-screens/antecipacao.png",
+    alt: "Tela de antecipação de recebíveis do app Kori",
   },
   {
     n: 3,
     eyebrow: "STEP 03",
-    title: "O lojista recebe.",
-    titleDim: "Caixa no mesmo dia.",
-    body: "O capital chega direto no comércio. Sem banco no meio.",
-    list: ["Capital liberado", "Programa neutro", "Status em tempo real"],
-  },
-  {
-    n: 4,
-    eyebrow: "STEP 04",
-    title: "Receba de volta.",
-    titleDim: "Principal + rendimento.",
-    body: "No vencimento, o contrato distribui o retorno. Automático.",
-    list: ["Distribuição automática", "Taxa de fração de centavo", "Saldo na conta"],
+    title: "Histórico vira taxa melhor.",
+    titleDim: "Tudo no painel.",
+    body: "Quanto melhor o score on-chain do lojista, menor a taxa de antecipação. Relatórios e saúde do negócio em tempo real.",
+    list: ["Score on-chain", "Taxa cai com reputação", "Relatórios em tempo real"],
+    shot: "/app-screens/receba-de-volta.png",
+    alt: "Painel de relatórios e saúde do negócio do app Kori",
   },
 ] as const
 
@@ -102,14 +91,18 @@ export function ParallaxFeatures() {
 
       <div className="parallax-grid">
         <div className="parallax-phone">
-          <div ref={phoneRef} style={{ willChange: "transform" }}>
-            <PhoneFrame>
-              <ScreenYieldMarketplace active={active === 1} dataScreen="1" />
-              <ScreenInvestmentConfirm active={active === 2} dataScreen="2" />
-              <ScreenInvestmentStatus active={active === 3} dataScreen="3" />
-              <ScreenInvestmentPortfolio active={active === 4} dataScreen="4" />
-              <BottomNav active="yield" />
-            </PhoneFrame>
+          <div ref={phoneRef} className="parallax-shots" style={{ willChange: "transform" }}>
+            {STEPS.map((step) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={step.n}
+                src={step.shot}
+                alt={step.alt}
+                className={`parallax-shot${active === step.n ? " on" : ""}`}
+                loading="lazy"
+                draggable={false}
+              />
+            ))}
           </div>
         </div>
 

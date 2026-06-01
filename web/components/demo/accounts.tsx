@@ -27,12 +27,12 @@ export const ACCOUNTS: DemoAccount[] = [
   {
     id: "investidor",
     label: "Investidor",
-    initials: "KM",
+    initials: "AR",
     avTxt: "#0a0a0b",
-    who: "Kauã Miguel",
-    hi: "Bom te ver,",
+    who: "Ana Ribeiro",
+    hi: "Investir,",
     tabs: [
-      ["Início", "home"],
+      ["Investir", "home"],
       ["Comércios", "grid"],
       ["Portfólio", "chart"],
       ["Perfil", "user"],

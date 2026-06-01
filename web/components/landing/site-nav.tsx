@@ -1,7 +1,6 @@
 import { LogIn } from "lucide-react"
 
 import { GlossyOrangeButton } from "@/components/landing/glossy-orange-button"
-import { ThemeToggle } from "@/components/landing/theme-toggle"
 
 const links = [
   { label: "Ecossistema", href: "#" },
@@ -28,7 +27,6 @@ export function SiteNav() {
         ))}
       </ul>
       <div className="nav-right">
-        <ThemeToggle />
         <a href="#" className="nav-social" aria-label="GitHub">
           <svg aria-hidden="true" viewBox="0 0 24 24" role="img">
             <path

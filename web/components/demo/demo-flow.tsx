@@ -1,208 +1,203 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-import { Sys } from "./icons"
+import { DemoPhone } from "./demo-phone"
+import {
+  DEMO_CHARGE,
+  DEMO_INSTALLMENTS,
+  DEMO_INVEST,
+  DEMO_PRODUCT,
+  fmt,
+  investimentoTotal,
+  shortHash,
+  solscan,
+  useDemoLedger,
+} from "./ledger"
 
-type Actor = "investidor" | "loja" | "pessoa"
+type Acc = "investidor" | "loja" | "pessoa"
 
-interface SimState {
-  invest: { saldo: number; aplicado: number; rend: number }
-  loja: { caixa: number; aReceber: number }
-  user: { saldo: number; fatura: number }
-  pool: number
-}
-
-const INIT: SimState = {
-  invest: { saldo: 5000, aplicado: 0, rend: 0 },
-  loja: { caixa: 3482.9, aReceber: 0 },
-  user: { saldo: 4280, fatura: 0 },
-  pool: 0,
-}
-
-const STEPS: {
-  actor: Actor
-  label: string
+interface Step {
+  acc: Acc
+  tab: number
+  cta: string
   instr: string
-  confirm: string
-  apply: (s: SimState) => SimState
-}[] = [
+  run: (l: ReturnType<typeof useDemoLedger>) => void
+}
+
+const STEPS: Step[] = [
   {
-    actor: "investidor",
-    label: "Investir R$ 100 no fundo",
-    instr: "O investidor aplica R$ 100 no pool do fundo Kori.",
-    confirm: "+R$ 100 aplicados no pool",
-    apply: (s) => ({ ...s, invest: { ...s.invest, saldo: s.invest.saldo - 100, aplicado: s.invest.aplicado + 100 }, pool: s.pool + 100 }),
+    acc: "investidor",
+    tab: 0,
+    cta: `Investir ${fmt(DEMO_INVEST)} no pool`,
+    instr: "Ana aporta no pool do Kori. O saldo dela sai da conta e vira posição no fundo.",
+    run: (l) => l.invest(DEMO_INVEST),
   },
   {
-    actor: "loja",
-    label: "Cobrar cliente — R$ 102 no crédito",
-    instr: "O vendedor cobra o cliente em 1x no cartão de crédito.",
-    confirm: "Cobrança de R$ 102 enviada ao cliente",
-    apply: (s) => ({ ...s, loja: { ...s.loja, aReceber: s.loja.aReceber + 102 } }),
+    acc: "loja",
+    tab: 0,
+    cta: `Cobrar Ana — ${fmt(DEMO_CHARGE)} em ${DEMO_INSTALLMENTS}x`,
+    instr: "A Loja Aurora cobra a Ana no crédito. Entra na fatura dela e gera recebíveis pra loja.",
+    run: (l) => l.charge(DEMO_CHARGE, DEMO_INSTALLMENTS, DEMO_PRODUCT),
   },
   {
-    actor: "pessoa",
-    label: "Pagar no crédito",
-    instr: "O cliente paga no crédito — o valor entra na fatura do cartão.",
-    confirm: "Compra aprovada · fatura +R$ 102",
-    apply: (s) => ({ ...s, user: { ...s.user, fatura: s.user.fatura + 102 } }),
+    acc: "loja",
+    tab: 1,
+    cta: "Antecipar recebíveis",
+    instr: "A loja antecipa os recebíveis e recebe agora — líquido de 3%, financiado pelo pool.",
+    run: (l) => l.advance(),
   },
   {
-    actor: "loja",
-    label: "Antecipar recebível",
-    instr: "O vendedor antecipa o recebível e recebe agora — financiado pelo pool.",
-    confirm: "Antecipação liberada · +R$ 100 no caixa",
-    apply: (s) => ({ ...s, loja: { caixa: s.loja.caixa + 100, aReceber: s.loja.aReceber - 102 }, pool: s.pool - 100 }),
-  },
-  {
-    actor: "pessoa",
-    label: "Pagar fatura (R$ 102)",
-    instr: "O cliente paga a fatura do cartão — o dinheiro vai para o pool.",
-    confirm: "Fatura paga · –R$ 102",
-    apply: (s) => ({ ...s, user: { saldo: s.user.saldo - 102, fatura: s.user.fatura - 102 }, pool: s.pool + 102 }),
-  },
-  {
-    actor: "investidor",
-    label: "Receber rendimento",
-    instr: "O pool devolve ao investidor o principal + ágio de 2%.",
-    confirm: "Liquidado · +R$ 102 no saldo (ágio 2%)",
-    apply: (s) => ({ ...s, invest: { saldo: s.invest.saldo + 102, aplicado: s.invest.aplicado - 100, rend: s.invest.rend + 2 }, pool: s.pool - 102 }),
+    acc: "pessoa",
+    tab: 0,
+    cta: `Pagar fatura — ${fmt(DEMO_CHARGE)}`,
+    instr: "Ana paga a fatura do cartão. O principal volta ao pool com 2% de ágio.",
+    run: (l) => l.payInvoice(),
   },
 ]
 
-const ACTOR_META: Record<Actor, { name: string; role: string; initials: string }> = {
-  investidor: { name: "Kauã Miguel", role: "Investidor", initials: "KM" },
-  loja: { name: "Loja Aurora", role: "Vendedor", initials: "LA" },
-  pessoa: { name: "Ana Ribeiro", role: "Cliente", initials: "AR" },
+const PERSONA: Record<Acc, { name: string; role: string }> = {
+  investidor: { name: "Ana Ribeiro", role: "Investidora" },
+  loja: { name: "Loja Aurora", role: "Vendedor" },
+  pessoa: { name: "Ana Ribeiro", role: "Cliente" },
 }
 
-const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+const AUTO_IDLE_MS = 3000
+const REVEAL_MS = 2100
 
-export function DemoFlow({ onExit }: { onExit: () => void }) {
-  const [sim, setSim] = useState<SimState>(INIT)
-  const [step, setStep] = useState(0)
-  const [confirm, setConfirm] = useState<string>("")
+type Phase = "idle" | "reveal" | "done"
 
-  const done = step >= STEPS.length
-  const current = done ? STEPS[STEPS.length - 1] : STEPS[step]
-  const actor = current.actor
+export function DemoFlow({
+  mode = "manual",
+  onExit,
+}: {
+  mode?: "auto" | "manual"
+  onExit?: () => void
+}) {
+  const ledger = useDemoLedger()
+  const { state, reset } = ledger
 
-  const advance = () => {
-    const s = STEPS[step]
-    setSim((prev) => s.apply(prev))
-    setConfirm(s.confirm)
-    setStep((p) => p + 1)
-  }
+  const [screenStep, setScreenStep] = useState(0)
+  const [phase, setPhase] = useState<Phase>("idle")
+  const [paused, setPaused] = useState(false)
 
-  const reset = () => {
-    setSim(INIT)
-    setStep(0)
-    setConfirm("")
-  }
+  const doneStep = phase === "done"
+  const current = STEPS[Math.min(screenStep, STEPS.length - 1)]
 
-  const meta = ACTOR_META[actor]
+  // tela exibida: no fim, vai pro investidor mostrar o rendimento que voltou
+  const acc: Acc = doneStep ? "investidor" : current.acc
+  const tab = doneStep ? 0 : current.tab
+  const persona = PERSONA[acc]
 
-  // valor "grande" + linhas por ator
-  let big = ""
-  let lines: [string, string, boolean?][] = []
-  if (actor === "investidor") {
-    big = fmt(sim.invest.saldo)
-    lines = [
-      ["Aplicado no pool", fmt(sim.invest.aplicado)],
-      ["Rendimento", `+${fmt(sim.invest.rend)}`, true],
-    ]
-  } else if (actor === "loja") {
-    big = fmt(sim.loja.caixa)
-    lines = [
-      ["A receber", fmt(sim.loja.aReceber)],
-      ["Pool disponível", fmt(sim.pool)],
-    ]
-  } else {
-    big = fmt(sim.user.saldo)
-    lines = [
-      ["Fatura do cartão", fmt(sim.user.fatura)],
-      ["Limite", fmt(6000 - sim.user.fatura)],
-    ]
-  }
+  const lastTx = state.txs[0]
+
+  const doAction = useCallback(() => {
+    if (phase !== "idle") return
+    STEPS[screenStep].run(ledger)
+    setPhase("reveal")
+  }, [phase, screenStep, ledger])
+
+  const restart = useCallback(() => {
+    reset()
+    setScreenStep(0)
+    setPhase("idle")
+  }, [reset])
+
+  // motor de tempo: avança o reveal sempre; auto-play dispara a ação no idle
+  // e, no fim, reinicia o ciclo (landing sempre viva).
+  useEffect(() => {
+    if (phase === "reveal") {
+      const id = setTimeout(() => {
+        if (screenStep + 1 < STEPS.length) {
+          setScreenStep((s) => s + 1)
+          setPhase("idle")
+        } else {
+          setPhase("done")
+        }
+      }, REVEAL_MS)
+      return () => clearTimeout(id)
+    }
+    if (phase === "idle" && mode === "auto" && !paused) {
+      const id = setTimeout(doAction, AUTO_IDLE_MS)
+      return () => clearTimeout(id)
+    }
+    if (phase === "done" && mode === "auto" && !paused) {
+      const id = setTimeout(restart, 5200)
+      return () => clearTimeout(id)
+    }
+  }, [phase, screenStep, mode, paused, doAction, restart])
+
+  const showCta = phase === "idle" && !doneStep
+  const showToast = phase === "reveal" && lastTx
+  const stepNum = Math.min(screenStep + 1, STEPS.length)
 
   return (
     <div className="dm-flow">
-      <div className="dm-phone">
-        <div className="dm-screen">
-          <div className="dm-island" />
-          <div className="dm-statusbar">
-            <span className="time">9:41</span>
-            <span className="sys">
-              <Sys />
-            </span>
-          </div>
-          <div className="dm-app">
-            <div className="dm-appbody">
-              <div className="dm-approw">
-                <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                  <div className="dm-avatar" style={{ background: "var(--ac)", color: "#0a0a0b" }}>
-                    {meta.initials}
-                  </div>
-                  <div className="dm-hi">
-                    {meta.role}
-                    <b>{meta.name}</b>
-                  </div>
-                </div>
-                <span className="dm-flow-tag">{meta.role}</span>
-              </div>
+      <div className="dm-flow-stage">
+        <DemoPhone id={acc} tab={tab} animated />
 
-              <div className="dm-balcard">
-                <div className="lab">{actor === "loja" ? "Caixa da loja" : "Saldo disponível"}</div>
-                <div className="big dm-flowbig" key={big}>
-                  {big}
-                </div>
-              </div>
-
-              <div className="dm-stat2" style={{ marginTop: 11 }}>
-                {lines.map(([l, v, up]) => (
-                  <div className="s" key={l}>
-                    <div className="l">{l}</div>
-                    <div className="v" key={v} style={up ? { color: "var(--ac)" } : undefined}>
-                      {v}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {confirm ? <div className="dm-flow-confirm">✓ {confirm}</div> : null}
-
-              {done ? (
-                <>
-                  <div className="dm-flow-done">Ciclo completo — o capital circulou e voltou com rendimento.</div>
-                  <button className="dm-cta" onClick={reset}>
-                    Rodar de novo
-                  </button>
-                </>
-              ) : (
-                <button className="dm-cta" onClick={advance}>
-                  {current.label}
-                </button>
-              )}
+        {showToast ? (
+          <div className="dm-flow-toast" key={lastTx.id}>
+            <div className="dm-flow-toast-row">
+              <span className="ok">✓</span>
+              <span className="lbl">{lastTx.label}</span>
+              <span className="amt">{fmt(lastTx.amount)}</span>
             </div>
-            <div className="dm-homebar" />
+            <a className="dm-flow-toast-hash" href={solscan(lastTx.hash)} target="_blank" rel="noreferrer">
+              <span className="dot" />
+              {shortHash(lastTx.hash)}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 17L17 7M9 7h8v8" />
+              </svg>
+            </a>
           </div>
-        </div>
+        ) : null}
       </div>
 
       <div className="dm-flow-guide">
         <div className="dm-flow-step">
-          {done ? "Fluxo concluído" : `Passo ${step + 1} de ${STEPS.length}`} · <b>{meta.role}</b>
+          {doneStep ? "Ciclo completo" : `Passo ${stepNum} de ${STEPS.length}`} · <b>{persona.role}</b>
         </div>
-        <div className="dm-flow-instr">{done ? "Investidor recebeu o principal + 2% de ágio." : current.instr}</div>
+
+        <div className="dm-flow-instr">
+          {doneStep
+            ? `O capital circulou e voltou pra Ana com +2% de ágio. Investimento agora: ${fmt(investimentoTotal(state))}.`
+            : current.instr}
+        </div>
+
+        {showCta ? (
+          <button className="dm-flow-action" type="button" onClick={doAction}>
+            <span className="tap" />
+            {current.cta}
+          </button>
+        ) : null}
+
+        {phase === "reveal" ? <div className="dm-flow-action ghost">processando on-chain…</div> : null}
+
+        {doneStep ? (
+          <button className="dm-flow-action" type="button" onClick={restart}>
+            ↺ Rodar de novo
+          </button>
+        ) : null}
+
         <div className="dm-flow-dots">
           {STEPS.map((_, i) => (
-            <i key={i} className={i < step ? "on" : ""} />
+            <i key={i} className={i < screenStep || doneStep ? "on" : i === screenStep && phase === "reveal" ? "on" : ""} />
           ))}
         </div>
-        <button className="dm-flow-exit" type="button" onClick={onExit}>
-          ← voltar ao app
-        </button>
+
+        <div className="dm-flow-controls">
+          {mode === "auto" && !doneStep ? (
+            <button className="dm-flow-ctl" type="button" onClick={() => setPaused((p) => !p)}>
+              {paused ? "▶ retomar" : "❚❚ pausar"}
+            </button>
+          ) : null}
+          {onExit ? (
+            <button className="dm-flow-ctl" type="button" onClick={onExit}>
+              ← voltar ao app
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   )

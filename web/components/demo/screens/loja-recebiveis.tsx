@@ -1,57 +1,89 @@
+"use client"
+
+import { IC } from "@/components/demo/icons"
+import { fmt, recebivelPendente, useDemoLedger } from "@/components/demo/ledger"
+
 export function LojaRecebiveis() {
+  const { state } = useDemoLedger()
+  const pendentes = state.receivables.filter((r) => r.status === "PENDING")
+  const bruto = recebivelPendente(state)
+  const liquido = pendentes.reduce((t, r) => t + r.liquido, 0)
+  const sel = pendentes.length
+
   return (
     <>
       <div className="dm-scrh">Antecipações</div>
-      <div className="dm-scrsub">Loja Aurora · antecipe seus recebíveis</div>
+      <div className="dm-scrsub">Loja Aurora · receba agora</div>
 
-      <div className="dm-balcard">
-        <div className="lab">Total disponível para antecipar</div>
-        <div className="big">R$ 3.540,00</div>
-        <div className="delta">▲ Líquido estimado R$ 3.433,80</div>
-      </div>
-
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Taxa</div>
-          <div className="v" style={{ color: "var(--ac)" }}>3% a.m.</div>
-          <div className="sub">sobre o bruto</div>
-        </div>
-        <div className="s">
-          <div className="l">Saldo disponível</div>
-          <div className="v">R$ 74.352,93</div>
-          <div className="sub">na conta</div>
+      {/* Hero */}
+      <div className="dm-card" style={{ padding: 16, marginTop: 6 }}>
+        <div className="dm-ml" style={{ fontSize: 8.5, letterSpacing: "0.16em" }}>Total disponível para antecipar</div>
+        <div className="dm-live" key={bruto} style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.03em", marginTop: 6 }}>{fmt(bruto)}</div>
+        <div className="dm-stats" style={{ marginTop: 14 }}>
+          <div className="c grow">
+            <div className="k">Líquido estimado</div>
+            <div className="v green dm-live" key={liquido} style={{ fontSize: 14 }}>{fmt(liquido)}</div>
+          </div>
+          <div className="div" />
+          <div className="c grow">
+            <div className="k">Taxa</div>
+            <div className="v ac" style={{ fontSize: 14 }}>3% a.m.</div>
+          </div>
         </div>
       </div>
 
-      <div className="dm-secttl">Recebíveis pendentes <a>selecionar todos →</a></div>
-
-      <div className="dm-tx">
-        <div className="ti">38</div>
-        <div className="td"><b>Venda #3821 — Tênis Air Pro</b><span>Vence 02 jun 2026 · 3x de R$ 400,00</span></div>
-        <div className="tv">R$ 1.200,00</div>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">38</div>
-        <div className="td"><b>Venda #3822 — Camiseta Premium</b><span>Vence 08 jun 2026 · 2x de R$ 240,00</span></div>
-        <div className="tv">R$ 480,00</div>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">38</div>
-        <div className="td"><b>Venda #3819 — Kit Skincare</b><span>Vence 15 jun 2026 · 4x de R$ 222,50</span></div>
-        <div className="tv">R$ 890,00</div>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">38</div>
-        <div className="td"><b>Venda #3815 — Fone Bluetooth</b><span>Vence 22 jun 2026 · 1x de R$ 350,00</span></div>
-        <div className="tv">R$ 350,00</div>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">38</div>
-        <div className="td"><b>Venda #3808 — Mochila Urban</b><span>Vence 30 jun 2026 · 2x de R$ 310,00</span></div>
-        <div className="tv">R$ 620,00</div>
+      <div className="dm-sec">
+        <h4>Recebíveis pendentes</h4>
+        <span className="more"><b>{sel > 0 ? "selecionar todos" : ""}</b></span>
       </div>
 
-      <button className="dm-cta">Antecipar selecionados</button>
+      {pendentes.length > 0 ? (
+        pendentes.map((r) => (
+          <div className="dm-card dm-rec on dm-tx-new" key={r.id}>
+            <div className="dm-rec-top">
+              <span className="dm-check on">{IC.check}</span>
+              <div className="info">
+                <b>{r.label}</b>
+                <span>Ana Ribeiro · crédito</span>
+              </div>
+              <div className="amt">
+                <div className="g">{fmt(r.bruto)}</div>
+                <div className="n">liq. {fmt(r.liquido)}</div>
+              </div>
+            </div>
+            <div className="dm-rec-foot">{IC.calendar} Vence em 30 dias</div>
+          </div>
+        ))
+      ) : (
+        <div className="dm-empty">Nenhum recebível pendente — tudo antecipado.</div>
+      )}
+
+      {/* Provedores */}
+      <div className="dm-sec">
+        <h4>Quem financia</h4>
+      </div>
+      <div className="dm-prov">
+        <div className="p">
+          <span className="pic">{IC.zap}</span>
+          <span className="pt">Kori</span>
+          <span className="ps">Liquidez imediata</span>
+          <span className="pr">4,5% a.m.</span>
+        </div>
+        <div className="p on">
+          <span className="pic">{IC.layers}</span>
+          <span className="pt">Pool</span>
+          <span className="ps">Investidores Kori</span>
+          <span className="pr">3% a.m.</span>
+        </div>
+        <div className="p">
+          <span className="pic">{IC.users}</span>
+          <span className="pt">P2P</span>
+          <span className="ps">Leilão</span>
+          <span className="pr">2,2% a.m.</span>
+        </div>
+      </div>
+
+      <button className="dm-pri">{IC.zap} Antecipar {sel > 0 ? `${sel} recebíveis` : "recebíveis"}</button>
     </>
   )
 }

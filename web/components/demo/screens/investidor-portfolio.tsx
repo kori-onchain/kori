@@ -1,94 +1,48 @@
+"use client"
+
+import { IC } from "@/components/demo/icons"
+
 export function InvestidorPortfolio() {
   return (
     <>
       <div className="dm-scrh">Portfólio</div>
-      <div className="dm-scrsub">posições abertas no portfólio</div>
+      <div className="dm-scrsub">posições abertas</div>
 
-      <div className="dm-balcard">
+      <div className="dm-card dm-valcard">
         <div className="lab">Patrimônio total</div>
-        <div className="big">R$ 42.980,50</div>
+        <div className="big">R$ 42.980<span className="cents">,50</span></div>
         <div className="delta">▲ +14,8% no mês</div>
       </div>
 
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Renda variável</div>
-          <div className="v">R$ 28.540,00</div>
-        </div>
-        <div className="s">
-          <div className="l">Crypto assets</div>
-          <div className="v">R$ 14.440,50</div>
-        </div>
+      <div className="dm-stats" style={{ marginTop: 14 }}>
+        <div className="c grow"><div className="k">Renda fixa</div><div className="v" style={{ fontSize: 14 }}>R$ 28.540</div></div>
+        <div className="div" />
+        <div className="c grow"><div className="k">Crypto</div><div className="v" style={{ fontSize: 14 }}>R$ 14.440</div></div>
+        <div className="div" />
+        <div className="c grow"><div className="k">Melhor ativo</div><div className="v green" style={{ fontSize: 14 }}>RAY +24%</div></div>
       </div>
 
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Rendimento mensal</div>
-          <div className="v">+R$ 1.840</div>
-          <div className="sub">↑ +4,5%</div>
-        </div>
-        <div className="s">
-          <div className="l">Melhor ativo</div>
-          <div className="v">RAY</div>
-          <div className="sub">+24,6%</div>
-        </div>
+      <div className="dm-sec">
+        <h4>Meus ativos</h4>
+        <span className="more">ver tudo <b>→</b></span>
       </div>
-
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Ativos na carteira</div>
-          <div className="v">5</div>
-          <div className="sub">diversificados</div>
-        </div>
-        <div className="s">
-          <div className="l">Risco da carteira</div>
-          <div className="v" style={{ color: "var(--ac)" }}>Moderado</div>
-          <div className="sub">score 62/100</div>
-        </div>
-      </div>
-
-      <div className="dm-secttl">Meus investimentos <a>ver tudo →</a></div>
-
       {[
-        { name: "Solana", ti: "S", value: "R$ 8.240,00", change: "+12,4%", up: true, alloc: "57,2%" },
-        { name: "Bitcoin", ti: "B", value: "R$ 3.200,00", change: "+8,1%", up: true, alloc: "22,2%" },
-        { name: "Ethereum", ti: "E", value: "R$ 1.800,00", change: "-2,3%", up: false, alloc: "12,5%" },
-        { name: "USDC", ti: "U", value: "R$ 1.000,00", change: "+0,1%", up: true, alloc: "6,9%" },
-        { name: "Raydium", ti: "R", value: "R$ 200,50", change: "+24,6%", up: true, alloc: "1,4%" },
+        { ti: "S", name: "Solana", value: "R$ 8.240,00", change: "+12,4%", up: true, alloc: 57 },
+        { ti: "B", name: "Bitcoin", value: "R$ 3.200,00", change: "+8,1%", up: true, alloc: 22 },
+        { ti: "E", name: "Ethereum", value: "R$ 1.800,00", change: "-2,3%", up: false, alloc: 12 },
+        { ti: "U", name: "USDC", value: "R$ 1.000,00", change: "+0,1%", up: true, alloc: 7 },
+        { ti: "R", name: "Raydium", value: "R$ 200,50", change: "+24,6%", up: true, alloc: 2 },
       ].map((a) => (
-        <div className="dm-tx" key={a.name}>
-          <div className="ti">{a.ti}</div>
-          <div className="td">
+        <div className="dm-li" key={a.name}>
+          <div className="ic">{a.ti}</div>
+          <div className="tx">
             <b>{a.name}</b>
             <span>{a.value}</span>
-            <div className="dm-track"><i style={{ width: a.alloc }} /></div>
+            <div className="dm-bar" style={{ marginTop: 5, height: 5 }}><i style={{ width: `${a.alloc}%` }} /></div>
           </div>
-          {a.up ? (
-            <div className="tv up">{a.change}</div>
-          ) : (
-            <div className="tv">{a.change}</div>
-          )}
+          <div className="rt"><div className={`a${a.up ? " green" : ""}`}>{a.change}</div></div>
         </div>
       ))}
-
-      <div className="dm-secttl">Resumo da carteira</div>
-
-      <div className="dm-tx">
-        <div className="td"><b>Investido total</b></div>
-        <div className="tv">R$ 37.420,00</div>
-      </div>
-      <div className="dm-tx">
-        <div className="td"><b>Lucro realizado</b></div>
-        <div className="tv up">+R$ 3.280,50</div>
-      </div>
-      <div className="dm-tx">
-        <div className="td"><b>Maior ganho</b></div>
-        <div className="tv up">RAY +24,6%</div>
-      </div>
-      <div className="dm-tx">
-        <div className="td"><b>Maior perda</b></div>
-        <div className="tv">ETH -2,3%</div>
-      </div>
     </>
   )
 }

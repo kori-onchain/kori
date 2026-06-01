@@ -1,15 +1,17 @@
 import { ACC_BY_ID, Screen } from "./accounts"
-import { IC, Sys } from "./icons"
+import { IC, KoriGlyph, Sys } from "./icons"
 
 export function DemoPhone({
   id,
   tab,
   interactive = false,
+  animated = false,
   onTab,
 }: {
   id: string
   tab: number
   interactive?: boolean
+  animated?: boolean
   onTab?: (tab: number) => void
 }) {
   const a = ACC_BY_ID[id]
@@ -24,7 +26,13 @@ export function DemoPhone({
           </span>
         </div>
         <div className="dm-app">
-          <div className={`dm-appbody${interactive ? " swap" : ""}`} key={tab}>
+          <div className="dm-apphead">
+            <span className="glyph">
+              <KoriGlyph size={20} />
+            </span>
+            <div className={`dm-avatar${a.pj ? "" : " pf"}`}>{a.initials}</div>
+          </div>
+          <div className={`dm-appbody${interactive || animated ? " swap" : ""}`} key={`${id}-${tab}`}>
             <Screen id={id} tab={tab} />
           </div>
           <div className="dm-tabbar">

@@ -1,94 +1,46 @@
+"use client"
+
 import { IC } from "@/components/demo/icons"
 
 export function LojaVitrine() {
   return (
     <>
       <div className="dm-scrh">Vitrine</div>
-      <div className="dm-scrsub">Loja Aurora</div>
+      <div className="dm-scrsub">Loja Aurora · 6 produtos</div>
 
-      <div className="dm-actions">
-        <div className="dm-act"><div className="ico">{IC.grid}</div>Tudo</div>
-        <div className="dm-act"><div className="ico">{IC.user}</div>Smartphones</div>
-        <div className="dm-act"><div className="ico">{IC.home}</div>Kitchen</div>
-        <div className="dm-act"><div className="ico">{IC.chart}</div>Game Consoles</div>
-      </div>
-
-      <div className="dm-secttl">Produtos</div>
-
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>iPhone 15 Pro</b><span>APPLE · Smartphones</span></div>
-        <div className="tv">R$ 6.999</div>
-        <span className="dm-pill ok">-12%</span>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>AirFryer Turbo 5L</b><span>MONDIAL · Kitchen</span></div>
-        <div className="tv">R$ 349</div>
-        <span className="dm-pill ok">-30%</span>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>PlayStation 5 Slim</b><span>SONY · Game Consoles</span></div>
-        <div className="tv">R$ 3.499</div>
-        <span className="dm-pill pend">sem desc.</span>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>Galaxy S24 Ultra</b><span>SAMSUNG · Smartphones</span></div>
-        <div className="tv">R$ 5.999</div>
-        <span className="dm-pill ok">-20%</span>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>Conjunto Panelas Inox</b><span>TRAMONTINA · Kitchen</span></div>
-        <div className="tv">R$ 289</div>
-        <span className="dm-pill ok">-25%</span>
-      </div>
-      <div className="dm-tx">
-        <div className="ti">{IC.grid}</div>
-        <div className="td"><b>Switch OLED</b><span>NINTENDO · Game Consoles</span></div>
-        <div className="tv">R$ 2.199</div>
-        <span className="dm-pill ok">-12%</span>
+      <div className="dm-seg" style={{ marginTop: 10 }}>
+        <button className="on">Tudo</button>
+        <button>Smartphones</button>
+        <button>Kitchen</button>
+        <button>Games</button>
       </div>
 
-      <div className="dm-secttl">Resumo da vitrine</div>
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Total de produtos</div>
-          <div className="v">6</div>
+      <div className="dm-sec"><h4>Produtos</h4></div>
+      {[
+        { name: "iPhone 15 Pro", brand: "APPLE · Smartphones", price: "R$ 6.999", off: "-12%" },
+        { name: "AirFryer Turbo 5L", brand: "MONDIAL · Kitchen", price: "R$ 349", off: "-30%" },
+        { name: "PlayStation 5 Slim", brand: "SONY · Games", price: "R$ 3.499", off: null },
+        { name: "Galaxy S24 Ultra", brand: "SAMSUNG · Smartphones", price: "R$ 5.999", off: "-20%" },
+        { name: "Switch OLED", brand: "NINTENDO · Games", price: "R$ 2.199", off: "-12%" },
+      ].map((p) => (
+        <div className="dm-li" key={p.name}>
+          <div className="ic">{IC.bag}</div>
+          <div className="tx"><b>{p.name}</b><span>{p.brand}</span></div>
+          <div className="rt"><div className="a">{p.price}</div></div>
+          {p.off ? <span className="dm-pill green" style={{ marginLeft: 8 }}>{p.off}</span> : null}
         </div>
-        <div className="s">
-          <div className="l">Com desconto</div>
-          <div className="v">5</div>
-        </div>
-      </div>
-      <div className="dm-stat2">
-        <div className="s">
-          <div className="l">Preço médio</div>
-          <div className="v">R$ 3.222</div>
-        </div>
-        <div className="s">
-          <div className="l">Maior desconto</div>
-          <div className="v" style={{ color: 'var(--ac)' }}>-30%</div>
-        </div>
+      ))}
+
+      <div className="dm-sec"><h4>Resumo</h4></div>
+      <div className="dm-stats" style={{ marginTop: 2 }}>
+        <div className="c grow"><div className="k">Produtos</div><div className="v" style={{ fontSize: 14 }}>6</div></div>
+        <div className="div" />
+        <div className="c grow"><div className="k">Com desconto</div><div className="v" style={{ fontSize: 14 }}>4</div></div>
+        <div className="div" />
+        <div className="c grow"><div className="k">Maior off</div><div className="v ac" style={{ fontSize: 14 }}>-30%</div></div>
       </div>
 
-      <div className="dm-secttl">Por categoria</div>
-      <div className="dm-tx">
-        <div className="td"><b>Smartphones</b></div>
-        <div className="tv">2 produtos</div>
-      </div>
-      <div className="dm-tx">
-        <div className="td"><b>Kitchen</b></div>
-        <div className="tv">2 produtos</div>
-      </div>
-      <div className="dm-tx">
-        <div className="td"><b>Game Consoles</b></div>
-        <div className="tv">2 produtos</div>
-      </div>
-
-      <button className="dm-cta">Novo produto</button>
+      <button className="dm-pri">{IC.plus} Novo produto</button>
     </>
   )
 }
