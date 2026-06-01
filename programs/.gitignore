@@ -10,6 +10,8 @@ wallet/
 *-keypair.json
 id.json
 
+.agents
+
 # OS / editor
 .DS_Store
 Thumbs.db
