@@ -1,17 +1,21 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { Feather } from "@/icons";
 import { KoriGlyph } from "@components/layout/icons";
 import { AuthButton } from "@components/auth/AuthButton";
 
 type WelcomeStepProps = {
   onSignupWithEmail: () => void;
-  onPinLogin: () => void;
+  onGoogleLogin: () => void;
+  onAppleLogin: () => void;
+  loadingOAuth: boolean;
 };
 
 export const WelcomeStep: React.FC<WelcomeStepProps> = ({
   onSignupWithEmail,
-  onPinLogin,
+  onGoogleLogin,
+  onAppleLogin,
+  loadingOAuth,
 }) => (
   <View className="flex-1 px-[22px] pb-6 pt-11">
     <View className="flex-1 items-center justify-center pb-3">
@@ -29,12 +33,30 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({
         label="Continuar com e-mail"
         onPress={onSignupWithEmail}
         icon={<Feather name="mail" size={17} color="#0a0a0a" />}
+        disabled={loadingOAuth}
       />
-      <Pressable onPress={onPinLogin} className="items-center py-2">
-        <Text className="font-mono text-[10px] text-ink-mute">
-          já tem conta? <Text className="text-ink">entrar com PIN</Text>
-        </Text>
-      </Pressable>
+
+      <AuthButton
+        label="Continuar com Google"
+        onPress={onGoogleLogin}
+        variant="soft"
+        loading={loadingOAuth}
+        icon={
+          <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: "#fafafa", alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontSize: 11, fontWeight: "bold", color: "#0a0a0a", marginTop: -1 }}>G</Text>
+          </View>
+        }
+      />
+
+      {Platform.OS === "ios" && (
+        <AuthButton
+          label="Continuar com Apple"
+          onPress={onAppleLogin}
+          variant="soft"
+          loading={loadingOAuth}
+          icon={<Feather name="command" size={17} color="#fafafa" />}
+        />
+      )}
     </View>
 
     <Text className="mt-3.5 text-center font-mono text-[9px] leading-[15px] text-ink-mute">

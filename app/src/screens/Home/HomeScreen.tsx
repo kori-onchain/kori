@@ -36,6 +36,7 @@ interface HomeScreenProps {
   accountType?: "PF" | "PJ";
   onSwitchAccount?: (newType: "PF" | "PJ") => void;
   onAddAccount?: () => void;
+  accounts?: any[];
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> & {
@@ -52,6 +53,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
   accountType,
   onSwitchAccount,
   onAddAccount,
+  accounts = [],
 }) => {
   const { scheme, t } = useTheme();
   const {
@@ -61,7 +63,16 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
     open,
     close,
     cards,
+    currentInvoice,
+    currentInvoices,
+    cardsLoading,
+    cardsError,
+    onchainStatus,
     toggleFreeze,
+    toggleOnline,
+    updateLimit,
+    regenerateVirtual,
+    payCurrentInvoice,
     transactions,
     activeTab,
     setActiveTab,
@@ -83,6 +94,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
     userHandle,
     balanceInteger,
     balanceDecimals,
+    handleInvestmentDebited,
     handleAdvanceCredited,
   } = useHomeLogic({ username, accountType });
 
@@ -100,6 +112,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
     userHandle,
     walletHashFull,
     walletHashShort,
+    accounts,
   };
 
   const fadeUp = useMemo(() => {
@@ -117,13 +130,28 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
       {activeTab === "cartao" && (
         <CardsScreen
           userName={userName}
-          cardsState={{ cards, toggleFreeze }}
+          cardsState={{
+            cards,
+            currentInvoice,
+            currentInvoices,
+            cardsLoading,
+            cardsError,
+            onchainStatus,
+            toggleFreeze,
+            toggleOnline,
+            updateLimit,
+            regenerateVirtual,
+            payCurrentInvoice,
+          }}
           headerProps={headerProps}
         />
       )}
 
       {activeTab === "investimentos" && (
-        <InvestmentsScreen headerProps={headerProps} />
+        <InvestmentsScreen
+          headerProps={headerProps}
+          onInvested={handleInvestmentDebited}
+        />
       )}
 
       {activeTab === "experiencias" && accountType === "PF" && (
@@ -206,6 +234,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
             <CreditCardSection
               userName={userName}
               cards={cards}
+              invoice={currentInvoice}
               onToggleLock={toggleFreeze}
               onSeeMore={() => setActiveTab("cartao")}
               onInvoicePress={() => setActiveTab("cartao")}
@@ -266,6 +295,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
         initialIntent={sendIntent}
         contacts={contacts}
         onAddContact={addContact}
+        accountType={accountType}
       />
 
       <IdentityNoticeDrawer

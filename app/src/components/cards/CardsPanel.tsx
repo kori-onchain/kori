@@ -21,6 +21,7 @@ import { CreditCardSection } from "@components/home/CreditCardSection";
 import { Button } from "@components/layout/Button";
 import { SoftCard } from "@components/layout/SoftCard";
 import { fonts, radii } from "@theme/tokens";
+import { formatCents, KoraInvoice } from "@/lib/koraApi";
 import Svg, {
   Path,
   Defs,
@@ -41,7 +42,12 @@ interface CardsPanelProps {
   userName?: string;
   cardsState?: {
     cards: any[];
-    toggleFreeze: (id: string) => void;
+    currentInvoice?: KoraInvoice | null;
+    currentInvoices?: KoraInvoice[];
+    cardsError?: string | null;
+    onchainStatus?: string;
+    toggleFreeze: (id: string) => void | Promise<void>;
+    payCurrentInvoice?: (invoiceId?: string) => Promise<any>;
   };
 }
 
@@ -431,7 +437,9 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
       }))
     : localCards;
 
-  const activeCardId = activeDetailCard ? activeDetailCard.id : (displayCards[0]?.id || "1");
+  const currentActiveIndex = activeDetailCard ? activeDetailIndex : mainActiveIndex;
+  const activeCard = displayCards[currentActiveIndex] || displayCards[0];
+  const activeCardId = activeDetailCard ? activeDetailCard.id : (activeCard?.id || "1");
 
   const isFrozen = cardsState
     ? (cardsState.cards.find((c) => c.id === activeCardId)?.isFrozen || false)
@@ -481,8 +489,31 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
     }
   };
 
-  const currentActiveIndex = activeDetailCard ? activeDetailIndex : mainActiveIndex;
   const cardVals = getCardValues(currentActiveIndex);
+  const invoice =
+    cardsState?.currentInvoices?.find((item) => item.card?.id === activeCardId || item.cardId === activeCardId) ||
+    (cardsState?.currentInvoice &&
+    ((cardsState.currentInvoice as any).card?.id === activeCardId ||
+      (cardsState.currentInvoice as any).cardId === activeCardId)
+      ? cardsState.currentInvoice
+      : null);
+  const invoicePendingCents = invoice
+    ? Math.max(invoice.pendingCents ?? invoice.totalCents - invoice.paidCents, 0)
+    : 0;
+  const invoiceTotal = invoice
+    ? formatCents(invoicePendingCents, invoice.currency)
+    : formatCents(0, "BRL");
+  const activeLimitTotal = displayCards[currentActiveIndex]?.limitTotal ?? 0;
+  const activeLimitUsed = displayCards[currentActiveIndex]?.limitUsed ?? 0;
+  const limitProgress = activeLimitTotal
+    ? Math.min(100, Math.max(0, (activeLimitUsed / activeLimitTotal) * 100))
+    : null;
+  const invoiceLimit = activeLimitTotal
+    ? formatCents(activeLimitTotal * 100, "BRL")
+    : cardVals.total;
+  const invoiceRemaining = activeLimitTotal
+    ? formatCents(Math.max(0, activeLimitTotal - activeLimitUsed) * 100, "BRL")
+    : cardVals.available;
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -641,10 +672,10 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
       <SoftCard radius={20} padding={0} style={styles.refCard}>
         <View style={styles.refTop}>
           <Text style={[styles.refLabel, { color: t.inkDim }]}>Total da fatura este mês</Text>
-          <Text style={[styles.refAmount, { color: t.ink }]}>{cardVals.utilized}</Text>
+          <Text style={[styles.refAmount, { color: t.ink }]}>{invoiceTotal}</Text>
           <Text style={[styles.refSubAmount, { color: t.inkMute }]}>
             de{" "}
-            <Text style={[styles.refSubAmountBold, { color: t.orange }]}>{cardVals.total}</Text>
+            <Text style={[styles.refSubAmountBold, { color: t.orange }]}>{invoiceLimit}</Text>
           </Text>
 
           {/* Progress bar */}
@@ -654,7 +685,7 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
                 style={[
                   styles.refBarFill,
                   {
-                    width: cardVals.progressWidth as `${number}%`,
+                    width: limitProgress === null ? cardVals.progressWidth as `${number}%` : `${limitProgress}%`,
                     backgroundColor: t.inkFaint,
                   },
                 ]}
@@ -671,15 +702,35 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
           {/* Progress legend */}
           <View style={styles.refLegendRow}>
             <Text style={[styles.refLegendLabel, { color: t.inkMute }]}>Sua Fatura</Text>
-            <Text style={[styles.refLegendValue, { color: t.ink }]}>{cardVals.available} restante</Text>
+            <Text style={[styles.refLegendValue, { color: t.ink }]}>{invoiceRemaining} restante</Text>
           </View>
 
           {/* Pay invoice button */}
           <Button
-            label="Pagar fatura"
+            label={invoicePendingCents > 0 ? "Pagar fatura" : "Fatura em dia"}
             variant="secondary"
-            onPress={() => showToast("Abrindo pagamento de fatura...")}
+            onPress={async () => {
+              if (!invoice || invoicePendingCents <= 0) {
+                showToast("Nao ha fatura em aberto.");
+                return;
+              }
+              if (!cardsState?.payCurrentInvoice) {
+                showToast("Fatura indisponivel no momento.");
+                return;
+              }
+              const payment = await cardsState.payCurrentInvoice(invoice.id);
+              showToast(
+                payment
+                  ? payment.txHash
+                    ? `Confirmado on-chain: ${payment.txHash.slice(0, 8)}...`
+                    : cardsState.onchainStatus && cardsState.onchainStatus !== "idle"
+                      ? `Status on-chain: ${cardsState.onchainStatus}`
+                      : "Fatura paga com sucesso."
+                  : cardsState.cardsError || "Nao foi possivel pagar agora.",
+              );
+            }}
             icon={<Feather name="arrow-up-circle" size={15} color={t.ink} />}
+            style={invoicePendingCents <= 0 ? { opacity: 0.55 } : undefined}
             full
           />
         </View>

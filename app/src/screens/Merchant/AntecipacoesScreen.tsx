@@ -9,17 +9,21 @@ import {
   ActivityIndicator,
   Modal,
   Platform,
+  Dimensions,
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
 import { Header } from "@components/home/Header";
+import { PaymentPrimaryButton } from "@components/home/modals/PaymentDS";
 import { SoftCard } from "@components/layout/SoftCard";
 import { Button } from "@components/layout/Button";
 import { useFadeUp } from "@hooks/useFadeUp";
 import { useReceivables, Receivable } from "@hooks/useReceivables";
 import { Feather } from "@/icons";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 interface AntecipacoesScreenProps {
   headerProps: React.ComponentProps<typeof Header>;
@@ -52,13 +56,40 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
     totalGross,
     totalNet,
     advanceRate,
+    selectedProvider,
+    setSelectedProvider,
     confirmAdvance,
     showConfirmation,
     setShowConfirmation,
     isProcessing,
     receipt,
+    onchainStatus,
     dismissReceipt,
   } = useReceivables({ onAdvanceCredited });
+
+  const providerOptions = [
+    {
+      id: "KORI" as const,
+      title: "Kori",
+      subtitle: "Liquidez imediata",
+      rate: "4,5% a.m.",
+      icon: "zap" as const,
+    },
+    {
+      id: "POOL" as const,
+      title: "Pool de recebiveis",
+      subtitle: "Investidores Kori",
+      rate: "3% a.m.",
+      icon: "layers" as const,
+    },
+    {
+      id: "P2P" as const,
+      title: "P2P leilao",
+      subtitle: "Oferta pendente",
+      rate: "desde 2,2% a.m.",
+      icon: "users" as const,
+    },
+  ];
 
   return (
     <View style={[styles.root, { backgroundColor: t.bg }]}>
@@ -95,6 +126,17 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                   <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Protocolo</Text>
                   <Text style={[styles.receiptValue, { color: t.ink }]}>{receipt.protocol}</Text>
                 </View>
+                {receipt.protocol.length > 24 ? (
+                  <>
+                    <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
+                    <View style={styles.receiptRow}>
+                      <Text style={[styles.receiptLabel, { color: t.inkDim }]}>TxHash</Text>
+                      <Text style={[styles.receiptValue, { color: t.ink }]} numberOfLines={1}>
+                        {receipt.protocol}
+                      </Text>
+                    </View>
+                  </>
+                ) : null}
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
                 <View style={styles.receiptRow}>
                   <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Recebíveis</Text>
@@ -258,7 +300,7 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                                 { color: t.inkMute },
                               ]}
                             >
-                              {item.installments}
+                              {item.installments} - vence {item.dueDate}
                             </Text>
                           </View>
                         </View>
@@ -321,6 +363,58 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                 </SoftCard>
 
                 <View style={styles.ctaBtnWrap}>
+                  <View style={styles.providerGrid}>
+                    {providerOptions.map((option) => {
+                      const active = selectedProvider === option.id;
+                      return (
+                        <TouchableOpacity
+                          key={option.id}
+                          activeOpacity={0.82}
+                          onPress={() => setSelectedProvider(option.id)}
+                          style={[
+                            styles.providerCard,
+                            {
+                              backgroundColor: active ? t.orange : t.bgElev,
+                              borderColor: active ? t.orange : t.line,
+                            },
+                          ]}
+                        >
+                          <Feather
+                            name={option.icon}
+                            size={18}
+                            color={active ? t.btnPrimaryFg : t.orange}
+                          />
+                          <Text
+                            style={[
+                              styles.providerTitle,
+                              { color: active ? t.btnPrimaryFg : t.ink },
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {option.title}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.providerSubtitle,
+                              { color: active ? t.btnPrimaryFg : t.inkMute },
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {option.subtitle}
+                          </Text>
+                          <Text
+                            style={[
+                              styles.providerRate,
+                              { color: active ? t.btnPrimaryFg : t.inkDim },
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {option.rate}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                   <Button
                     label={`Antecipar ${selectedSummary.count} ${selectedSummary.count === 1 ? "recebível" : "recebíveis"}`}
                     variant="primary"
@@ -369,6 +463,12 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
               <View style={[styles.handleBar, { backgroundColor: t.inkFaint }]} />
 
               <View style={styles.drawerBody}>
+                <ScrollView
+                  style={styles.drawerScroll}
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                  contentContainerStyle={styles.drawerContent}
+                >
                 <View
                   style={[
                     styles.drawerIconCircle,
@@ -429,19 +529,26 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                     </Text>
                   </View>
                 </View>
+                </ScrollView>
 
-                {isProcessing ? (
-                  <View style={styles.processingWrap}>
-                    <ActivityIndicator size="small" color={t.orange} />
-                    <Text style={[styles.processingText, { color: t.inkMute }]}>
-                      Processando antecipação...
-                    </Text>
-                  </View>
+                  {isProcessing ? (
+                    <View style={styles.drawerFooter}>
+                    <View style={styles.processingWrap}>
+                      <ActivityIndicator size="small" color={t.orange} />
+                      {onchainStatus !== "idle" ? (
+                        <Text style={[styles.processingText, { color: t.inkMute }]}>
+                          On-chain: {onchainStatus}
+                        </Text>
+                      ) : null}
+                      <Text style={[styles.processingText, { color: t.inkMute }]}>
+                        Processando antecipação...
+                      </Text>
+                    </View>
+                    </View>
                 ) : (
-                  <View style={styles.drawerActions}>
-                    <Button
+                  <View style={[styles.drawerFooter, styles.drawerActions]}>
+                    <PaymentPrimaryButton
                       label="Confirmar antecipação"
-                      variant="primary"
                       onPress={confirmAdvance}
                       icon={<Feather name="check" size={16} color={t.btnPrimaryFg} />}
                     />
@@ -633,6 +740,32 @@ const styles = StyleSheet.create({
   ctaBtnWrap: {
     marginTop: 4,
   },
+  providerGrid: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 12,
+  },
+  providerCard: {
+    flex: 1,
+    minHeight: 104,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 10,
+    gap: 4,
+  },
+  providerTitle: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 12,
+  },
+  providerSubtitle: {
+    fontFamily: fonts.sans.medium,
+    fontSize: 10,
+  },
+  providerRate: {
+    fontFamily: fonts.mono.semibold,
+    fontSize: 10,
+    marginTop: "auto",
+  },
 
   // Confirmation drawer
   drawerOverlay: {
@@ -649,6 +782,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
+<<<<<<< HEAD
+    maxHeight: SCREEN_HEIGHT * 0.86,
+=======
+>>>>>>> 0fef6977945b5d32121ec4a9ff19b92b3a715b19
     overflow: "hidden",
   },
   handleBar: {
@@ -661,6 +798,16 @@ const styles = StyleSheet.create({
   },
   drawerBody: {
     paddingHorizontal: 24,
+    alignItems: "center",
+    paddingBottom: Platform.OS === "ios" ? 72 : 56,
+    flexShrink: 1,
+  },
+  drawerScroll: {
+    width: "100%",
+    flexShrink: 1,
+    maxHeight: SCREEN_HEIGHT * 0.52,
+  },
+  drawerContent: {
     alignItems: "center",
     paddingBottom: 8,
   },
@@ -692,7 +839,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     padding: 16,
-    marginBottom: 24,
+    marginBottom: 8,
   },
   drawerRow: {
     flexDirection: "row",
@@ -720,6 +867,12 @@ const styles = StyleSheet.create({
   drawerActions: {
     width: "100%",
     gap: 10,
+  },
+  drawerFooter: {
+    width: "100%",
+    paddingTop: 16,
+    paddingBottom: 8,
+    flexShrink: 0,
   },
   processingWrap: {
     alignItems: "center",

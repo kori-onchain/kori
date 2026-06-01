@@ -12,6 +12,7 @@ type PinLoginStepProps = {
   onDelete: () => void;
   onBack: () => void;
   onSwitchAccount: () => void;
+  onBiometricsPress?: () => void;
 };
 
 export const PinLoginStep: React.FC<PinLoginStepProps> = ({
@@ -21,6 +22,7 @@ export const PinLoginStep: React.FC<PinLoginStepProps> = ({
   onDelete,
   onBack,
   onSwitchAccount,
+  onBiometricsPress,
 }) => (
   <View className="flex-1 px-[22px] pb-6 pt-11">
     <AuthTopBar onBack={onBack} />
@@ -51,7 +53,7 @@ export const PinLoginStep: React.FC<PinLoginStepProps> = ({
       ))}
     </View>
 
-    <PinKeypad onDigit={onDigit} onDelete={onDelete} />
+    <PinKeypad onDigit={onDigit} onDelete={onDelete} onBiometricsPress={onBiometricsPress} />
 
     <Pressable onPress={onSwitchAccount} className="mt-auto items-center pt-5">
       <Text className="font-mono text-[10px] text-ink-mute">

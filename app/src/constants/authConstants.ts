@@ -1,6 +1,6 @@
-import { AuthForm, AuthUserData } from "@type/auth";
+import { AuthForm, AuthUserData, AccountType } from "@type/auth";
 
-export const RETURNING_USER: AuthUserData = {
+export const RETURNING_USER: Partial<AuthUserData> = {
   name: "Kauã",
   email: "kaua@kori.app",
   username: "kc1t",

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { KoraReceivable, koraApi, normalizeApiError } from "@/lib/koraApi";
+import { OnchainExecutionStatus } from "@/lib/onchainIntents";
 
 export interface Receivable {
   id: string;
@@ -9,6 +11,7 @@ export interface Receivable {
   netAmount: string;
   netValue: number;
   installments: string;
+  installmentLabel: string;
   status: "pendente" | "antecipado";
 }
 
@@ -19,7 +22,11 @@ export interface AdvanceReceipt {
   rate: string;
   date: string;
   protocol: string;
+  provider: AdvanceProvider;
+  status: "COMPLETED" | "PENDING_AUCTION";
 }
+
+export type AdvanceProvider = "KORI" | "POOL" | "P2P";
 
 interface UseReceivablesReturn {
   receivables: Receivable[];
@@ -33,11 +40,14 @@ interface UseReceivablesReturn {
   totalGross: string;
   totalNet: string;
   advanceRate: string;
+  selectedProvider: AdvanceProvider;
+  setSelectedProvider: (provider: AdvanceProvider) => void;
   confirmAdvance: () => void;
   showConfirmation: boolean;
   setShowConfirmation: (v: boolean) => void;
   isProcessing: boolean;
   receipt: AdvanceReceipt | null;
+  onchainStatus: OnchainExecutionStatus;
   dismissReceipt: () => void;
 }
 
@@ -59,6 +69,7 @@ const MOCK_RECEIVABLES: Receivable[] = [
     netAmount: "R$ 1.164,00",
     netValue: 1164,
     installments: "3x de R$ 400,00",
+    installmentLabel: "Parcela 1/3",
     status: "pendente",
   },
   {
@@ -70,6 +81,7 @@ const MOCK_RECEIVABLES: Receivable[] = [
     netAmount: "R$ 465,60",
     netValue: 465.6,
     installments: "2x de R$ 240,00",
+    installmentLabel: "Parcela 1/2",
     status: "pendente",
   },
   {
@@ -81,6 +93,7 @@ const MOCK_RECEIVABLES: Receivable[] = [
     netAmount: "R$ 863,30",
     netValue: 863.3,
     installments: "4x de R$ 222,50",
+    installmentLabel: "Parcela 1/4",
     status: "pendente",
   },
   {
@@ -92,6 +105,7 @@ const MOCK_RECEIVABLES: Receivable[] = [
     netAmount: "R$ 339,50",
     netValue: 339.5,
     installments: "1x de R$ 350,00",
+    installmentLabel: "Parcela 1/1",
     status: "pendente",
   },
   {
@@ -103,11 +117,16 @@ const MOCK_RECEIVABLES: Receivable[] = [
     netAmount: "R$ 601,40",
     netValue: 601.4,
     installments: "2x de R$ 310,00",
+    installmentLabel: "Parcela 1/2",
     status: "pendente",
   },
 ];
 
-const ADVANCE_RATE = "3% a.m.";
+const ADVANCE_RATE_BY_PROVIDER: Record<AdvanceProvider, string> = {
+  KORI: "4,5% a.m.",
+  POOL: "3% a.m.",
+  P2P: "a partir de 2,2% a.m.",
+};
 
 const formatBRL = (value: number): string =>
   `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -117,6 +136,38 @@ const generateProtocol = (): string => {
   const date = now.toISOString().replace(/[-:T]/g, "").slice(0, 14);
   const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
   return `ANT-${date}-${rand}`;
+};
+
+const adaptReceivable = (item: KoraReceivable): Receivable => {
+  const gross = (item.grossAmountCents ?? 0) / 100;
+  const net = (item.netAmountCents ?? 0) / 100;
+  const dueDate = item.dueDate
+    ? new Date(item.dueDate).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "--";
+  const installments = item.installmentsCount || 1;
+  const installmentNumber = item.installmentNumber || 1;
+
+  return {
+    id: item.id,
+    description: item.sale?.buyerName
+      ? `Venda #${item.sale.id.slice(-5)} - ${item.sale.buyerName}`
+      : `Recebivel #${item.id.slice(-5)}`,
+    dueDate,
+    grossAmount: formatBRL(gross),
+    grossValue: gross,
+    netAmount: formatBRL(net),
+    netValue: net,
+    installments:
+      installments > 1
+        ? `Parcela ${installmentNumber}/${installments}`
+        : "Parcela unica",
+    installmentLabel: `${installmentNumber}/${installments}`,
+    status: item.status === "ANTICIPATED" ? "antecipado" : "pendente",
+  };
 };
 
 export const useReceivables = ({
@@ -129,18 +180,31 @@ export const useReceivables = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [receipt, setReceipt] = useState<AdvanceReceipt | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<AdvanceProvider>("POOL");
+  const [onchainStatus, setOnchainStatus] =
+    useState<OnchainExecutionStatus>("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setReceivables(MOCK_RECEIVABLES);
+  const loadReceivables = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const items = await koraApi.receivables.list();
+      setReceivables(items.length ? items.map(adaptReceivable) : []);
+    } catch (err) {
+      setError(normalizeApiError(err).message);
+      setReceivables((prev) => (prev.length ? prev : MOCK_RECEIVABLES));
+    } finally {
       setIsLoading(false);
-    }, 600);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadReceivables();
     return () => {
-      clearTimeout(timer);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [loadReceivables]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
@@ -189,38 +253,59 @@ export const useReceivables = ({
     const summary = { ...selectedSummary };
     const advancedIds = new Set(selected);
 
-    timerRef.current = setTimeout(() => {
-      setReceivables((prev) =>
-        prev.map((r) =>
-          advancedIds.has(r.id) ? { ...r, status: "antecipado" as const } : r,
-        ),
-      );
+    timerRef.current = setTimeout(async () => {
+      let protocol = generateProtocol();
+      try {
+        const advances = await Promise.all(
+          Array.from(advancedIds).map((id) =>
+            koraApi.receivables.advance(id, selectedProvider),
+          ),
+        );
+        protocol = advances[0]?.txHash || advances[0]?.id || protocol;
+      } catch (err) {
+        setOnchainStatus("falhou");
+        setError(normalizeApiError(err).message);
+        setIsProcessing(false);
+        return;
+      }
+
+      const completed = selectedProvider !== "P2P";
+      if (completed) {
+        setReceivables((prev) =>
+          prev.map((r) =>
+            advancedIds.has(r.id) ? { ...r, status: "antecipado" as const } : r,
+          ),
+        );
+      }
 
       const now = new Date();
-      const protocol = generateProtocol();
       setReceipt({
         count: summary.count,
         gross: summary.gross,
         net: summary.net,
-        rate: ADVANCE_RATE,
+        rate: ADVANCE_RATE_BY_PROVIDER[selectedProvider],
         date: `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h")}`,
         protocol,
+        provider: selectedProvider,
+        status: completed ? "COMPLETED" : "PENDING_AUCTION",
       });
 
-      const credited = pendingReceivables
-        .filter((r) => advancedIds.has(r.id))
-        .reduce((sum, r) => sum + r.netValue, 0);
-      onAdvanceCredited?.({
-        amount: credited,
-        formattedAmount: summary.net,
-        protocol,
-      });
+      if (completed) {
+        const credited = pendingReceivables
+          .filter((r) => advancedIds.has(r.id))
+          .reduce((sum, r) => sum + r.netValue, 0);
+        onAdvanceCredited?.({
+          amount: credited,
+          formattedAmount: summary.net,
+          protocol,
+        });
+      }
 
       setSelected(new Set());
       setShowConfirmation(false);
       setIsProcessing(false);
     }, 1200);
-  }, [onAdvanceCredited, pendingReceivables, selected, selectedSummary]);
+  }, [onAdvanceCredited, pendingReceivables, selected, selectedProvider, selectedSummary]);
 
   const dismissReceipt = useCallback(() => {
     setReceipt(null);
@@ -237,12 +322,15 @@ export const useReceivables = ({
     selectedSummary,
     totalGross,
     totalNet,
-    advanceRate: ADVANCE_RATE,
+    advanceRate: ADVANCE_RATE_BY_PROVIDER[selectedProvider],
+    selectedProvider,
+    setSelectedProvider,
     confirmAdvance,
     showConfirmation,
     setShowConfirmation,
     isProcessing,
     receipt,
+    onchainStatus,
     dismissReceipt,
   };
 };

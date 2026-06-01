@@ -110,12 +110,23 @@ export const IdentityNoticeDrawer: React.FC<IdentityNoticeDrawerProps> = ({
             </TouchableOpacity>
 
             {/* Confirm Button */}
-            <Button
-              label="Confirmar"
-              variant="primary"
+            {/* Confirm Button */}
+            <TouchableOpacity
+              style={[
+                styles.confirmBtn,
+                {
+                  backgroundColor: t.btnPrimaryBg,
+                  borderColor: t.cardBorder,
+                  borderWidth: 1,
+                },
+              ]}
               onPress={() => onConfirm(dontShowAgain)}
-              full
-            />
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.confirmBtnText, { color: t.btnPrimaryFg }]}>
+                Confirmar
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -192,13 +203,17 @@ const styles = StyleSheet.create({
   },
   confirmBtn: {
     width: "100%",
-    height: 52,
-    borderRadius: 16,
+    height: 50,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   confirmBtnText: {
-    color: "#FFFFFF",
     fontFamily: fonts.sans.bold,
     fontSize: 15,
     fontWeight: "700",

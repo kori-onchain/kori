@@ -1,323 +1,416 @@
-import { useEffect, useState } from "react";
-import { AuthStage, AccountType, AuthForm, AuthUserData } from "@type/auth";
+import { useEffect, useMemo, useState } from "react";
+import { Platform } from "react-native";
+import {
+  useEmbeddedSolanaWallet,
+  useLoginWithEmail,
+  useLoginWithOAuth,
+  usePrivy,
+} from "@privy-io/expo";
 import { INITIAL_AUTH_FORM } from "@constants/authConstants";
+import { AuthForm, AuthStage, AccountType, AuthUserData } from "@type/auth";
+import { apiClient, setActiveAccountContext } from "@/lib/apiClient";
 import {
   cleanUsername,
   resolveSignupData,
   validateAuthDetails,
 } from "@/utils/authUtils";
-import {
-  signUpWithEmail,
-  signInWithEmail,
-  resendSignupEmail,
-  updateProfile,
-  getProfile,
-  getSession,
-} from "@/lib/authService";
-import { verifyPin } from "@/lib/pinService";
-import { MOCK_AUTH, MOCK_SESSION } from "@constants/devConfig";
 
 interface UseAuthLogicParams {
   onAuthSuccess: (userData: AuthUserData, isSignup: boolean) => void;
+  initialAccountType?: AccountType;
+  initialStage?: AuthStage;
+  existingPrivyUser?: { id: string; email: string } | null;
+  onCancel?: () => void;
 }
 
-export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
-  const [stage, setStage] = useState<AuthStage>("welcome");
-  const [accountType, setAccountType] = useState<AccountType>("PF");
-  const [form, setForm] = useState<AuthForm>(INITIAL_AUTH_FORM);
+type BackendAccount = {
+  name: string;
+  email: string;
+  username: string;
+  accountType: AccountType;
+  businessName?: string;
+  store?: { name?: string; username?: string; category?: string } | null;
+};
+
+type UsernameAvailability =
+  | "idle"
+  | "checking"
+  | "available"
+  | "unavailable"
+  | "error";
+
+const usernameFromEmail = (email: string) => {
+  const base = cleanUsername(email.split("@")[0] || "");
+  return base.length >= 3 ? base : "user";
+};
+
+const initialFormFor = (
+  accountType: AccountType,
+  email = "",
+  fallbackName = "",
+): AuthForm => {
+  const base = usernameFromEmail(email);
+  return {
+    ...INITIAL_AUTH_FORM,
+    email,
+    name: accountType === "PF" ? "" : fallbackName,
+    username: accountType === "PF" ? base : "",
+    storeUsername: accountType === "PJ" ? `${base}.store` : "",
+  };
+};
+
+export const useAuthLogic = ({
+  onAuthSuccess,
+  initialAccountType = "PF",
+  initialStage = "welcome",
+  existingPrivyUser = null,
+  onCancel,
+}: UseAuthLogicParams) => {
+  const [stage, setStage] = useState<AuthStage>(initialStage);
+  const [accountType, setAccountType] = useState<AccountType>(initialAccountType);
+  const [form, setForm] = useState<AuthForm>(() =>
+    initialFormFor(initialAccountType, existingPrivyUser?.email || ""),
+  );
   const [focusedField, setFocusedField] = useState<keyof AuthForm | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [pin, setPin] = useState<string[]>([]);
   const [walletStep, setWalletStep] = useState(0);
   const [loadingWallet, setLoadingWallet] = useState(false);
-  const [loadingLogin, setLoadingLogin] = useState(false);
-  const [loadingResendEmail, setLoadingResendEmail] = useState(false);
+  const [loadingOAuth, setLoadingOAuth] = useState(false);
+  const [pendingPrivyUser, setPendingPrivyUser] = useState<{
+    id: string;
+    email: string;
+  } | null>(existingPrivyUser);
+  const [usernameAvailability, setUsernameAvailability] =
+    useState<UsernameAvailability>("idle");
+
+  const { login: loginWithOAuth } = useLoginWithOAuth();
+  const { sendCode, loginWithCode, state: otpState } = useLoginWithEmail();
+  const { user: privyUser, logout } = usePrivy();
+  const { wallets, create } = useEmbeddedSolanaWallet();
+
+  const activeUsername =
+    accountType === "PF" ? form.username : form.storeUsername;
+
+  const usernamePlaceholder = useMemo(() => {
+    const base = usernameFromEmail(form.email);
+    return accountType === "PJ" ? `${base}.store` : base;
+  }, [accountType, form.email]);
 
   useEffect(() => {
-    if (stage !== "wallet") return;
+    if (!existingPrivyUser) return;
+    setPendingPrivyUser(existingPrivyUser);
+    setAccountType(initialAccountType);
+    setStage(initialStage);
+    setForm(initialFormFor(initialAccountType, existingPrivyUser.email));
+  }, [existingPrivyUser, initialAccountType, initialStage]);
 
-    setLoadingWallet(true);
-    setWalletStep(0);
-
-    const signupData = resolveSignupData(form, accountType);
-
-    if (MOCK_AUTH) {
-      const timers = [
-        setTimeout(() => setWalletStep(1), 450),
-        setTimeout(() => setWalletStep(2), 950),
-        setTimeout(() => setWalletStep(3), 1450),
-        setTimeout(() => {
-          setLoadingWallet(false);
-          onAuthSuccess(signupData, true);
-        }, 2100),
-      ];
-      return () => timers.forEach(clearTimeout);
+  useEffect(() => {
+    const username = activeUsername.trim();
+    if (stage !== "details" || username.length < 3) {
+      setUsernameAvailability("idle");
+      return;
     }
 
-    const doSignup = async () => {
-      const { data, error: signupError } = await signUpWithEmail(
-        form.email.trim().toLowerCase(),
-        form.password,
-        {
-          name: signupData.name,
-          username: signupData.username,
-          account_type: signupData.accountType,
-          business_name: signupData.businessName,
-        },
-      );
+    let cancelled = false;
+    setUsernameAvailability("checking");
 
-      if (signupError || !data.user) {
-        setLoadingWallet(false);
-        setError(signupError?.message || "Erro ao criar conta.");
-        setStage("details");
-        return;
-      }
-
-      const userId = data.user.id;
-
-      if (!data.session) {
-        setLoadingWallet(false);
-        setStage("confirmEmail");
-        return;
-      }
-
-      const { error: profileError } = await updateProfile(userId, {
-        name: signupData.name,
-        username: signupData.username,
-        account_type: signupData.accountType,
-        business_name: signupData.businessName,
-      });
-
-      if (profileError) {
-        setLoadingWallet(false);
-        setError(profileError.message || "Erro ao atualizar perfil.");
-        setStage("details");
-        return;
-      }
-
-      setWalletStep(1);
-      setTimeout(() => setWalletStep(2), 500);
-      setTimeout(() => setWalletStep(3), 1000);
-      setTimeout(() => {
-        setLoadingWallet(false);
-        onAuthSuccess(
-          { ...signupData, supabaseId: userId },
-          true,
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await apiClient.get<{ available: boolean }>(
+          `/users/check-username/${username}`,
         );
-      }, 1600);
+        if (!cancelled) {
+          setUsernameAvailability(res.available ? "available" : "unavailable");
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setUsernameAvailability("error");
+          console.error("[useAuthLogic] Check username failed:", e);
+        }
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
     };
+  }, [activeUsername, stage]);
 
-    doSignup();
-  }, [stage === "wallet"]);
-
-  const startSignup = (emailSeed?: string) => {
-    setForm((prev) => ({ ...prev, email: prev.email || emailSeed || "" }));
-    setError(null);
-    setStage("accountType");
+  const isAlreadyLoggedInError = (err: any) => {
+    const message = String(err?.message || err || "").toLowerCase();
+    return (
+      message.includes("already logged in") ||
+      message.includes("uselinkwithemail") ||
+      message.includes("use link with email")
+    );
   };
 
-  const startLogin = () => {
-    setError(null);
-    setStage("login");
+  const getPrivyEmail = (user: any) => {
+    const linkedAccounts = (user?.linked_accounts as any[]) || [];
+    const account = linkedAccounts.find(
+      (item) =>
+        item.type === "email" ||
+        item.type === "google_oauth" ||
+        item.type === "apple_oauth",
+    );
+    return (account?.email ?? account?.address ?? "").trim().toLowerCase();
   };
 
-  const handleBack = () => {
+  const prepareNewAccount = (
+    privyId: string,
+    email: string,
+    fallbackName?: string,
+    type: AccountType = "PF",
+  ) => {
+    setPendingPrivyUser({ id: privyId, email });
+    setAccountType(type);
+    setActiveAccountContext(type);
+    setForm(initialFormFor(type, email, fallbackName));
     setError(null);
+    setStage("details");
+  };
 
-    if (stage === "pin") {
-      setPin([]);
-      setStage("welcome");
+  const continueWithBackendAccount = async (
+    privyId: string,
+    email: string,
+    fallbackName?: string,
+  ) => {
+    try {
+      const accounts = await apiClient.get<BackendAccount[]>("/auth/accounts");
+      const profile =
+        accounts.find((account) => account.accountType === "PF") || accounts[0];
+      if (!profile) throw new Error("No backend profile");
+
+      setActiveAccountContext(profile.accountType);
+      onAuthSuccess(
+        {
+          name: profile.name,
+          email: profile.email || email,
+          accountType: profile.accountType,
+          username: profile.username,
+          privyUserId: privyId,
+          businessName: profile.store?.name || profile.businessName,
+          store: profile.store,
+        },
+        false,
+      );
+      return;
+    } catch {
+      prepareNewAccount(privyId, email, fallbackName, "PF");
+    }
+  };
+
+  const continueExistingPrivySession = async (fallbackEmail: string) => {
+    if (!privyUser) return false;
+    const email = getPrivyEmail(privyUser) || fallbackEmail;
+    await continueWithBackendAccount(privyUser.id, email);
+    return true;
+  };
+
+  const handleSendOtp = async () => {
+    const email = form.email.trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      setError("Digite um e-mail valido.");
       return;
     }
 
-    if (stage === "login") {
-      setStage("welcome");
-      return;
-    }
+    try {
+      setError(null);
 
-    if (stage === "accountType") {
-      setStage("welcome");
-      return;
-    }
+      if (privyUser) {
+        const activeEmail = getPrivyEmail(privyUser);
+        if (!activeEmail || activeEmail === email) {
+          await continueExistingPrivySession(email);
+          return;
+        }
+        await logout();
+      }
 
-    if (stage === "details") {
-      setStage("accountType");
-      return;
-    }
-
-    if (stage === "confirmEmail") {
-      setStage("details");
+      await sendCode({ email });
+      setStage("otp");
+    } catch (e: any) {
+      if (isAlreadyLoggedInError(e)) {
+        const continued = await continueExistingPrivySession(email);
+        if (!continued) {
+          setError(
+            "Sessao Privy ja ativa. Feche e abra o app novamente para recarregar a sessao.",
+          );
+        }
+        return;
+      }
+      setError(e?.message || "Erro ao enviar codigo.");
     }
   };
 
-  const handleChangeField = (field: keyof AuthForm, value: string) => {
-    const nextValue = field.toLowerCase().includes("username")
-      ? cleanUsername(value)
-      : value;
-    setForm((prev) => ({ ...prev, [field]: nextValue }));
-    setError(null);
+  const handleVerifyOtp = async (code: string) => {
+    if (otpState.status === "submitting-code") return;
+    const email = form.email.trim().toLowerCase();
+
+    try {
+      setError(null);
+      const user = await loginWithCode({ code });
+      if (!user) return;
+      await continueWithBackendAccount(user.id, email);
+    } catch (e: any) {
+      setError(e?.message || "Codigo invalido.");
+    }
   };
 
-  const handleCreateAccount = () => {
+  const handleOAuthLogin = async (provider: "google" | "apple") => {
+    try {
+      setLoadingOAuth(true);
+      setError(null);
+
+      if (privyUser) {
+        await continueExistingPrivySession(form.email.trim().toLowerCase());
+        return;
+      }
+
+      const user = await loginWithOAuth({
+        provider,
+        ...(provider === "apple"
+          ? { isLegacyAppleIosBehaviorEnabled: Platform.OS !== "ios" }
+          : {}),
+      });
+      if (!user) return;
+
+      const linkedAccounts = (user.linked_accounts as any[]) || [];
+      const oauthAccount = linkedAccounts.find(
+        (item) => item.type === `${provider}_oauth`,
+      );
+      const email = (oauthAccount?.email ?? "").trim().toLowerCase();
+      const name = oauthAccount?.name ?? "";
+
+      await continueWithBackendAccount(user.id, email, name);
+    } catch (e: any) {
+      if (isAlreadyLoggedInError(e)) {
+        const continued = await continueExistingPrivySession(
+          form.email.trim().toLowerCase(),
+        );
+        if (!continued) {
+          setError(
+            "Sessao Privy ja ativa. Feche e abra o app novamente para recarregar a sessao.",
+          );
+        }
+        return;
+      }
+      setError(e?.message || `Erro ao entrar com ${provider}.`);
+    } finally {
+      setLoadingOAuth(false);
+    }
+  };
+
+  const handleCreateAccount = async () => {
     const validation = validateAuthDetails(form, accountType);
     if (validation) {
       setError(validation);
       return;
     }
 
+    if (usernameAvailability !== "available") {
+      setError(
+        usernameAvailability === "checking"
+          ? "Aguarde a verificacao do username."
+          : "Escolha um username disponivel para continuar.",
+      );
+      return;
+    }
+
+    setError(null);
     setStage("wallet");
   };
 
-  const handleLogin = async () => {
-    if (!form.email.trim()) {
-      setError("O e-mail é obrigatório.");
-      return;
+  useEffect(() => {
+    if (stage === "wallet") {
+      handleWalletStage();
     }
-    if (!form.password.trim()) {
-      setError("A senha é obrigatória.");
-      return;
-    }
+  }, [stage]);
 
-    setLoadingLogin(true);
-    setError(null);
+  const handleWalletStage = async () => {
+    if (!pendingPrivyUser) return;
+    setLoadingWallet(true);
+    setWalletStep(0);
 
-    if (MOCK_AUTH) {
-      setTimeout(() => {
-        setLoadingLogin(false);
-        onAuthSuccess(
-          {
-            name: MOCK_SESSION.name,
-            email: form.email.trim().toLowerCase() || MOCK_SESSION.email,
-            accountType: MOCK_SESSION.accountType,
-            username: MOCK_SESSION.username,
-            businessName: MOCK_SESSION.businessName,
-          },
-          false,
-        );
-      }, 600);
-      return;
-    }
-
-    const { data, error: loginError } = await signInWithEmail(
-      form.email.trim().toLowerCase(),
-      form.password,
+    const signupData = resolveSignupData(
+      form,
+      accountType,
+      pendingPrivyUser.id,
+      pendingPrivyUser.email,
     );
 
-    if (loginError || !data.user) {
-      setLoadingLogin(false);
-      setError(loginError?.message === "Invalid login credentials"
-        ? "E-mail ou senha incorretos."
-        : loginError?.message || "Erro ao entrar.");
-      return;
-    }
+    setTimeout(() => setWalletStep(1), 450);
+    setTimeout(() => setWalletStep(2), 950);
+    setTimeout(() => setWalletStep(3), 1450);
 
-    const { data: profile, error: profileError } = await getProfile(data.user.id);
+    try {
+      const targetIndex = accountType === "PJ" ? 1 : 0;
+      setActiveAccountContext(accountType);
 
-    if (profileError) {
-      setLoadingLogin(false);
-      setError("Conta acessada, mas não foi possível carregar o perfil.");
-      return;
-    }
-
-    setLoadingLogin(false);
-
-    onAuthSuccess(
-      {
-        name: profile?.name || data.user.email?.split("@")[0] || "Usuário",
-        email: data.user.email || "",
-        accountType: (profile?.account_type as AccountType) || "PF",
-        username: profile?.username || data.user.email?.split("@")[0] || "user",
-        supabaseId: data.user.id,
-        businessName: profile?.business_name || undefined,
-      },
-      false,
-    );
-  };
-
-  const handleResendConfirmationEmail = async () => {
-    const email = form.email.trim().toLowerCase();
-    if (!email) {
-      setError("Informe o e-mail para reenviar a confirmação.");
-      return;
-    }
-
-    setLoadingResendEmail(true);
-    setError(null);
-
-    const { error: resendError } = await resendSignupEmail(email);
-    setLoadingResendEmail(false);
-
-    if (resendError) {
-      setError(resendError.message || "Erro ao reenviar confirmação.");
-    }
-  };
-
-  const handlePinDigit = (digit: string) => {
-    if (pin.length >= 5) return;
-
-    const next = [...pin, digit];
-    setPin(next);
-
-    if (next.length === 5) {
-      const pinStr = next.join("");
-
-      if (MOCK_AUTH) {
-        setTimeout(() => {
-          onAuthSuccess(
-            {
-              name: MOCK_SESSION.name,
-              email: MOCK_SESSION.email,
-              accountType: MOCK_SESSION.accountType,
-              username: MOCK_SESSION.username,
-            },
-            false,
-          );
-        }, 250);
-        return;
+      let walletAddress = wallets?.[targetIndex]?.address ?? null;
+      if (!walletAddress) {
+        try {
+          const newWallet =
+            targetIndex === 1
+              ? await (create as any)?.({
+                  recoveryMethod: "privy",
+                  createAdditional: true,
+                })
+              : await (create as any)?.({ recoveryMethod: "privy" });
+          walletAddress =
+            newWallet?.address ||
+            newWallet?.publicKey?.toString?.() ||
+            newWallet?._publicKey?.toString?.() ||
+            null;
+        } catch (walletErr) {
+          console.warn("Privy wallet creation skipped/failed:", walletErr);
+        }
       }
 
-      (async () => {
-        const valid = await verifyPin(pinStr);
-        if (!valid) {
-          setError("PIN incorreto.");
-          setPin([]);
-          return;
-        }
-
-        const { data } = await getSession();
-        if (!data.session?.user) {
-          setError("Sessão expirada. Faça login novamente.");
-          setPin([]);
-          setStage("login");
-          return;
-        }
-
-        const { data: profile, error: profileError } = await getProfile(data.session.user.id);
-
-        if (profileError) {
-          setError("Sessão ativa, mas não foi possível carregar o perfil.");
-          setPin([]);
-          setStage("login");
-          return;
-        }
-
-        onAuthSuccess(
-          {
-            name: profile?.name || data.session.user.email?.split("@")[0] || "Usuário",
-            email: data.session.user.email || "",
-            accountType: (profile?.account_type as AccountType) || "PF",
-            username: profile?.username || "user",
-            supabaseId: data.session.user.id,
-            businessName: profile?.business_name || undefined,
-          },
-          false,
-        );
-      })();
+      await apiClient.post("/auth/sync", {
+        name: signupData.name,
+        email: signupData.email,
+        username: signupData.username,
+        accountType: signupData.accountType,
+        storeName: accountType === "PJ" ? form.storeName : undefined,
+        businessName: signupData.businessName,
+        category: accountType === "PJ" ? form.category : null,
+        walletAddress,
+        walletIndex: targetIndex,
+      });
+    } catch (e: any) {
+      console.warn("Backend sync failed:", e?.message);
     }
+
+    setTimeout(() => {
+      setLoadingWallet(false);
+      onAuthSuccess(signupData, true);
+    }, 2100);
   };
 
-  const activeUsername =
-    accountType === "PF" ? form.username : form.storeUsername;
+  const handleBack = () => {
+    setError(null);
+    if (stage === "details" && existingPrivyUser && onCancel) {
+      onCancel();
+      return;
+    }
+    const backMap: Partial<Record<AuthStage, AuthStage>> = {
+      email: "welcome",
+      otp: "email",
+      accountType: "welcome",
+      details: "welcome",
+    };
+    const prev = backMap[stage];
+    if (prev) setStage(prev);
+  };
+
+  const handleChangeField = (field: keyof AuthForm, value: string) => {
+    const next = field.toLowerCase().includes("username")
+      ? cleanUsername(value)
+      : value;
+
+    setForm((prev) => ({ ...prev, [field]: next }));
+    setError(null);
+  };
 
   return {
     stage,
@@ -329,20 +422,19 @@ export const useAuthLogic = ({ onAuthSuccess }: UseAuthLogicParams) => {
     setFocusedField,
     error,
     setError,
-    pin,
-    setPin,
     walletStep,
     loadingWallet,
-    loadingLogin,
-    loadingResendEmail,
-    startSignup,
-    startLogin,
+    loadingOAuth,
+    otpState,
+    usernameAvailability,
+    usernamePlaceholder,
     handleBack,
     handleChangeField,
+    handleSendOtp,
+    handleVerifyOtp,
+    handleOAuthLogin,
     handleCreateAccount,
-    handleLogin,
-    handleResendConfirmationEmail,
-    handlePinDigit,
+    handleWalletStage,
     activeUsername,
   };
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
+  ActivityIndicator,
   Dimensions,
   Modal,
   Platform,
@@ -30,6 +31,7 @@ import {
   DetailRow,
 } from "@components/home/modals/PaymentDS";
 import { mockProducts, Product } from "@/data/merchant";
+import { KoraMockCardPayment, koraApi, normalizeApiError } from "@/lib/koraApi";
 
 const USER_ID = "opedrooz";
 const WALLET_ADDRESS = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
@@ -595,18 +597,19 @@ const CardTypeCards: React.FC<{
   return (
     <View style={choiceStyles.row}>
       <TouchableOpacity
-        activeOpacity={0.8}
-        onPress={() => onSelect("debit")}
+        activeOpacity={0.6}
+        onPress={() => {}}
         style={[
           choiceStyles.card,
           {
             backgroundColor: t.bg2,
-            borderColor: selected === "debit" ? t.orange : t.cardBorder,
+            borderColor: t.cardBorder,
+            opacity: 0.55,
           },
         ]}
       >
         <View style={[choiceStyles.iconCircle, { backgroundColor: t.bgElev }]}>
-          <Feather name="arrow-down-left" size={20} color={selected === "debit" ? t.orange : t.inkDim} />
+          <Feather name="arrow-down-left" size={20} color={t.inkDim} />
         </View>
         <Text style={[choiceStyles.title, { color: t.ink }]}>Débito</Text>
         <Text style={[choiceStyles.desc, { color: t.inkMute }]}>À vista, menor taxa</Text>
@@ -659,17 +662,45 @@ const CardScreen: React.FC<{
   const [step, setStep] = useState<1 | 2 | 3>(() => (amount ? 3 : 1));
   const [cardType, setCardType] = useState<"credit" | "debit">("credit");
   const [installments, setInstallments] = useState(1);
-  const [charging, setCharging] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [posStage, setPosStage] = useState<
+    "idle" | "nfc" | "customer" | "processing" | "success" | "error"
+  >("idle");
+  const [paymentResult, setPaymentResult] = useState<KoraMockCardPayment | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const rawValue = parseFloat(amount.replace(",", ".")) || 0;
 
   useEffect(() => {
-    if (charging && !success) {
-      const timer = setTimeout(() => {
-        setSuccess(true);
-      }, 2500);
+    if (posStage === "customer") {
+      const timer = setTimeout(() => setPosStage("processing"), 850);
       return () => clearTimeout(timer);
     }
-  }, [charging, success]);
+  }, [posStage]);
+
+  useEffect(() => {
+    if (posStage !== "processing") return;
+    let cancelled = false;
+    koraApi.merchant
+      .createMockCardPayment({
+        amountCents: Math.round(rawValue * 100),
+        installmentsCount: installments,
+        cardType: "credit",
+        productName: selectedProduct?.name,
+      })
+      .then((result) => {
+        if (cancelled) return;
+        setPaymentResult(result);
+        setPaymentError(null);
+        setPosStage("success");
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setPaymentError(normalizeApiError(err).message);
+        setPosStage("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [installments, posStage, rawValue, selectedProduct?.name]);
 
   useEffect(() => {
     if (!amount && step === 3) {
@@ -679,7 +710,6 @@ const CardScreen: React.FC<{
 
   // Dynamic rates logic: debit is 0.5%, credit is 1.5% for 1x, 1.8% for 2-4x, 2.2% for 5-12x
   const feeRate = cardType === "debit" ? 0.005 : installments === 1 ? 0.015 : installments <= 4 ? 0.018 : 0.022;
-  const rawValue = parseFloat(amount.replace(",", ".")) || 0;
   const feeValue = rawValue * feeRate;
   const netValue = rawValue - feeValue;
 
@@ -687,10 +717,24 @@ const CardScreen: React.FC<{
   const displayFee = `- R$ ${feeValue.toFixed(2).replace(".", ",")}`;
   const displayNet = `R$ ${netValue.toFixed(2).replace(".", ",")}`;
 
-  if (success) {
+  if (posStage === "success") {
     return (
-      <BottomSheetFrame title="Pagamento Aprovado" onClose={onClose}>
-        <View style={cardStyles.successContainer}>
+      <BottomSheetFrame
+        title="Pagamento Aprovado"
+        onClose={onClose}
+        footer={
+          <PaymentPrimaryButton
+            label="Concluir"
+            onPress={onClose}
+            style={{ width: "100%" }}
+          />
+        }
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={cardStyles.successContainer}
+        >
           <View style={[cardStyles.successCircle, { backgroundColor: `${t.green}15` }]}>
             <Feather name="check" size={48} color={t.green} />
           </View>
@@ -701,6 +745,8 @@ const CardScreen: React.FC<{
             <DetailRow label="Método" value={cardType === "credit" ? `Crédito em ${installments}x` : "Débito à Vista"} />
             <DetailRow label="Status" value="Aprovado" />
             <DetailRow label="Taxa Aplicada" value={`${(feeRate * 100).toFixed(1)}%`} />
+            {paymentResult?.card.last4 ? <DetailRow label="Cartao" value={`final ${paymentResult.card.last4}`} /> : null}
+            {paymentResult?.receivables.length ? <DetailRow label="Recebiveis" value={`${paymentResult.receivables.length} parcela(s)`} /> : null}
             <DetailRow label="Vendedor" value={`@${USER_ID}`} />
             {selectedProduct && <DetailRow label="Produto" value={selectedProduct.name} />}
             <DetailRow label="Valor Líquido" value={displayNet} />
@@ -710,40 +756,84 @@ const CardScreen: React.FC<{
           <PaymentPrimaryButton
             label="Concluído"
             onPress={onClose}
-            style={{ width: "100%", marginTop: 8 }}
+            style={{ display: "none" }}
           />
-        </View>
+        </ScrollView>
       </BottomSheetFrame>
     );
   }
 
-  if (charging) {
+  if (posStage === "error") {
     return (
-      <BottomSheetFrame title="Aproxime o Cartão" onBack={() => setCharging(false)} onClose={onClose}>
+      <BottomSheetFrame title="Pagamento Recusado" onBack={() => setPosStage("idle")} onClose={onClose}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          contentContainerStyle={cardStyles.successContainer}
+        >
+          <View style={[cardStyles.successCircle, { backgroundColor: "#ef444415" }]}>
+            <Feather name="x" size={48} color="#ef4444" />
+          </View>
+          <Text style={[cardStyles.successTitle, { color: t.ink }]}>Transacao nao autorizada</Text>
+          <Text style={[cardStyles.posInstructions, { color: t.inkMute }]}>
+            {paymentError || "Nao foi possivel concluir o pagamento."}
+          </Text>
+          <PaymentPrimaryButton
+            label="Tentar novamente"
+            onPress={() => setPosStage("nfc")}
+            style={{ width: "100%", marginTop: 8 }}
+          />
+        </ScrollView>
+      </BottomSheetFrame>
+    );
+  }
+
+  if (posStage !== "idle") {
+    const isCustomer = posStage === "customer" || posStage === "processing";
+    return (
+      <BottomSheetFrame title={isCustomer ? "Cartao do Cliente" : "Aproxime o Cartao"} onBack={() => setPosStage("idle")} onClose={onClose}>
         <View style={cardStyles.posContainer}>
           <Text style={[cardStyles.posAmount, { color: t.ink }]}>{displayAmount}</Text>
           
           <View style={[cardStyles.terminalIconWrap, { backgroundColor: t.bg2, borderColor: t.cardBorder }]}>
-            <Feather name="rss" size={40} color={t.orange} />
+            {posStage === "processing" ? (
+              <ActivityIndicator size="large" color={t.orange} />
+            ) : (
+              <Feather name={isCustomer ? "credit-card" : "rss"} size={40} color={t.orange} />
+            )}
           </View>
 
           <Text style={[cardStyles.posInstructions, { color: t.ink }]}>
-            Aproxime o cartão de crédito ou débito do cliente na parte traseira do aparelho.
+            {isCustomer
+              ? "Cartao detectado. Validando limite e criando as parcelas da compra."
+              : "Emitindo sinal NFC. Aproxime o celular do cliente na parte traseira do aparelho."}
           </Text>
 
           <View style={cardStyles.cardWrapper}>
             <View style={[cardStyles.creditCardMock, { backgroundColor: t.ink }]}>
               <View style={cardStyles.cardHeader}>
                 <Feather name="credit-card" size={20} color={t.bg} />
-                <Text style={[cardStyles.cardBrand, { color: t.bg }]}>Kori Pay</Text>
+                <Text style={[cardStyles.cardBrand, { color: t.bg }]}>Kori Credit</Text>
               </View>
-              <Text style={[cardStyles.cardNumber, { color: t.bg }]}>•••• •••• •••• 8820</Text>
+              <Text style={[cardStyles.cardNumber, { color: t.bg }]}>
+                {isCustomer ? "**** **** **** NFC" : "Aguardando NFC"}
+              </Text>
             </View>
           </View>
 
           <Text style={[cardStyles.loadingText, { color: t.inkMute }]}>
-            Aguardando aprovação do banco...
+            {posStage === "nfc"
+              ? "O vendedor esta transmitindo a cobranca por NFC."
+              : "Processando compra no credito..."}
           </Text>
+          {posStage === "nfc" ? (
+            <PaymentPrimaryButton
+              label="Simular cliente aproximou"
+              onPress={() => setPosStage("customer")}
+              style={{ width: "100%", marginTop: 18 }}
+              icon={<Feather name="smartphone" size={16} color={t.btnPrimaryFg} />}
+            />
+          ) : null}
         </View>
       </BottomSheetFrame>
     );
@@ -775,8 +865,8 @@ const CardScreen: React.FC<{
       return (
         <PaymentPrimaryButton
           label="Cobrar"
-          onPress={() => setCharging(true)}
-          disabled={!amount}
+          onPress={() => setPosStage("nfc")}
+          disabled={!amount || cardType !== "credit"}
           icon={<Feather name="credit-card" size={16} color={t.btnPrimaryFg} />}
         />
       );

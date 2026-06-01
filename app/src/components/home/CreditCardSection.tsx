@@ -15,6 +15,7 @@ import { KoriGlyph } from "@components/layout/icons";
 import { useTheme } from "@theme/ThemeProvider";
 import { fonts, radii } from "@theme/tokens";
 import { SoftCard } from "@components/layout/SoftCard";
+import { KoraInvoice, formatCents } from "@/lib/koraApi";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 68;
@@ -31,6 +32,7 @@ interface CreditCardSectionProps {
   horizontalBleed?: number;
   onSeeMore?: () => void;
   onInvoicePress?: () => void;
+  invoice?: KoraInvoice | null;
 }
 
 // concentric elegant curves representing premium texture on the card
@@ -67,6 +69,7 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
   horizontalBleed = 20,
   onSeeMore,
   onInvoicePress,
+  invoice,
 }) => {
   const { t, scheme } = useTheme();
   const [copied, setCopied] = useState(false);
@@ -120,6 +123,25 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
   const displayHolderName = userName || "Leonardo Vasconselos";
 
   const invoiceIconBg = t.line;
+  const invoiceMonth = invoice?.cycleEnd || invoice?.cycleMonth
+    ? new Date(invoice.cycleEnd || `${invoice.cycleMonth}-01`).toLocaleDateString("pt-BR", { month: "long" })
+    : "atual";
+  const invoiceStatus =
+    invoice?.status === "PAID"
+      ? "Paga"
+      : invoice?.status === "OVERDUE"
+        ? "Atrasada"
+        : "Em aberto";
+  const invoiceAmount = invoice
+    ? formatCents(invoice.pendingCents ?? invoice.totalCents, invoice.currency)
+    : "Sem fatura";
+  const closeDate = invoice?.closingDate || invoice?.closeDate;
+  const invoiceClose = closeDate
+    ? new Date(closeDate).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+      })
+    : "--/--";
 
   return (
     <View style={styles.container}>
@@ -294,13 +316,13 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
               </View>
               <View style={styles.invoiceDetails}>
                 <Text style={[styles.invoiceLabel, { color: t.inkMute }]}>
-                  Fatura de Junho
+                  Fatura {invoiceMonth}
                 </Text>
                 <Text style={[styles.invoiceAmount, { color: t.ink }]}>
-                  R$ 1.482,90
+                  {invoiceAmount}
                 </Text>
                 <Text style={[styles.invoiceDate, { color: t.inkMute }]}>
-                  Fecha em 24/07
+                  Fecha em {invoiceClose}
                 </Text>
               </View>
             </View>
@@ -313,7 +335,7 @@ export const CreditCardSection: React.FC<CreditCardSectionProps> = ({
                   style={[styles.statusDot, { backgroundColor: t.orange }]}
                 />
                 <Text style={[styles.statusText, { color: t.orange }]}>
-                  Em aberto
+                  {invoiceStatus}
                 </Text>
               </View>
               <Feather

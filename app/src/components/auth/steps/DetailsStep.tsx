@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
   ScrollView,
   Text,
   View,
+  Modal,
+  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@/icons";
 import { ArrowRightIcon } from "@components/layout/icons";
@@ -17,23 +20,39 @@ type DetailsStepProps = {
   form: AuthForm;
   focusedField: keyof AuthForm | null;
   error: string | null;
+  usernameAvailability: "idle" | "checking" | "available" | "unavailable" | "error";
+  usernamePlaceholder: string;
+  canContinue: boolean;
   onBack: () => void;
   onFocusField: (field: keyof AuthForm | null) => void;
   onChangeField: (field: keyof AuthForm, value: string) => void;
   onContinue: () => void;
 };
 
+const CATEGORIES = [
+  "Design & Digital",
+  "Alimentação & Bebidas",
+  "Vestuário & Acessórios",
+  "Beleza & Cosméticos",
+  "Tecnologia & Eletrônicos",
+  "Outros",
+];
+
 export const DetailsStep: React.FC<DetailsStepProps> = ({
   accountType,
   form,
   focusedField,
   error,
+  usernameAvailability,
+  usernamePlaceholder,
+  canContinue,
   onBack,
   onFocusField,
   onChangeField,
   onContinue,
 }) => {
   const isPF = accountType === "PF";
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   return (
     <KeyboardAvoidingView behavior="padding" className="flex-1">
@@ -60,41 +79,28 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 label="Nome"
                 value={form.name}
                 onChangeText={(value) => onChangeField("name", value)}
-                placeholder="Seu nome"
+                placeholder="Jhon Doe"
                 focused={focusedField === "name"}
                 onFocus={() => onFocusField("name")}
-                onBlur={() => onFocusField(null)}
-              />
-              <AuthField
-                label="E-mail"
-                value={form.email}
-                onChangeText={(value) => onChangeField("email", value)}
-                placeholder="kaua@kori.app"
-                keyboardType="email-address"
-                focused={focusedField === "email"}
-                onFocus={() => onFocusField("email")}
                 onBlur={() => onFocusField(null)}
               />
               <AuthField
                 label="Username"
                 value={form.username}
                 onChangeText={(value) => onChangeField("username", value)}
-                placeholder="kc1t"
+                placeholder={usernamePlaceholder}
                 prefix="@"
                 focused={focusedField === "username"}
                 onFocus={() => onFocusField("username")}
                 onBlur={() => onFocusField(null)}
-                showAvailable={form.username.length >= 3}
+                availabilityStatus={usernameAvailability}
               />
               <AuthField
-                label="Senha"
-                value={form.password}
-                onChangeText={(value) => onChangeField("password", value)}
-                placeholder="Mínimo 6 caracteres"
-                secureTextEntry
-                focused={focusedField === "password"}
-                onFocus={() => onFocusField("password")}
-                onBlur={() => onFocusField(null)}
+                label="E-mail"
+                value={form.email}
+                placeholder="kaua@kori.app"
+                keyboardType="email-address"
+                editable={false}
               />
             </>
           ) : (
@@ -112,39 +118,26 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
                 label="Username da loja"
                 value={form.storeUsername}
                 onChangeText={(value) => onChangeField("storeUsername", value)}
-                placeholder="kc1t.store"
+                placeholder={usernamePlaceholder}
                 prefix="@"
                 focused={focusedField === "storeUsername"}
                 onFocus={() => onFocusField("storeUsername")}
                 onBlur={() => onFocusField(null)}
-                showAvailable={form.storeUsername.length >= 3}
+                availabilityStatus={usernameAvailability}
               />
               <AuthField
                 label="Categoria"
                 value={form.category}
-                onChangeText={(value) => onChangeField("category", value)}
                 placeholder="Design & Digital"
                 select
+                onPress={() => setShowCategoryModal(true)}
               />
               <AuthField
                 label="E-mail"
                 value={form.email}
-                onChangeText={(value) => onChangeField("email", value)}
                 placeholder="loja@kori.app"
                 keyboardType="email-address"
-                focused={focusedField === "email"}
-                onFocus={() => onFocusField("email")}
-                onBlur={() => onFocusField(null)}
-              />
-              <AuthField
-                label="Senha"
-                value={form.password}
-                onChangeText={(value) => onChangeField("password", value)}
-                placeholder="Mínimo 6 caracteres"
-                secureTextEntry
-                focused={focusedField === "password"}
-                onFocus={() => onFocusField("password")}
-                onBlur={() => onFocusField(null)}
+                editable={false}
               />
             </>
           )}
@@ -163,6 +156,7 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
           <AuthButton
             label="Continuar"
             onPress={onContinue}
+            disabled={!canContinue}
             icon={<ArrowRightIcon size={17} color="#0a0a0a" />}
             iconPosition="right"
           />
@@ -171,6 +165,65 @@ export const DetailsStep: React.FC<DetailsStepProps> = ({
           </Text>
         </View>
       </ScrollView>
+
+      {/* Category Dropdown Modal */}
+      <Modal
+        visible={showCategoryModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCategoryModal(false)}
+      >
+        <Pressable
+          className="flex-1 justify-end bg-black/60"
+          onPress={() => setShowCategoryModal(false)}
+        >
+          <View className="bg-bg rounded-t-[24px] border-t border-line p-[24px] pb-[34px]">
+            <View className="flex-row justify-between items-center mb-6">
+              <Text className="font-sans-bold text-[18px] text-ink">
+                Selecione a Categoria
+              </Text>
+              <TouchableOpacity
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                onPress={() => setShowCategoryModal(false)}
+              >
+                <Ionicons name="close" size={24} color="#8e8e93" />
+              </TouchableOpacity>
+            </View>
+
+            <View className="gap-[10px]">
+              {CATEGORIES.map((category) => {
+                const isSelected = form.category === category;
+                return (
+                  <TouchableOpacity
+                    key={category}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      onChangeField("category", category);
+                      setShowCategoryModal(false);
+                    }}
+                    className={[
+                      "min-h-[50px] flex-row items-center justify-between rounded-[12px] border px-4",
+                      isSelected ? "border-line2 bg-bg-2" : "border-line bg-bg-2/30",
+                    ].join(" ")}
+                  >
+                    <Text
+                      className={[
+                        "font-sans text-[14px]",
+                        isSelected ? "font-sans-bold text-ink" : "text-ink-dim",
+                      ].join(" ")}
+                    >
+                      {category}
+                    </Text>
+                    {isSelected ? (
+                      <Ionicons name="checkmark" size={18} color="#fafafa" />
+                    ) : null}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };

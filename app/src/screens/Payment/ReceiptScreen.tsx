@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import * as Linking from "expo-linking";
 import { Feather } from "@/icons";
-import { PaymentIntent } from "@type/payment";
+import { PaymentIntent, PaymentResult } from "@type/payment";
 import { useTheme } from "@theme/ThemeProvider";
 import {
   DetailRow,
@@ -27,18 +27,20 @@ import { fonts } from "@theme/tokens";
 
 interface ReceiptScreenProps {
   intent: PaymentIntent;
+  result?: PaymentResult | null;
   onDone: () => void;
 }
 
 export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
   intent,
+  result,
   onDone,
 }) => {
   const { t } = useTheme();
   const { recipient, amount } = intent;
   const amountFormatted = formatPaymentAmount(amount);
 
-  const txHash = useMemo(() => {
+  const fallbackTxHash = useMemo(() => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -47,6 +49,7 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
     }
     return `E0041696820260521${result.substring(0, 24)}`;
   }, []);
+  const txHash = result?.txHash || fallbackTxHash;
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("pt-BR", {
@@ -69,7 +72,7 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
   };
 
   const handleVerify = () => {
-    Linking.openURL(`https://solscan.io/tx/${txHash}`);
+    Linking.openURL(`https://solscan.io/tx/${txHash}?cluster=devnet`);
   };
 
   return (
@@ -108,6 +111,10 @@ export const ReceiptScreen: React.FC<ReceiptScreenProps> = ({
           <SectionTitle>Transação</SectionTitle>
           <DetailRow label="Data" value={dateFormatted} />
           <DetailRow label="Horário" value={timeStr} />
+          <DetailRow label="Status" value={result?.status || "COMPLETED"} />
+          {result?.programStatus ? (
+            <DetailRow label="Rede" value={result.programStatus} />
+          ) : null}
           <View style={styles.txBlock}>
             <Text style={[styles.txLabel, { color: t.inkMute }]}>
               ID da transação

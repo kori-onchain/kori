@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { ProductWideCard } from "@components/merchant/product-cards/ProductWideC
 import { AddProductModal } from "@components/merchant/AddProductModal";
 import { Button } from "@components/layout/Button";
 import { SoftCard } from "@components/layout/SoftCard";
+import { KoraProduct, koraApi, normalizeApiError } from "@/lib/koraApi";
 
 const CATEGORIES = [
   "Tudo",
@@ -38,12 +39,41 @@ const productToCardProps = (p: Product) => ({
   nftLabel: p.nftLabel,
 });
 
+const adaptProduct = (p: KoraProduct): Product => ({
+  id: p.id,
+  name: p.name,
+  description: p.description || "Vendedor",
+  category: (p.category || "Other") as any,
+  price: (p.priceCents ?? 0) / 100,
+  imageUrl:
+    p.imageUrl ||
+    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400",
+  isNft: p.isNft,
+  nftLabel: p.nftLabel === "NFT" || p.nftLabel === "cNFT" ? p.nftLabel : undefined,
+});
+
 export const EcommercePanel: React.FC = () => {
   const { t } = useTheme();
   const [products, setProducts] = useState<Product[]>(mockProducts);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CategoryFilter>("Tudo");
   const [addModalVisible, setAddModalVisible] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    koraApi.merchant
+      .products()
+      .then((items) => {
+        if (mounted) setProducts(items.length ? items.map(adaptProduct) : []);
+      })
+      .catch((err) => {
+        if (mounted) setApiError(normalizeApiError(err).message);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -61,7 +91,26 @@ export const EcommercePanel: React.FC = () => {
     });
   }, [category, query, products]);
 
-  const handleSaveProduct = (newProdData: any) => {
+  const handleSaveProduct = async (newProdData: any) => {
+    const priceCents = Math.round(
+      (parseFloat(newProdData.price.replace(",", ".")) || 0) * 100,
+    );
+    try {
+      const created = await koraApi.merchant.createProduct({
+        name: newProdData.name,
+        description: "Vendedor",
+        category: "Other",
+        priceCents,
+        imageUrl:
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=400",
+      });
+      setProducts((prev) => [adaptProduct(created), ...prev]);
+      setApiError(null);
+      return;
+    } catch (err) {
+      setApiError(normalizeApiError(err).message);
+    }
+
     const newProduct: Product = {
       id: "p_" + Date.now(),
       name: newProdData.name,
@@ -151,7 +200,7 @@ export const EcommercePanel: React.FC = () => {
         <View style={styles.empty}>
           <Feather name="inbox" size={42} color={t.inkFaint} />
           <Text style={[styles.emptyText, { color: t.inkMute }]}>
-            Nenhum produto encontrado.
+            {apiError || "Nenhum produto encontrado."}
           </Text>
         </View>
       ) : (

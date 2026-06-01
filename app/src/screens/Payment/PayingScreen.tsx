@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@/icons";
 import { useTheme } from "@theme/ThemeProvider";
@@ -6,12 +6,19 @@ import { PaymentCard } from "@components/home/modals/PaymentDS";
 import { fonts } from "@theme/tokens";
 
 interface PayingScreenProps {
-  onComplete: () => void;
+  onComplete: (result?: any) => void;
+  onError?: (message: string) => void;
+  paymentTask?: () => Promise<any>;
 }
 
-export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
+export const PayingScreen: React.FC<PayingScreenProps> = ({
+  onComplete,
+  onError,
+  paymentTask,
+}) => {
   const { t } = useTheme();
   const pulse = useRef(new Animated.Value(0)).current;
+  const [message, setMessage] = useState("Confirmando a transacao na Solana.");
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -31,13 +38,39 @@ export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
       ]),
     );
     loop.start();
-    const timer = setTimeout(onComplete, 1800);
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const run = async () => {
+      try {
+        if (paymentTask) {
+          const result = await paymentTask();
+          if (!cancelled) onComplete(result);
+          return;
+        }
+
+        timer = setTimeout(() => {
+          if (!cancelled) onComplete();
+        }, 1800);
+      } catch (error: any) {
+        if (!cancelled) {
+          const nextMessage =
+            error?.message || "Nao foi possivel enviar o pagamento.";
+          setMessage(nextMessage);
+          onError?.(nextMessage);
+        }
+      }
+    };
+
+    run();
 
     return () => {
+      cancelled = true;
       loop.stop();
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     };
-  }, [onComplete, pulse]);
+  }, [onComplete, onError, paymentTask, pulse]);
 
   const scale = pulse.interpolate({
     inputRange: [0, 1],
@@ -61,16 +94,20 @@ export const PayingScreen: React.FC<PayingScreenProps> = ({ onComplete }) => {
             },
           ]}
         />
-        <PaymentCard padding={0} style={[styles.iconCard, { backgroundColor: t.bgElev, borderColor: t.line, borderWidth: 1 }]}>
+        <PaymentCard
+          padding={0}
+          style={[
+            styles.iconCard,
+            { backgroundColor: t.bgElev, borderColor: t.line, borderWidth: 1 },
+          ]}
+        >
           <View style={styles.iconCenter}>
             <Feather name="send" size={28} color={t.ink} />
           </View>
         </PaymentCard>
       </View>
       <Text style={[styles.title, { color: t.ink }]}>Enviando pagamento</Text>
-      <Text style={[styles.subtitle, { color: t.inkDim }]}>
-        Confirmando a transação na Solana.
-      </Text>
+      <Text style={[styles.subtitle, { color: t.inkDim }]}>{message}</Text>
     </View>
   );
 };
@@ -115,5 +152,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontFamily: fonts.sans.medium,
     fontSize: 13,
+    textAlign: "center",
   },
 });

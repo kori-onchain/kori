@@ -5,6 +5,8 @@ import { useContacts } from "@hooks/useContacts";
 import { useModals } from "@hooks/useModals";
 import { useCards } from "@hooks/useCards";
 import { useTransactions } from "@hooks/useTransactions";
+import { useAccountSwitcher } from "./useAccountSwitcher";
+import { KoraCurrency, KoraLedgerAccount, koraApi, normalizeApiError } from "@/lib/koraApi";
 
 interface UseHomeLogicParams {
   username?: string;
@@ -14,9 +16,23 @@ interface UseHomeLogicParams {
 export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
   const { contacts, addContact } = useContacts();
   const { modals, open, close } = useModals();
-  const { cards, toggleFreeze } = useCards();
+  const {
+    cards,
+    currentInvoice,
+    currentInvoices,
+    cardsLoading,
+    cardsError,
+    onchainStatus,
+    toggleFreeze,
+    toggleOnline,
+    updateLimit,
+    regenerateVirtual,
+    payCurrentInvoice,
+  } = useCards();
   const { transactions, addTransaction } = useTransactions();
-  const [balanceValue, setBalanceValue] = useState(74352.93);
+  const { activeWallet } = useAccountSwitcher(accountType);
+  const [balanceValue, setBalanceValue] = useState(0);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState("inicio");
   const [sendIntent, setSendIntent] = useState<Partial<PaymentIntent>>({});
@@ -56,6 +72,60 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
       subscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const wantedType = accountType === "PJ" ? "MERCHANT_BALANCE" : "USER_BALANCE";
+    const usdcBrlRate = Number(process.env.EXPO_PUBLIC_USDC_BRL_RATE || 5);
+
+    const toBrlCents = (account: KoraLedgerAccount) => {
+      const rates: Partial<Record<KoraCurrency, number>> = {
+        BRL: 1,
+        USDC: usdcBrlRate,
+        USD: Number(process.env.EXPO_PUBLIC_USD_BRL_RATE || process.env.EXPO_PUBLIC_USDC_BRL_RATE || 5),
+        EUR: Number(process.env.EXPO_PUBLIC_EUR_BRL_RATE || 5.4),
+        SOL: Number(process.env.EXPO_PUBLIC_SOL_BRL_RATE || 0),
+      };
+      return Math.round(account.balanceCents * (rates[account.currency] ?? 0));
+    };
+
+    const loadLedgerBalance = async () => {
+      const accounts = await koraApi.ledger.entries();
+      const visibleAccounts = accounts.filter((account) => account.type === wantedType);
+      const fallbackAccounts = accounts.filter((account) =>
+        account.type === "USER_BALANCE" || account.type === "MERCHANT_BALANCE",
+      );
+      const source = visibleAccounts.length ? visibleAccounts : fallbackAccounts;
+      return source.reduce((sum, account) => sum + toBrlCents(account), 0);
+    };
+
+    const loadBalance = async () => {
+      try {
+        const totalBrlCents = await loadLedgerBalance();
+
+        if (mounted) {
+          setBalanceValue(totalBrlCents / 100);
+          setBalanceError(null);
+        }
+      } catch (err) {
+        try {
+          const totalBrlCents = await loadLedgerBalance();
+          if (mounted) {
+            setBalanceValue(totalBrlCents / 100);
+            setBalanceError(normalizeApiError(err).message);
+          }
+        } catch (fallbackErr) {
+          if (mounted) setBalanceError(normalizeApiError(fallbackErr).message);
+        }
+      }
+    };
+
+    loadBalance();
+
+    return () => {
+      mounted = false;
+    };
+  }, [accountType]);
 
   const handleSelectIdentity = (nextId: "userId" | "wallet") => {
     if (nextId === identity) return;
@@ -117,8 +187,10 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     open("sendPayment");
   };
 
-  const walletHashFull = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
-  const walletHashShort = "7nxB...4X1a";
+  const walletHashFull = activeWallet?.address || "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a";
+  const walletHashShort = activeWallet?.address
+    ? `${activeWallet.address.slice(0, 4)}...${activeWallet.address.slice(-4)}`
+    : "7nxB...4X1a";
   const userHandle = username ? `@${username}` : "@opedrooz";
   const formattedBalance = balanceValue.toLocaleString("pt-BR", {
     style: "currency",
@@ -127,6 +199,20 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
   });
   const [balanceInteger = "R$ 0", balanceDecimals = ",00"] =
     formattedBalance.split(",");
+
+  const handleInvoicePaid = async (invoiceId?: string) => {
+    const payment = await payCurrentInvoice(invoiceId);
+    const amountCents =
+      payment && "amountCents" in payment ? payment.amountCents : undefined;
+    if (amountCents) {
+      setBalanceValue((prev) => prev - amountCents / 100);
+    }
+    return payment;
+  };
+
+  const handleInvestmentDebited = (amountCents: number) => {
+    setBalanceValue((prev) => prev - amountCents / 100);
+  };
 
   const handleAdvanceCredited = ({
     amount,
@@ -156,7 +242,16 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     open,
     close,
     cards,
+    currentInvoice,
+    currentInvoices,
+    cardsLoading,
+    cardsError,
+    onchainStatus,
     toggleFreeze,
+    toggleOnline,
+    updateLimit,
+    regenerateVirtual,
+    payCurrentInvoice: handleInvoicePaid,
     transactions,
     activeTab,
     setActiveTab,
@@ -178,6 +273,8 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     userHandle,
     balanceInteger,
     balanceDecimals: `,${balanceDecimals}`,
+    balanceError,
+    handleInvestmentDebited,
     handleAdvanceCredited,
   };
 };

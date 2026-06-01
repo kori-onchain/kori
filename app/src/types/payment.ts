@@ -23,6 +23,15 @@ export interface PaymentIntent {
   cardId?: string;
 }
 
+export interface PaymentResult {
+  id: string;
+  status: string;
+  txHash?: string | null;
+  recipientType?: string;
+  recipientId?: string;
+  programStatus?: string | null;
+}
+
 export type PaymentScreen =
   | 'scan'
   | 'manual'

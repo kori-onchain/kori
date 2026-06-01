@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { fonts, radii } from "@theme/tokens";
 import { useTheme } from "@theme/ThemeProvider";
 import { mockSales, Sale } from "@/data/merchant";
 import { SoftCard } from "@components/layout/SoftCard";
+import { KoraSale, koraApi } from "@/lib/koraApi";
 
 interface RecentSalesProps {
   onSeeAll?: () => void;
@@ -51,9 +52,38 @@ const Row: React.FC<{ item: Sale; isLast: boolean }> = ({ item, isLast }) => {
   );
 };
 
+const adaptSale = (sale: KoraSale): Sale => ({
+  id: sale.id,
+  buyerName: sale.buyerName,
+  amount: (sale.amountCents ?? 0) / 100,
+  items:
+    sale.items?.map((item) => ({
+      productId: item.product?.id || item.id,
+      name: item.product?.name || "Produto",
+      qty: item.qty,
+      price: (item.priceCents ?? 0) / 100,
+    })) || [],
+  createdAt: sale.createdAt,
+});
+
 export const RecentSales: React.FC<RecentSalesProps> = ({ onSeeAll }) => {
   const { t } = useTheme();
-  const items = mockSales;
+  const [items, setItems] = useState<Sale[]>(mockSales);
+
+  useEffect(() => {
+    let mounted = true;
+    koraApi.merchant
+      .sales()
+      .then((sales) => {
+        if (mounted) setItems(sales.length ? sales.map(adaptSale) : []);
+      })
+      .catch(() => {
+        if (mounted) setItems((prev) => (prev.length ? prev : mockSales));
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <View style={styles.wrapper}>

@@ -397,8 +397,8 @@ export const ManualEntryScreen: React.FC<ManualEntryScreenProps> = ({
           data={filteredContacts}
           keyExtractor={(item) => item.id}
           renderItem={renderContactItem}
-          ListHeaderComponent={renderHeader}
-          ListEmptyComponent={renderEmptyComponent}
+          ListHeaderComponent={renderHeader()}
+          ListEmptyComponent={renderEmptyComponent()}
           contentContainerStyle={styles.listContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}

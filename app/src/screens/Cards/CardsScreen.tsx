@@ -7,7 +7,16 @@ interface CardsScreenProps {
   userName?: string;
   cardsState: {
     cards: any[];
-    toggleFreeze: (id: string) => void;
+    currentInvoice?: any;
+    currentInvoices?: any[];
+    cardsLoading?: boolean;
+    cardsError?: string | null;
+    onchainStatus?: string;
+    toggleFreeze: (id: string) => void | Promise<void>;
+    toggleOnline?: (id: string) => void | Promise<void>;
+    updateLimit?: (id: string, newLimit: number) => void | Promise<void>;
+    regenerateVirtual?: (id: string) => void | Promise<void>;
+    payCurrentInvoice?: (invoiceId?: string) => Promise<any>;
   };
   headerProps: any;
 }

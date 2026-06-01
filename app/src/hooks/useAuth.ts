@@ -1,31 +1,27 @@
-import { useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
-import { MOCK_AUTH } from "@constants/devConfig";
+import { usePrivy } from "@privy-io/expo";
 
 export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(!MOCK_AUTH);
+  const { user, isReady, logout } = usePrivy();
 
-  useEffect(() => {
-    if (MOCK_AUTH) {
-      setLoading(false);
-      return;
-    }
+  const linkedAccounts = (user?.linked_accounts as any[]) || [];
+  const emailAccount = linkedAccounts.find(
+    (a) => a.type === "email" || a.type === "google_oauth" || a.type === "apple_oauth"
+  );
+  const email = emailAccount?.email ?? emailAccount?.address ?? "";
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+  const session = user
+    ? {
+        user: {
+          id: user.id,
+          email: email,
+        },
+      }
+    : null;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) =>
-      setSession(session),
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return { session, user: session?.user ?? null, loading };
+  return {
+    session,
+    loading: !isReady,
+    isAuthenticated: !!user,
+    logout,
+  };
 }

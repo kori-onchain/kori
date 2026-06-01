@@ -3,39 +3,31 @@ import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import { useTheme } from "@theme/ThemeProvider";
 import { useAuthLogic } from "@hooks/useAuthLogic";
 import { WelcomeStep } from "@components/auth/steps/WelcomeStep";
-import { LoginStep } from "@components/auth/steps/LoginStep";
-import { PinLoginStep } from "@components/auth/steps/PinLoginStep";
+import { EmailStep } from "@components/auth/steps/EmailStep";
+import { OtpStep } from "@components/auth/steps/OtpStep";
 import { AccountTypeStep } from "@components/auth/steps/AccountTypeStep";
 import { DetailsStep } from "@components/auth/steps/DetailsStep";
 import { WalletStep } from "@components/auth/steps/WalletStep";
-import { ConfirmEmailStep } from "@components/auth/steps/ConfirmEmailStep";
 import { AuthUserData } from "@type/auth";
-import { RETURNING_USER } from "@constants/authConstants";
-import { hasPin } from "@/lib/pinService";
-import { getSession } from "@/lib/authService";
-import { MOCK_AUTH } from "@constants/devConfig";
 
 interface AuthScreenProps {
   onAuthSuccess: (userData: AuthUserData, isSignup: boolean) => void;
+  initialAccountType?: "PF" | "PJ";
+  initialStage?: "welcome" | "email" | "otp" | "accountType" | "details" | "wallet";
+  existingPrivyUser?: { id: string; email: string } | null;
+  onCancel?: () => void;
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> & {
   Container: React.FC<{ children: React.ReactNode; bg: string; barStyle: any }>;
-} = ({ onAuthSuccess }) => {
+} = ({
+  onAuthSuccess,
+  initialAccountType,
+  initialStage,
+  existingPrivyUser,
+  onCancel,
+}) => {
   const { t } = useTheme();
-  const [hasSavedPin, setHasSavedPin] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const pinExists = await hasPin();
-      if (MOCK_AUTH) {
-        setHasSavedPin(pinExists);
-        return;
-      }
-      const { data } = await getSession();
-      setHasSavedPin(pinExists && !!data.session);
-    })();
-  }, []);
 
   const {
     stage,
@@ -45,64 +37,61 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
     focusedField,
     setFocusedField,
     error,
-    pin,
     walletStep,
     loadingWallet,
-    loadingLogin,
-    loadingResendEmail,
-    startSignup,
-    startLogin,
+    loadingOAuth,
+    otpState,
+    usernameAvailability,
+    usernamePlaceholder,
     handleBack,
     handleChangeField,
+    handleSendOtp,
+    handleVerifyOtp,
+    handleOAuthLogin,
     handleCreateAccount,
-    handleLogin,
-    handleResendConfirmationEmail,
-    handlePinDigit,
-    setPin,
     setStage,
     activeUsername,
-  } = useAuthLogic({ onAuthSuccess });
+  } = useAuthLogic({
+    onAuthSuccess,
+    initialAccountType,
+    initialStage,
+    existingPrivyUser,
+    onCancel,
+  });
 
   return (
     <AuthScreen.Container bg={t.bg} barStyle={t.statusBar}>
       {stage === "welcome" && (
         <WelcomeStep
-          onSignupWithEmail={() => startSignup()}
-          onPinLogin={() => {
-            if (hasSavedPin) {
-              setStage("pin");
-            } else {
-              startLogin();
-            }
-          }}
+          onSignupWithEmail={() => setStage("email")}
+          onGoogleLogin={() => handleOAuthLogin("google")}
+          onAppleLogin={() => handleOAuthLogin("apple")}
+          loadingOAuth={loadingOAuth}
         />
       )}
 
-      {stage === "login" && (
-        <LoginStep
+      {stage === "email" && (
+        <EmailStep
           form={form}
           focusedField={focusedField}
           error={error}
-          loading={loadingLogin}
+          loading={otpState.status === "sending-code"}
           onBack={handleBack}
           onFocusField={setFocusedField}
           onChangeField={handleChangeField}
-          onLogin={handleLogin}
-          onCreateAccount={() => startSignup()}
+          onSend={handleSendOtp}
+          onCreateAccount={handleSendOtp}
         />
       )}
 
-      {stage === "pin" && (
-        <PinLoginStep
-          user={RETURNING_USER}
-          pin={pin}
-          onDigit={handlePinDigit}
-          onDelete={() => setPin((prev) => prev.slice(0, -1))}
+      {stage === "otp" && (
+        <OtpStep
+          email={form.email}
+          error={error}
+          loading={otpState.status === "submitting-code"}
           onBack={handleBack}
-          onSwitchAccount={() => {
-            setPin([]);
-            startLogin();
-          }}
+          onVerify={handleVerifyOtp}
+          onResend={handleSendOtp}
         />
       )}
 
@@ -123,6 +112,9 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
           form={form}
           focusedField={focusedField}
           error={error}
+          usernameAvailability={usernameAvailability}
+          usernamePlaceholder={usernamePlaceholder}
+          canContinue={usernameAvailability === "available"}
           onBack={handleBack}
           onFocusField={setFocusedField}
           onChangeField={handleChangeField}
@@ -135,19 +127,6 @@ export const AuthScreen: React.FC<AuthScreenProps> & {
           username={activeUsername}
           walletStep={walletStep}
           loading={loadingWallet}
-        />
-      )}
-
-      {stage === "confirmEmail" && (
-        <ConfirmEmailStep
-          email={form.email.trim().toLowerCase()}
-          error={error}
-          loading={loadingResendEmail}
-          onBack={handleBack}
-          onResend={handleResendConfirmationEmail}
-          onLogin={() => {
-            setStage("login");
-          }}
         />
       )}
     </AuthScreen.Container>

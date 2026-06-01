@@ -31,36 +31,39 @@ interface HeaderProps {
   userHandle?: string;
   walletHashFull?: string;
   walletHashShort?: string;
+  accounts?: any[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
   userName = "Pedro Henrique",
   accountType = "PF",
   onSwitchAccount,
+  onAddAccount,
   onProfilePress,
   identity = "userId",
   onSelectIdentity,
   userHandle = "@opedrooz",
   walletHashFull = "7nxB2xT8aYqP9mZ1cR5vW4kL3jH6fD9gS8xV1nC4X1a",
   walletHashShort = "7nxB...4X1a",
+  accounts = [],
 }) => {
   const { t } = useTheme();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
-  const baseName = userName
-    .replace(" PJ", "")
-    .replace(" PF", "")
-    .replace(" Store", "")
-    .replace(" Business", "")
-    .replace(" Personal", "")
-    .trim();
-  const personalFirstName = baseName.split(" ")[0];
-  const businessShortName = `${personalFirstName} Store`;
+  const pfAccount = accounts.find((a: any) => a.accountType === "PF");
+  const pjAccount = accounts.find((a: any) => a.accountType === "PJ");
 
-  const initials = userName
-    ? userName
+  const personalDisplayName = pfAccount?.name || userName.split(" ")[0];
+  const businessDisplayName =
+    pjAccount?.store?.name ||
+    pjAccount?.businessName ||
+    pjAccount?.name ||
+    "Adicionar conta";
+
+  const initials = personalDisplayName
+    ? personalDisplayName
         .split(" ")
-        .map((n) => n[0])
+        .map((n: string) => n[0])
         .slice(0, 2)
         .join("")
         .toUpperCase()
@@ -154,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
               ]}
               numberOfLines={1}
             >
-              {personalFirstName}
+              {personalDisplayName}
             </Text>
             {accountType === "PF" && (
               <ChevronRightIcon size={12} color={t.orange} />
@@ -165,33 +168,43 @@ export const Header: React.FC<HeaderProps> = ({
           <TouchableOpacity
             style={[
               styles.row,
-              accountType === "PJ" && { backgroundColor: t.bgElev },
+              pjAccount && accountType === "PJ" && { backgroundColor: t.bgElev },
             ]}
             onPress={() => {
-              if (accountType !== "PJ") onSwitchAccount?.("PJ");
+              if (pjAccount) {
+                if (accountType !== "PJ") onSwitchAccount?.("PJ");
+              } else {
+                onAddAccount?.();
+              }
               setIsProfileDropdownOpen(false);
             }}
             activeOpacity={0.8}
           >
-            {/* Ícone customizado para PJ com o gradiente laranja */}
-            <View style={[styles.rowIcon, { borderWidth: 0, overflow: "hidden" }]}>
-              <LinearGradient
-                colors={[t.orangeDark, t.orange]}
-                style={StyleSheet.absoluteFillObject}
-              />
-              <SolanaIcon size={11} color={t.ink} />
+            {/* Ícone customizado para PJ */}
+            <View style={[styles.rowIcon, !pjAccount ? { backgroundColor: t.bgElev, borderColor: t.line } : { borderWidth: 0, overflow: "hidden" }]}>
+              {pjAccount ? (
+                <>
+                  <LinearGradient
+                    colors={[t.orangeDark, t.orange]}
+                    style={StyleSheet.absoluteFillObject}
+                  />
+                  <SolanaIcon size={11} color={t.ink} />
+                </>
+              ) : (
+                <Text style={[styles.dropdownInitials, { color: t.inkDim, fontSize: 13, fontFamily: fonts.sans.bold }]}>+</Text>
+              )}
             </View>
             <Text
               style={[
                 styles.rowText,
-                { color: accountType === "PJ" ? t.ink : t.inkDim },
-                accountType === "PJ" && styles.rowTextActive,
+                { color: pjAccount && accountType === "PJ" ? t.ink : t.inkDim },
+                pjAccount && accountType === "PJ" && styles.rowTextActive,
               ]}
               numberOfLines={1}
             >
-              {businessShortName}
+              {businessDisplayName}
             </Text>
-            {accountType === "PJ" && (
+            {pjAccount && accountType === "PJ" && (
               <ChevronRightIcon size={12} color={t.orange} />
             )}
           </TouchableOpacity>
