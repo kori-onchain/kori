@@ -166,8 +166,13 @@
 }
 .dm-appbody {
   flex: 1;
-  overflow: hidden;
-  padding: 6px 15px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 15px 10px;
+  scrollbar-width: none;
+}
+.dm-appbody::-webkit-scrollbar {
+  display: none;
 }
 .dm-appbody.swap {
   animation: dm-swap 0.32s;
@@ -700,4 +705,148 @@
   color: var(--dm-muted);
   margin-top: 16px;
   letter-spacing: 0.02em;
+}
+.dm-tip-btn {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.2s var(--ease, ease);
+}
+.dm-tip-btn:hover {
+  color: var(--ac);
+}
+
+/* ===== botão de entrada do fluxo (na landing) ===== */
+.dm-flow-launch {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(28px, 4vw, 44px);
+}
+.dm-flow-cta {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 26px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--ac) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ac) 35%, transparent);
+  color: var(--dm-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.dm-flow-cta:hover {
+  background: color-mix(in srgb, var(--ac) 20%, transparent);
+}
+.dm-flow-cta .play {
+  display: none;
+}
+.dm-flow-cta .hint {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--dm-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ===== modo fluxo (dentro do modal) ===== */
+.dm-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.dm-flow-tag {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--ac) 16%, transparent);
+  color: var(--ac);
+}
+.dm-flowbig {
+  animation: dm-flash 0.6s var(--ease, ease);
+}
+@keyframes dm-flash {
+  0% {
+    color: var(--ac);
+    transform: scale(1.04);
+  }
+  100% {
+    color: var(--dm-ink);
+    transform: none;
+  }
+}
+.dm-flow-confirm {
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ac);
+  background: color-mix(in srgb, var(--ac) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ac) 28%, transparent);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.dm-flow-done {
+  margin-top: 14px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--dm-muted);
+  text-align: center;
+}
+.dm-flow-guide {
+  width: min(320px, 86vw);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.dm-flow-step {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--dm-muted);
+}
+.dm-flow-step b {
+  color: var(--dm-ink);
+}
+.dm-flow-instr {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--dm-ink);
+}
+.dm-flow-dots {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+.dm-flow-dots i {
+  width: 18px;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: 0.3s;
+}
+.dm-flow-dots i.on {
+  background: var(--ac);
+}
+.dm-flow-exit {
+  margin-top: 4px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--dm-muted);
+  transition: color 0.2s var(--ease, ease);
+}
+.dm-flow-exit:hover {
+  color: var(--dm-ink);
 }

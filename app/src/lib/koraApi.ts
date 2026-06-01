@@ -1,4 +1,6 @@
 import { apiClient, ApiClientError } from "./apiClient";
+import { MOCK_DEMO } from "@/constants/devConfig";
+import { mockDemoLedger } from "./mockDemoLedger";
 
 export type KoraCurrency = "BRL" | "USD" | "EUR" | "USDC" | "SOL";
 
@@ -46,6 +48,8 @@ export type KoraInvoice = {
     description: string;
     amountCents: number;
     createdAt?: string;
+    installmentsCount?: number;
+    logo?: string;
   }>;
 };
 
@@ -306,27 +310,48 @@ export const formatCents = (cents?: number, currency: KoraCurrency = "BRL") =>
 
 export const koraApi = {
   auth: {
-    accounts: () => apiClient.get<KoraAccount[]>("/auth/accounts"),
+    accounts: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.accounts()) : apiClient.get<KoraAccount[]>("/auth/accounts"),
   },
   cards: {
-    list: () => apiClient.get<KoraCard[]>("/cards"),
-    create: (body: Partial<KoraCard>) => apiClient.post<KoraCard>("/cards", body),
-    get: (id: string) => apiClient.get<KoraCard>(`/cards/${id}`),
-    details: (id: string) => apiClient.get<KoraCard>(`/cards/${id}/details`),
+    list: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.cardsList()) : apiClient.get<KoraCard[]>("/cards"),
+    create: (body: Partial<KoraCard>) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.card()) : apiClient.post<KoraCard>("/cards", body),
+    get: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.card()) : apiClient.get<KoraCard>(`/cards/${id}`),
+    details: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.card()) : apiClient.get<KoraCard>(`/cards/${id}/details`),
     freeze: (id: string, isFrozen: boolean) =>
-      apiClient.patch<KoraCard>(`/cards/${id}/freeze`, { isFrozen }),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.freezeCard(isFrozen))
+        : apiClient.patch<KoraCard>(`/cards/${id}/freeze`, { isFrozen }),
     online: (id: string, isOnlineEnabled: boolean) =>
-      apiClient.patch<KoraCard>(`/cards/${id}/online`, { isOnlineEnabled }),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.onlineCard(isOnlineEnabled))
+        : apiClient.patch<KoraCard>(`/cards/${id}/online`, { isOnlineEnabled }),
     limit: (id: string, limitTotalCents: number) =>
-      apiClient.patch<KoraCard>(`/cards/${id}/limit`, { limitTotalCents }),
-    regenerate: (id: string) => apiClient.post<KoraCard>(`/cards/${id}/regenerate`),
-    remove: (id: string) => apiClient.delete<void>(`/cards/${id}`),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.limitCard(limitTotalCents))
+        : apiClient.patch<KoraCard>(`/cards/${id}/limit`, { limitTotalCents }),
+    regenerate: (id: string) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.regenerateCard())
+        : apiClient.post<KoraCard>(`/cards/${id}/regenerate`),
+    remove: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(undefined as void) : apiClient.delete<void>(`/cards/${id}`),
   },
   invoices: {
-    list: () => apiClient.get<KoraInvoice[]>("/invoices"),
-    current: () => apiClient.get<KoraInvoice | KoraInvoice[] | null>("/invoices/current"),
-    get: (id: string) => apiClient.get<KoraInvoice>(`/invoices/${id}`),
-    pay: (id: string) => apiClient.post<KoraPayment>(`/invoices/${id}/pay`),
+    list: () =>
+      MOCK_DEMO ? Promise.resolve([mockDemoLedger.invoiceCurrent()]) : apiClient.get<KoraInvoice[]>("/invoices"),
+    current: () =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.invoiceCurrent())
+        : apiClient.get<KoraInvoice | KoraInvoice[] | null>("/invoices/current"),
+    get: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.invoiceCurrent()) : apiClient.get<KoraInvoice>(`/invoices/${id}`),
+    pay: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.payInvoice()) : apiClient.post<KoraPayment>(`/invoices/${id}/pay`),
   },
   payments: {
     transfer: (body: {
@@ -336,7 +361,10 @@ export const koraApi = {
       recipientId: string;
       txHash?: string;
       programStatus?: string;
-    }) => apiClient.post<KoraPayment>("/payments/transfer", body),
+    }) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.sendPayment(body.amountCents, body.recipientType, body.recipientId))
+        : apiClient.post<KoraPayment>("/payments/transfer", body),
     solanaIntent: (body: {
       recipientType: "username" | "wallet";
       recipient: string;
@@ -356,13 +384,18 @@ export const koraApi = {
       >("/payments/solana/intent", body),
     solanaSubmit: (body: { paymentId: string; signedTransaction: string }) =>
       apiClient.post<KoraPayment>("/payments/solana/submit", body),
-    get: (id: string) => apiClient.get<KoraPayment>(`/payments/${id}`),
+    get: (id: string) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.getPayment(id)) : apiClient.get<KoraPayment>(`/payments/${id}`),
   },
   ledger: {
-    entries: () => apiClient.get<KoraLedgerAccount[]>("/ledger/entries"),
+    entries: () =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.ledgerEntries())
+        : apiClient.get<KoraLedgerAccount[]>("/ledger/entries"),
   },
   merchant: {
-    products: () => apiClient.get<KoraProduct[]>("/merchant/products"),
+    products: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.products()) : apiClient.get<KoraProduct[]>("/merchant/products"),
     createProduct: (body: {
       name: string;
       description?: string;
@@ -371,12 +404,22 @@ export const koraApi = {
       imageUrl?: string;
       isNft?: boolean;
       nftLabel?: string;
-    }) => apiClient.post<KoraProduct>("/merchant/products", body),
+    }) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.createProduct(body))
+        : apiClient.post<KoraProduct>("/merchant/products", body),
     updateProduct: (id: string, body: Partial<KoraProduct>) =>
-      apiClient.patch<KoraProduct>(`/merchant/products/${id}`, body),
-    deleteProduct: (id: string) => apiClient.delete<void>(`/merchant/products/${id}`),
-    sales: () => apiClient.get<KoraSale[]>("/merchant/sales"),
-    createSale: (body: unknown) => apiClient.post<KoraSale>("/merchant/sales", body),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.updateProduct(id, body))
+        : apiClient.patch<KoraProduct>(`/merchant/products/${id}`, body),
+    deleteProduct: (id: string) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.deleteProduct(id))
+        : apiClient.delete<void>(`/merchant/products/${id}`),
+    sales: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.sales()) : apiClient.get<KoraSale[]>("/merchant/sales"),
+    createSale: (body: unknown) =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.sales()[0] ?? ({} as KoraSale)) : apiClient.post<KoraSale>("/merchant/sales", body),
     createMockCardPayment: (body: {
       amountCents: number;
       installmentsCount: number;
@@ -384,25 +427,44 @@ export const koraApi = {
       productId?: string;
       productName?: string;
       buyerName?: string;
-    }) => apiClient.post<KoraMockCardPayment>("/merchant/card-payments/mock", body),
+    }) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.createMockCardPayment(body))
+        : apiClient.post<KoraMockCardPayment>("/merchant/card-payments/mock", body),
   },
   receivables: {
-    list: () => apiClient.get<KoraReceivable[]>("/receivables"),
+    list: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.receivablesList()) : apiClient.get<KoraReceivable[]>("/receivables"),
     advance: (id: string, provider: "KORI" | "POOL" | "P2P" = "POOL") =>
-      apiClient.post<KoraReceivableAdvance>(`/receivables/${id}/advance`, { provider }),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.advanceReceivable(id, provider))
+        : apiClient.post<KoraReceivableAdvance>(`/receivables/${id}/advance`, { provider }),
     getAdvance: (id: string) =>
-      apiClient.get<KoraReceivableAdvance>(`/receivables/advances/${id}`),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.getAdvance(id))
+        : apiClient.get<KoraReceivableAdvance>(`/receivables/advances/${id}`),
   },
   credit: {
-    profile: () => apiClient.get<any>("/credit/profile"),
-    score: () => apiClient.get<any>("/credit/score"),
+    profile: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.creditProfile()) : apiClient.get<any>("/credit/profile"),
+    score: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.creditScore()) : apiClient.get<any>("/credit/score"),
     setLimit: (limitTotalCents: number) =>
-      apiClient.put("/credit/profile/limit", { limitTotalCents }),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.limitCard(limitTotalCents))
+        : apiClient.put("/credit/profile/limit", { limitTotalCents }),
   },
   investments: {
-    pool: () => apiClient.get<KoraInvestmentPool>("/investments/pool"),
+    pool: () =>
+      MOCK_DEMO ? Promise.resolve(mockDemoLedger.pool()) : apiClient.get<KoraInvestmentPool>("/investments/pool"),
     invest: (amountCents: number) =>
-      apiClient.post<KoraInvestmentOrder>("/investments/pool/invest", { amountCents }),
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.investPool(amountCents))
+        : apiClient.post<KoraInvestmentOrder>("/investments/pool/invest", { amountCents }),
+    redeem: (amountCents: number) =>
+      MOCK_DEMO
+        ? Promise.resolve(mockDemoLedger.redeemPool(amountCents))
+        : apiClient.post<KoraInvestmentOrder>("/investments/pool/redeem", { amountCents }),
   },
   onchain: {
     programStatus: () => apiClient.get<OnchainStatus>("/onchain/programs/status"),

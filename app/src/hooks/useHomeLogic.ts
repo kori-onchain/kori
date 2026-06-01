@@ -28,6 +28,7 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     updateLimit,
     regenerateVirtual,
     payCurrentInvoice,
+    refreshCards,
   } = useCards();
   const { transactions, addTransaction } = useTransactions();
   const { activeWallet } = useAccountSwitcher(accountType);
@@ -52,6 +53,17 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
       setIdentity("userId");
     }
   }, [accountType]);
+
+  // Re-busca cartão + fatura ao trocar de conta ou abrir a aba Cartão. Sem isso,
+  // uma cobrança feita na Loja (PJ) não apareceria no limite/fatura da conta PF,
+  // porque a HomeScreen não remonta na troca de conta.
+  useEffect(() => {
+    refreshCards();
+  }, [accountType, refreshCards]);
+
+  useEffect(() => {
+    if (activeTab === "cartao") refreshCards();
+  }, [activeTab, refreshCards]);
 
   useEffect(() => {
     let mounted = true;
@@ -214,6 +226,10 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     setBalanceValue((prev) => prev - amountCents / 100);
   };
 
+  const handleInvestmentRedeemed = (amountCents: number) => {
+    setBalanceValue((prev) => prev + amountCents / 100);
+  };
+
   const handleAdvanceCredited = ({
     amount,
     formattedAmount,
@@ -275,6 +291,7 @@ export const useHomeLogic = ({ username, accountType }: UseHomeLogicParams) => {
     balanceDecimals: `,${balanceDecimals}`,
     balanceError,
     handleInvestmentDebited,
+    handleInvestmentRedeemed,
     handleAdvanceCredited,
   };
 };

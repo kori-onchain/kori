@@ -2,6 +2,8 @@ import { Buffer } from "buffer";
 import { koraApi } from "./koraApi";
 import { PaymentIntent } from "@type/payment";
 import { signSerializedTransactionWithPrivy } from "./privySolanaSigner";
+import { MOCK_DEMO } from "@/constants/devConfig";
+import { mockDemoLedger } from "./mockDemoLedger";
 
 export const moneyToBrlCents = (value?: string) => {
   const parsed = Number.parseFloat((value || "0").replace(/\./g, "").replace(",", "."));
@@ -16,6 +18,17 @@ export async function executeSolanaPayment(params: {
 }) {
   const { intent, walletState, walletIndex } = params;
   const recipient = intent.recipient;
+
+  // DEMO MODE: resolve o pagamento localmente (sem carteira Privy), debitando o
+  // saldo PF e devolvendo um comprovante com txHash (link solscan na tela).
+  if (MOCK_DEMO) {
+    const recipientType = recipient.type === "wallet" ? "wallet" : "username";
+    const recipientId =
+      recipient.type === "wallet"
+        ? recipient.walletAddress || ""
+        : (recipient.userId || recipient.displayName || "").replace(/^@/, "");
+    return mockDemoLedger.sendPayment(moneyToBrlCents(intent.amount), recipientType, recipientId);
+  }
 
   if (recipient.type === "pix") {
     throw new Error("Pix permanece indisponivel nesta etapa.");

@@ -24,7 +24,8 @@ import { Feather } from "@/icons";
 
 export const InvestmentsPanel: React.FC<{
   onInvested?: (amountCents: number) => void;
-}> = ({ onInvested }) => {
+  onRedeemed?: (amountCents: number) => void;
+}> = ({ onInvested, onRedeemed }) => {
   const { t } = useTheme();
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [pool, setPool] = useState<KoraInvestmentPool | null>(null);
@@ -32,7 +33,13 @@ export const InvestmentsPanel: React.FC<{
   const [investAmount, setInvestAmount] = useState("");
   const [investing, setInvesting] = useState(false);
   const [investError, setInvestError] = useState<string | null>(null);
+  const [redeemVisible, setRedeemVisible] = useState(false);
+  const [redeemAmount, setRedeemAmount] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
   const entering = useFadeUp();
+
+  const positionCents = (pool?.userInvestedCents ?? 0) + (pool?.userYieldCents ?? 0);
 
   const refreshPool = React.useCallback(() => {
     let mounted = true;
@@ -72,6 +79,33 @@ export const InvestmentsPanel: React.FC<{
     }
   };
 
+  const confirmRedeem = async () => {
+    const amountCents = koraApi.money.centsFromMoney(redeemAmount);
+    if (amountCents <= 0) {
+      setRedeemError("Digite um valor para resgatar.");
+      return;
+    }
+    if (amountCents > positionCents) {
+      setRedeemError(
+        `Você só tem ${koraApi.money.formatCents(positionCents)} para resgatar.`,
+      );
+      return;
+    }
+    setRedeeming(true);
+    setRedeemError(null);
+    try {
+      const result = await koraApi.investments.redeem(amountCents);
+      setPool(result.pool);
+      onRedeemed?.(result.amountCents);
+      setRedeemAmount("");
+      setRedeemVisible(false);
+    } catch (err: any) {
+      setRedeemError(err?.message || "Nao foi possivel resgatar agora.");
+    } finally {
+      setRedeeming(false);
+    }
+  };
+
   return (
     <ScrollView
       style={{ backgroundColor: t.bg }}
@@ -80,11 +114,19 @@ export const InvestmentsPanel: React.FC<{
       contentContainerStyle={[styles.container, { backgroundColor: t.bg }]}
     >
       <Animated.View entering={entering(60)} style={{ paddingHorizontal: 20 }}>
-        <EarningSummary pool={pool} onInvestPress={() => setInvestVisible(true)} />
+        <EarningSummary
+          pool={pool}
+          onInvestPress={() => setInvestVisible(true)}
+          onRedeemPress={() => {
+            setRedeemError(null);
+            setRedeemAmount("");
+            setRedeemVisible(true);
+          }}
+        />
       </Animated.View>
 
       <Animated.View entering={entering(120)}>
-        <EvolutionChart setScrollEnabled={setScrollEnabled} />
+        <EvolutionChart setScrollEnabled={setScrollEnabled} pool={pool} />
       </Animated.View>
 
       <View style={{ paddingHorizontal: 20 }}>
@@ -148,6 +190,65 @@ export const InvestmentsPanel: React.FC<{
           </View>
         </View>
       </Modal>
+
+      <Modal
+        visible={redeemVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setRedeemVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => !redeeming && setRedeemVisible(false)}
+          />
+          <View style={[styles.sheet, { backgroundColor: t.bg, borderColor: t.line }]}>
+            <View style={styles.sheetHeader}>
+              <View>
+                <Text style={[styles.sheetTitle, { color: t.ink }]}>Resgatar do pool</Text>
+                <Text style={[styles.sheetSubtitle, { color: t.inkDim }]}>
+                  Disponível para resgate: {koraApi.money.formatCents(positionCents)}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setRedeemVisible(false)} disabled={redeeming}>
+                <Feather name="x" size={22} color={t.inkDim} />
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              value={redeemAmount}
+              onChangeText={setRedeemAmount}
+              placeholder="R$ 0,00"
+              placeholderTextColor={t.inkMute}
+              keyboardType="decimal-pad"
+              style={[styles.amountInput, { color: t.ink, borderColor: t.line, backgroundColor: t.bg2 }]}
+            />
+            <TouchableOpacity
+              onPress={() =>
+                setRedeemAmount((positionCents / 100).toFixed(2).replace(".", ","))
+              }
+              disabled={redeeming || positionCents <= 0}
+            >
+              <Text style={[styles.maxText, { color: t.orange }]}>Resgatar tudo</Text>
+            </TouchableOpacity>
+            {redeemError ? (
+              <Text style={[styles.errorText, { color: t.orange }]}>{redeemError}</Text>
+            ) : null}
+            <Button
+              label={redeeming ? "Resgatando..." : "Confirmar resgate"}
+              variant="primary"
+              onPress={confirmRedeem}
+              icon={
+                redeeming ? (
+                  <ActivityIndicator size="small" color={t.btnPrimaryFg} />
+                ) : (
+                  <Feather name="arrow-down-circle" size={16} color={t.btnPrimaryFg} />
+                )
+              }
+            />
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -197,6 +298,11 @@ const styles = StyleSheet.create({
   errorText: {
     fontFamily: fonts.sans.medium,
     fontSize: 12,
+  },
+  maxText: {
+    fontFamily: fonts.sans.semibold,
+    fontSize: 12,
+    marginTop: -4,
   },
 });
 

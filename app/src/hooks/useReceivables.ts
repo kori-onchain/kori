@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { KoraReceivable, koraApi, normalizeApiError } from "@/lib/koraApi";
 import { OnchainExecutionStatus } from "@/lib/onchainIntents";
+import { MOCK_DEMO } from "@/constants/devConfig";
 
 export interface Receivable {
   id: string;
@@ -22,6 +23,7 @@ export interface AdvanceReceipt {
   rate: string;
   date: string;
   protocol: string;
+  txHash?: string;
   provider: AdvanceProvider;
   status: "COMPLETED" | "PENDING_AUCTION";
 }
@@ -193,7 +195,9 @@ export const useReceivables = ({
       setReceivables(items.length ? items.map(adaptReceivable) : []);
     } catch (err) {
       setError(normalizeApiError(err).message);
-      setReceivables((prev) => (prev.length ? prev : MOCK_RECEIVABLES));
+      // Em modo demo nunca usa recebíveis fake: começa zerado e só aparece
+      // recebível depois que a loja faz uma cobrança.
+      setReceivables((prev) => (prev.length ? prev : MOCK_DEMO ? [] : MOCK_RECEIVABLES));
     } finally {
       setIsLoading(false);
     }
@@ -254,14 +258,15 @@ export const useReceivables = ({
     const advancedIds = new Set(selected);
 
     timerRef.current = setTimeout(async () => {
-      let protocol = generateProtocol();
+      const protocol = generateProtocol();
+      let txHash: string | undefined;
       try {
         const advances = await Promise.all(
           Array.from(advancedIds).map((id) =>
             koraApi.receivables.advance(id, selectedProvider),
           ),
         );
-        protocol = advances[0]?.txHash || advances[0]?.id || protocol;
+        txHash = advances[0]?.txHash || undefined;
       } catch (err) {
         setOnchainStatus("falhou");
         setError(normalizeApiError(err).message);
@@ -286,6 +291,7 @@ export const useReceivables = ({
         rate: ADVANCE_RATE_BY_PROVIDER[selectedProvider],
         date: `${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h")}`,
         protocol,
+        txHash,
         provider: selectedProvider,
         status: completed ? "COMPLETED" : "PENDING_AUCTION",
       });

@@ -25,7 +25,13 @@ import {
   saveBiometricLockEnabled,
 } from "./src/lib/pinService";
 import { AuthUserData, AccountType } from "./src/types/auth";
-import { MOCK_AUTH } from "./src/constants/devConfig";
+import {
+  MOCK_AUTH,
+  MOCK_DEMO,
+  DEMO_SESSION_PF,
+  DEMO_SESSION_PJ,
+  DEMO_ACCOUNTS,
+} from "./src/constants/devConfig";
 import { apiClient, setActiveAccountContext, setPrivyTokenGetter } from "./src/lib/apiClient";
 import { usePrivy } from "@privy-io/expo";
 import PrivyProvider from "./src/provider/PrivyProvider";
@@ -35,6 +41,7 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { UnlockScreen } from "./src/screens/SecuritySetup/UnlockScreen";
 import { BusinessNameDrawer } from "./src/components/merchant/BusinessNameDrawer";
 import { updateProfile } from "./src/lib/authService";
+import { mockDemoLedger } from "./src/lib/mockDemoLedger";
 
 interface UserSession {
   name: string;
@@ -72,7 +79,20 @@ function AppContent() {
   const { getAccessToken } = usePrivy();
   const { switchAccount } = useAccountSwitcher();
 
+  // DEMO MODE: entra direto logado como a conta PF (pessoa + investidor),
+  // com PF e PJ prontas para trocar offline. Sem Privy/back-end/biometria.
   useEffect(() => {
+    if (!MOCK_DEMO) return;
+    setSession(DEMO_SESSION_PF as UserSession);
+    setAccounts(DEMO_ACCOUNTS as any[]);
+    setBiometricLockEnabled(true);
+    setIsAppUnlocked(true);
+    setIsSecurityCheckLoading(false);
+    setInitialCheckDone(true);
+  }, []);
+
+  useEffect(() => {
+    if (MOCK_DEMO) return;
     if (session) {
       (async () => {
         setIsSecurityCheckLoading(true);
@@ -114,6 +134,7 @@ function AppContent() {
   };
 
   useEffect(() => {
+    if (MOCK_DEMO) return;
     if (
       session &&
       biometricLockEnabled &&
@@ -209,6 +230,16 @@ function AppContent() {
   const handleSwitchAccount = async (newType: "PF" | "PJ") => {
     const current = session;
     if (!current) return;
+
+    // DEMO MODE: troca PF ↔ PJ localmente, sem Privy nem back-end.
+    if (MOCK_DEMO) {
+      setActiveAccountContext(newType);
+      setSession(
+        (newType === "PJ" ? DEMO_SESSION_PJ : DEMO_SESSION_PF) as UserSession,
+      );
+      return;
+    }
+
     const targetAccount = accounts.find((account) => account.accountType === newType);
     if (!targetAccount) {
       if (newType === "PJ") setIsAddingBusinessAccount(true);
@@ -294,6 +325,13 @@ function AppContent() {
   };
 
   const handleLogout = async () => {
+    if (MOCK_DEMO) {
+      // DEMO MODE: "sair" re-seeda a conta PF (sem Privy) e zera o ledger mockado.
+      mockDemoLedger.reset();
+      setSession(DEMO_SESSION_PF as UserSession);
+      setAccounts(DEMO_ACCOUNTS as any[]);
+      return;
+    }
     if (!MOCK_AUTH) {
       await privyLogout();
     }

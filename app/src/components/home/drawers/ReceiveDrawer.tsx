@@ -670,9 +670,15 @@ const CardScreen: React.FC<{
   const rawValue = parseFloat(amount.replace(",", ".")) || 0;
 
   useEffect(() => {
+    // Ao entrar na tela de pagamento (NFC), avança sozinho após 2s — sem precisar
+    // clicar em "Simular cliente".
+    if (posStage === "nfc") {
+      const timer = setTimeout(() => setPosStage("customer"), 2000);
+      return () => clearTimeout(timer);
+    }
     if (posStage === "customer") {
-      // Espera 5s ("cliente aproximou") antes de finalizar a transacao
-      const timer = setTimeout(() => setPosStage("processing"), 5000);
+      // Breve "validando" antes de finalizar a transacao
+      const timer = setTimeout(() => setPosStage("processing"), 1200);
       return () => clearTimeout(timer);
     }
   }, [posStage]);
@@ -828,12 +834,7 @@ const CardScreen: React.FC<{
               : "Processando compra no credito..."}
           </Text>
           {posStage === "nfc" ? (
-            <PaymentPrimaryButton
-              label="Simular cliente aproximou"
-              onPress={() => setPosStage("customer")}
-              style={{ width: "100%", marginTop: 18 }}
-              icon={<Feather name="smartphone" size={16} color={t.btnPrimaryFg} />}
-            />
+            <ActivityIndicator size="small" color={t.orange} style={{ marginTop: 18 }} />
           ) : null}
         </View>
       </BottomSheetFrame>

@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
   Dimensions,
+  Linking,
 } from "react-native";
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -126,15 +127,28 @@ export const AntecipacoesScreen: React.FC<AntecipacoesScreenProps> = ({
                   <Text style={[styles.receiptLabel, { color: t.inkDim }]}>Protocolo</Text>
                   <Text style={[styles.receiptValue, { color: t.ink }]}>{receipt.protocol}</Text>
                 </View>
-                {receipt.protocol.length > 24 ? (
+                {receipt.txHash ? (
                   <>
                     <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
-                    <View style={styles.receiptRow}>
+                    <TouchableOpacity
+                      style={styles.receiptRow}
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        Linking.openURL(`https://solscan.io/tx/${receipt.txHash}?cluster=devnet`)
+                      }
+                    >
                       <Text style={[styles.receiptLabel, { color: t.inkDim }]}>TxHash</Text>
-                      <Text style={[styles.receiptValue, { color: t.ink }]} numberOfLines={1}>
-                        {receipt.protocol}
-                      </Text>
-                    </View>
+                      <View style={styles.receiptTxValue}>
+                        <Text
+                          style={[styles.receiptValue, { color: t.ink, maxWidth: 150 }]}
+                          numberOfLines={1}
+                          ellipsizeMode="middle"
+                        >
+                          {receipt.txHash}
+                        </Text>
+                        <Feather name="external-link" size={12} color={t.inkDim} />
+                      </View>
+                    </TouchableOpacity>
                   </>
                 ) : null}
                 <View style={[styles.receiptDivider, { backgroundColor: t.line }]} />
@@ -931,6 +945,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.mono.semibold,
     fontSize: 13,
     letterSpacing: 0.2,
+  },
+  receiptTxValue: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flexShrink: 1,
   },
   receiptValueBig: {
     fontFamily: fonts.sans.bold,

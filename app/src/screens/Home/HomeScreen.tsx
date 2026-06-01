@@ -95,6 +95,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
     balanceInteger,
     balanceDecimals,
     handleInvestmentDebited,
+    handleInvestmentRedeemed,
     handleAdvanceCredited,
   } = useHomeLogic({ username, accountType });
 
@@ -151,6 +152,7 @@ export const HomeScreen: React.FC<HomeScreenProps> & {
         <InvestmentsScreen
           headerProps={headerProps}
           onInvested={handleInvestmentDebited}
+          onRedeemed={handleInvestmentRedeemed}
         />
       )}
 

@@ -4,16 +4,23 @@ import { useEffect, useState } from "react"
 
 import { ACCOUNTS } from "./accounts"
 import { DemoPhone } from "./demo-phone"
+import { DemoFlow } from "./demo-flow"
 import "./demo.css"
 
 export function DemoExperience() {
   const [open, setOpen] = useState(false)
+  const [mode, setMode] = useState<"browse" | "flow">("browse")
   const [acc, setAcc] = useState<string>("investidor")
   const [tab, setTab] = useState(0)
 
   const openModal = (id: string) => {
+    setMode("browse")
     setAcc(id)
     setTab(0)
+    setOpen(true)
+  }
+  const openFlow = () => {
+    setMode("flow")
     setOpen(true)
   }
   const close = () => setOpen(false)
@@ -52,6 +59,14 @@ export function DemoExperience() {
         ))}
       </div>
 
+      <div className="dm-flow-launch">
+        <button type="button" className="dm-flow-cta" onClick={openFlow}>
+          <span className="play">▶</span>
+          Ver o dinheiro circulando
+          <span className="hint">investidor → loja → cliente → investidor +2%</span>
+        </button>
+      </div>
+
       <div
         className={`dm-modal${open ? " open" : ""}`}
         onClick={(e) => {
@@ -63,26 +78,35 @@ export function DemoExperience() {
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
         </button>
-        <div className="dm-holder">
-          {open ? <DemoPhone id={acc} tab={tab} interactive onTab={setTab} /> : null}
-        </div>
-        <div className="dm-switch">
-          {ACCOUNTS.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              className={a.id === acc ? "on" : ""}
-              onClick={() => {
-                setAcc(a.id)
-                setTab(0)
-              }}
-            >
-              <span className="d" />
-              {a.label}
+
+        {mode === "flow" ? (
+          open ? <DemoFlow onExit={() => setMode("browse")} /> : null
+        ) : (
+          <>
+            <div className="dm-holder">
+              {open ? <DemoPhone id={acc} tab={tab} interactive onTab={setTab} /> : null}
+            </div>
+            <div className="dm-switch">
+              {ACCOUNTS.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className={a.id === acc ? "on" : ""}
+                  onClick={() => {
+                    setAcc(a.id)
+                    setTab(0)
+                  }}
+                >
+                  <span className="d" />
+                  {a.label}
+                </button>
+              ))}
+            </div>
+            <button type="button" className="dm-tip dm-tip-btn" onClick={() => setMode("flow")}>
+              ▶ Ver o dinheiro circulando entre as contas
             </button>
-          ))}
-        </div>
-        <div className="dm-tip">Toque na barra inferior para navegar pelo app</div>
+          </>
+        )}
       </div>
     </div>
   )

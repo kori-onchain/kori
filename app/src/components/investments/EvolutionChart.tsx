@@ -10,18 +10,30 @@ import Svg, {
 } from "react-native-svg";
 import { fonts, radii } from "@theme/tokens";
 import { useTheme } from "@theme/ThemeProvider";
+import { KoraInvestmentPool, koraApi } from "@/lib/koraApi";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 const CHART_H = 140;
 
 interface EvolutionChartProps {
   setScrollEnabled?: (enabled: boolean) => void;
+  pool?: KoraInvestmentPool | null;
 }
 
 export const EvolutionChart: React.FC<EvolutionChartProps> = ({
   setScrollEnabled,
+  pool,
 }) => {
   const { t } = useTheme();
+
+  // Rendimento real do investidor (não mais valor estático).
+  const investedCents = pool?.userInvestedCents ?? 0;
+  const yieldCents = pool?.userYieldCents ?? 0;
+  const profitLabel = koraApi.money.formatCents(yieldCents);
+  const ratePct = investedCents > 0 ? (yieldCents / investedCents) * 100 : 0;
+  const rateLabel = `${ratePct >= 0 ? "▲" : "▼"} ${ratePct
+    .toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    .replace("-", "")} %`;
 
   // Pinch-to-zoom state
   const [zoomScale, setZoomScale] = useState(1);
@@ -107,12 +119,12 @@ export const EvolutionChart: React.FC<EvolutionChartProps> = ({
         </Text>
 
         <View style={styles.statsRow}>
-          {/* Visible profit in Reais (as requested: "valor em reais do lucro") */}
-          <Text style={[styles.balanceText, { color: t.ink }]}>R$ 3.004,80</Text>
+          {/* Lucro real do investidor em reais */}
+          <Text style={[styles.balanceText, { color: t.ink }]}>{profitLabel}</Text>
 
-          {/* Green Profit rate */}
+          {/* Taxa de rendimento sobre o aporte */}
           <View style={styles.rateWrapper}>
-            <Text style={[styles.rateText, { color: t.green }]}>▲ 15,00 %</Text>
+            <Text style={[styles.rateText, { color: t.green }]}>{rateLabel}</Text>
           </View>
 
           {/* CDI Pill */}

@@ -6,11 +6,13 @@ import { InvestmentsPanel } from "@components/investments/InvestmentsPanel";
 interface InvestmentsScreenProps {
   headerProps: any;
   onInvested?: (amountCents: number) => void;
+  onRedeemed?: (amountCents: number) => void;
 }
 
 export const InvestmentsScreen: React.FC<InvestmentsScreenProps> = ({
   headerProps,
   onInvested,
+  onRedeemed,
 }) => {
   return (
     <View style={styles.panelWrapper}>
@@ -19,7 +21,7 @@ export const InvestmentsScreen: React.FC<InvestmentsScreenProps> = ({
           <Header {...headerProps} />
         </View>
       </View>
-      <InvestmentsPanel onInvested={onInvested} />
+      <InvestmentsPanel onInvested={onInvested} onRedeemed={onRedeemed} />
     </View>
   );
 };

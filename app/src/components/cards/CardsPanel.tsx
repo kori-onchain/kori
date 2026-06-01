@@ -9,7 +9,6 @@ import {
   Platform,
   ScrollView,
   Animated,
-  Image,
 } from "react-native";
 import ReAnimated from "react-native-reanimated";
 import { Feather } from "@/icons";
@@ -128,85 +127,6 @@ const CardPattern = () => (
     </Svg>
   </View>
 );
-
-const InstallmentRing = ({ current, total, t, icon, bgColor }: any) => {
-  const size = 48;
-  const strokeWidth = 2;
-  const center = size / 2;
-  const radius = center - strokeWidth / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  const segmentLength = circumference / total;
-  const dash = segmentLength * 0.75;
-  const gap = segmentLength * 0.25;
-
-  const activePattern = [];
-  for (let i = 0; i < current; i++) {
-    activePattern.push(dash);
-    activePattern.push(gap);
-  }
-  if (current < total) {
-    activePattern.push(0);
-    activePattern.push(circumference);
-  }
-
-  const activeColor = "rgba(255, 255, 255, 0.30)";
-  const trackColor = "rgba(255, 255, 255, 0.07)";
-  const innerSize = size - 8;
-
-  return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Svg
-        width={size}
-        height={size}
-        style={{ position: "absolute", transform: [{ rotate: "-90deg" }] }}
-      >
-        <Circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke={trackColor}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${dash} ${gap}`}
-          fill="none"
-        />
-        {current > 0 && (
-          <Circle
-            cx={center}
-            cy={center}
-            r={radius}
-            stroke={activeColor}
-            strokeWidth={strokeWidth}
-            strokeDasharray={activePattern.join(" ")}
-            strokeLinecap="round"
-            fill="none"
-          />
-        )}
-      </Svg>
-      <View style={{
-        width: innerSize,
-        height: innerSize,
-        borderRadius: innerSize / 2,
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-      }}>
-        <Image
-          source={{ uri: icon }}
-          style={{ width: innerSize, height: innerSize }}
-          resizeMode="contain"
-        />
-      </View>
-    </View>
-  );
-};
 
 const FlippableCard = ({ card, displayName, isFrozen, isFlipped, t, isSelected, fullSize }: any) => {
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -358,49 +278,6 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
   const { t, scheme } = useTheme();
   const entering = useFadeUp();
 
-  const purchases = [
-    {
-      id: "1",
-      name: "Netflix",
-      date: "12 Mai · 14:30",
-      value: "R$ 55,90",
-      installments: 6,
-      totalInstallments: 12,
-      logo: "https://static.vecteezy.com/system/resources/previews/020/335/987/non_2x/netflix-logo-netflix-icon-free-free-vector.jpg",
-      bgColor: "#11111",
-    },
-    {
-      id: "2",
-      name: "Spotify",
-      date: "10 Mai · 09:15",
-      value: "R$ 21,90",
-      installments: 3,
-      totalInstallments: 12,
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMIYjOWQFChUCHW3AoYT-gI0l5g_wiu8h4Ng&s",
-      bgColor: "#191414",
-    },
-    {
-      id: "3",
-      name: "Amazon",
-      date: "05 Mai · 18:45",
-      value: "R$ 1.250,00",
-      installments: 10,
-      totalInstallments: 12,
-      logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrt7ExrghNHI7Rj55hGhIE_sdOVSYWv9ueYQ&s",
-      bgColor: "#FF9900",
-    },
-    {
-      id: "4",
-      name: "Mercado Livre",
-      date: "02 Mai · 11:20",
-      value: "R$ 450,00",
-      installments: 1,
-      totalInstallments: 12,
-      logo: "https://catracalivre.com.br/wp-content/uploads/2020/03/mecado-livre-campanha-coronavirus-amarelo-scaled.png",
-      bgColor: "#FFE600",
-    },
-  ];
-
   const [localCards] = useState([
     {
       id: "1",
@@ -514,6 +391,9 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
   const invoiceRemaining = activeLimitTotal
     ? formatCents(Math.max(0, activeLimitTotal - activeLimitUsed) * 100, "BRL")
     : cardVals.available;
+
+  // Lançamentos reais da fatura (inclui cobranças geradas na Loja).
+  const invoiceItems = invoice?.items ?? [];
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -770,51 +650,73 @@ export const CardsPanel: React.FC<CardsPanelProps> = ({
       />
       </ReAnimated.View>
 
+      {/* Transações da fatura (lançamentos reais — inclui cobranças da Loja) */}
       <ReAnimated.View entering={entering(180)}>
-      <View style={[styles.purchasesContainer, { paddingHorizontal: 0 }]}>
-        <Text style={[styles.limitTitle, { color: t.ink, marginBottom: 16 }]}>
-          Últimas Compras
-        </Text>
+        <View style={[styles.purchasesContainer, { paddingHorizontal: 0 }]}>
+          <Text style={[styles.limitTitle, { color: t.ink, marginBottom: 8 }]}>
+            Transações da fatura
+          </Text>
 
-        {purchases.map((purchase) => (
-          <TouchableOpacity
-            key={purchase.id}
-            style={[styles.purchaseRow, { borderBottomColor: t.cardBorder }]}
-            activeOpacity={0.7}
-          >
-            <View style={styles.purchaseLeft}>
-              <InstallmentRing
-                current={purchase.installments}
-                total={purchase.totalInstallments}
-                bgColor={purchase.bgColor}
-                t={t}
-                icon={purchase.logo}
-              />
-              <View style={styles.purchaseDetails}>
-                <Text style={[styles.purchaseName, { color: t.ink }]}>
-                  {purchase.name}
-                </Text>
-                <Text style={[styles.purchaseDate, { color: t.inkMute }]}>
-                  {purchase.date}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.purchaseRight}>
-              <View style={styles.purchaseValueContainer}>
-                <Text style={[styles.purchaseValue, { color: t.ink }]}>
-                  {purchase.value}
-                </Text>
-                <Text
-                  style={[styles.purchaseInstallments, { color: t.inkMute }]}
+          {invoiceItems.length === 0 ? (
+            <Text style={[styles.purchaseDate, { color: t.inkMute, paddingVertical: 12 }]}>
+              Nenhuma transação nesta fatura ainda.
+            </Text>
+          ) : (
+            invoiceItems.map((it) => {
+              const created = it.createdAt ? new Date(it.createdAt) : null;
+              const date =
+                created && !isNaN(created.getTime())
+                  ? `${created.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} · ${created
+                      .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                      .replace(":", "h")}`
+                  : "";
+              const parcelas = it.installmentsCount ?? 1;
+              return (
+                <View
+                  key={it.id}
+                  style={[styles.purchaseRow, { borderBottomColor: t.cardBorder }]}
                 >
-                  {purchase.installments}/{purchase.totalInstallments} parcelas
-                </Text>
-              </View>
-              <Feather name="chevron-right" size={20} color={t.inkMute} />
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
+                  <View style={styles.purchaseLeft}>
+                    <View
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: 22,
+                        backgroundColor: t.bg2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Feather name="shopping-bag" size={18} color={t.inkDim} />
+                    </View>
+                    <View style={styles.purchaseDetails}>
+                      <Text style={[styles.purchaseName, { color: t.ink }]} numberOfLines={1}>
+                        {it.description}
+                      </Text>
+                      <Text style={[styles.purchaseDate, { color: t.inkMute }]}>{date}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.purchaseRight}>
+                    <View style={styles.purchaseValueContainer}>
+                      <Text style={[styles.purchaseValue, { color: t.ink }]}>
+                        {formatCents(it.amountCents, invoice?.currency)}
+                      </Text>
+                      {parcelas > 1 ? (
+                        <Text style={[styles.purchaseInstallments, { color: t.inkMute }]}>
+                          {parcelas}x parcelas
+                        </Text>
+                      ) : (
+                        <Text style={[styles.purchaseInstallments, { color: t.inkMute }]}>
+                          à vista
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              );
+            })
+          )}
+        </View>
       </ReAnimated.View>
     </ScrollView>
   );
