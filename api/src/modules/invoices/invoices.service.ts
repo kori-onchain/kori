@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma/prisma.service';
+import { InvestmentsService } from '../investments/investments.service';
 import { LedgerService } from '../ledger/ledger.service';
 
 @Injectable()
@@ -7,24 +8,35 @@ export class InvoicesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    private readonly investments: InvestmentsService,
   ) {}
 
+  private withPending(invoice: any) {
+    if (!invoice) return invoice;
+    return {
+      ...invoice,
+      pendingCents: Math.max((invoice.totalCents ?? 0) - (invoice.paidCents ?? 0), 0),
+    };
+  }
+
   async list(userId: string) {
-    return (this.prisma as any).invoice.findMany({
+    const invoices = await (this.prisma as any).invoice.findMany({
       where: { userId },
       include: { items: true, card: true },
       orderBy: { dueDate: 'desc' },
     });
+    return invoices.map((invoice: any) => this.withPending(invoice));
   }
 
   async current(userId: string) {
     const now = new Date();
     const cycleMonth = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`;
-    return (this.prisma as any).invoice.findMany({
+    const invoices = await (this.prisma as any).invoice.findMany({
       where: { userId, cycleMonth, status: { in: ['OPEN', 'CLOSED', 'OVERDUE'] } },
       include: { items: true, card: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ totalCents: 'desc' }, { createdAt: 'desc' }],
     });
+    return invoices.map((invoice: any) => this.withPending(invoice));
   }
 
   async findOne(userId: string, id: string) {
@@ -38,7 +50,7 @@ export class InvoicesService {
       },
     });
     if (!invoice) throw new NotFoundException('Invoice not found');
-    return invoice;
+    return this.withPending(invoice);
   }
 
   async pay(userId: string, invoiceId: string) {
@@ -93,6 +105,12 @@ export class InvoicesService {
       referenceType: 'INVOICE_PAYMENT',
       referenceId: payment.id,
       description: `Baixa de fatura ${invoice.cycleMonth}`,
+    });
+    await this.investments.recordInvoicePayment({
+      paymentId: payment.id,
+      invoiceId: invoice.id,
+      amountCents: remaining,
+      cycleMonth: invoice.cycleMonth,
     });
 
     const locked = await (this.prisma as any).installment.aggregate({

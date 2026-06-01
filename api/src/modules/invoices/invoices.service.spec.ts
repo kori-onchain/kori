@@ -17,6 +17,7 @@ describe('InvoicesService', () => {
 
   it('pays an open invoice and writes ledger entries', async () => {
     const ledger = { postEntry: jest.fn() };
+    const investments = { recordInvoicePayment: jest.fn() };
     const tx = {
       payment: {
         create: jest.fn().mockResolvedValue({ id: 'payment-1', amountCents: 50_000 }),
@@ -32,7 +33,7 @@ describe('InvoicesService', () => {
       creditProfile: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
       $transaction: jest.fn((cb) => cb(tx)),
     };
-    const service = new InvoicesService(prisma as any, ledger as any);
+    const service = new InvoicesService(prisma as any, ledger as any, investments as any);
 
     const payment = await service.pay(userId, invoice.id);
 
@@ -42,6 +43,12 @@ describe('InvoicesService', () => {
       data: { paidCents: invoice.totalCents, status: 'PAID' },
     });
     expect(ledger.postEntry).toHaveBeenCalledTimes(2);
+    expect(investments.recordInvoicePayment).toHaveBeenCalledWith({
+      paymentId: 'payment-1',
+      invoiceId: invoice.id,
+      amountCents: 50_000,
+      cycleMonth: invoice.cycleMonth,
+    });
   });
 
   it('does not pay an already paid invoice', async () => {
@@ -56,6 +63,7 @@ describe('InvoicesService', () => {
         },
       } as any,
       { postEntry: jest.fn() } as any,
+      { recordInvoicePayment: jest.fn() } as any,
     );
 
     await expect(service.pay(userId, invoice.id)).rejects.toBeInstanceOf(

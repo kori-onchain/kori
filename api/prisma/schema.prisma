@@ -378,8 +378,8 @@ model Sale {
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
-  items      SaleItem[]
-  receivable Receivable?
+  items       SaleItem[]
+  receivables Receivable[]
 
   @@index([storeId])
 }
@@ -399,13 +399,15 @@ model Receivable {
   id                String           @id @default(uuid())
   storeId           String
   store             Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  saleId            String           @unique
+  saleId            String
   sale              Sale             @relation(fields: [saleId], references: [id], onDelete: Cascade)
   description       String
   grossAmountCents  Int
   netAmountCents    Int
   feeBps            Int
   installmentsCount Int              @default(1)
+  installmentNumber Int              @default(1)
+  installmentId     String?
   dueDate           DateTime
   status            ReceivableStatus @default(REGISTERED)
   receivableId      String?
@@ -418,6 +420,8 @@ model Receivable {
   advance ReceivableAdvance?
 
   @@index([storeId])
+  @@index([saleId])
+  @@unique([installmentId])
 }
 
 model ReceivableAdvance {
@@ -430,6 +434,8 @@ model ReceivableAdvance {
   netCents       Int
   feeCents       Int
   protocol       String     @unique
+  provider       String     @default("POOL")
+  status         String     @default("COMPLETED")
   txHash         String?
   programStatus  String?
   createdAt      DateTime   @default(now())

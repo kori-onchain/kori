@@ -10,7 +10,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PrivyAuthGuard } from '../auth/guards/privy-auth.guard';
-import { CreateProductDto, CreateSaleDto, UpdateProductDto } from './dto/merchant.dto';
+import {
+  CreateMockCardPaymentDto,
+  CreateProductDto,
+  CreateSaleDto,
+  UpdateProductDto,
+} from './dto/merchant.dto';
 import { MerchantService } from './merchant.service';
 
 @Controller('merchant')
@@ -50,5 +55,13 @@ export class MerchantController {
   @Post('sales')
   createSale(@Req() req: any, @Body() body: CreateSaleDto) {
     return this.merchantService.createSale(req.user, body);
+  }
+
+  @Post('card-payments/mock')
+  createMockCardPayment(
+    @Req() req: any,
+    @Body() body: CreateMockCardPaymentDto,
+  ) {
+    return this.merchantService.createMockCardPayment(req.user, body);
   }
 }

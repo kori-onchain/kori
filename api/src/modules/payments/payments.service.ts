@@ -6,7 +6,10 @@ import {
   SubmitSolanaTransferDto,
   TransferDto,
 } from './dto/transfer.dto';
-import { SolanaRelayerService } from './solana-relayer.service';
+import {
+  SolanaRelayerService,
+  UsdcTransferMetadata,
+} from './solana-relayer.service';
 
 @Injectable()
 export class PaymentsService {
@@ -57,17 +60,22 @@ export class PaymentsService {
     }
 
     const resolvedRecipient = await this.resolveRecipient(dto);
-    const solanaIntent = await this.solana.buildTransfer({
+    const solanaIntent = await this.solana.buildUsdcTransfer({
       fromWallet: user.walletAddress,
       toWallet: resolvedRecipient.walletAddress,
-      lamports: dto.lamports,
+      amount: dto.amountCents ? undefined : dto.lamports,
+      brlCents: dto.amountCents,
     });
+    const amountCents =
+      dto.amountCents ??
+      Math.round((solanaIntent.amount / 10 ** solanaIntent.decimals) * 100);
+    const currency = dto.amountCents ? 'BRL' : 'USDC';
 
     const payment = await (this.prisma as any).payment.create({
       data: {
         userId: user.id,
-        amountCents: dto.lamports,
-        currency: 'SOL',
+        amountCents,
+        currency,
         method:
           dto.recipientType === 'username' ? 'KORA_USERNAME' : 'SOLANA_WALLET',
         status: 'PENDING',
@@ -75,7 +83,7 @@ export class PaymentsService {
         recipientId: dto.anonymous
           ? this.maskWallet(resolvedRecipient.walletAddress)
           : resolvedRecipient.identifier,
-        programStatus: 'AWAITING_USER_SIGNATURE',
+        programStatus: this.encodeSolanaMetadata(solanaIntent),
       },
     });
 
@@ -85,7 +93,7 @@ export class PaymentsService {
       recipient: dto.anonymous
         ? { type: 'wallet', walletAddress: this.maskWallet(resolvedRecipient.walletAddress) }
         : resolvedRecipient,
-      instructions: 'Client must sign the base64 transaction with the sender wallet, then POST it to /payments/solana/submit.',
+      instructions: 'Client signs the USDC transfer with the sender wallet. Relayer pays devnet SOL fees when submitted.',
     };
   }
 
@@ -98,23 +106,32 @@ export class PaymentsService {
       throw new BadRequestException('Payment is not awaiting submission');
     }
 
-    const { signature } = await this.solana.relaySignedTransaction(
+    const metadata = this.decodeSolanaMetadata(payment.programStatus);
+    const relay = await this.solana.relaySignedTransaction(
       dto.signedTransaction,
+      metadata,
     );
+    const { signature } = relay;
 
     const updated = await (this.prisma as any).payment.update({
       where: { id: payment.id },
       data: {
         status: 'COMPLETED',
         txHash: signature,
-        programStatus: 'CONFIRMED',
+        programStatus: this.encodeSolanaMetadata({
+          ...metadata,
+          status: 'CONFIRMED',
+          signature,
+          before: relay.before,
+          after: relay.after,
+        }),
       },
     });
 
     await this.ledger.postEntry({
       userId,
       accountType: 'USER_BALANCE',
-      currency: 'SOL',
+      currency: payment.currency,
       direction: 'DEBIT',
       amountCents: payment.amountCents,
       referenceType: 'SOLANA_PAYMENT',
@@ -156,5 +173,39 @@ export class PaymentsService {
 
   private maskWallet(wallet: string) {
     return `${wallet.slice(0, 4)}...${wallet.slice(-4)}`;
+  }
+
+  private encodeSolanaMetadata(metadata: Record<string, unknown>) {
+    return JSON.stringify({
+      status: metadata.status || 'AWAITING_USER_SIGNATURE',
+      mint: metadata.mint,
+      decimals: metadata.decimals,
+      fromWallet: metadata.fromWallet,
+      toWallet: metadata.toWallet,
+      fromTokenAccount: metadata.fromTokenAccount,
+      toTokenAccount: metadata.toTokenAccount,
+      amount: metadata.amount,
+      brlCents: metadata.brlCents,
+      usdcBrlRate: metadata.usdcBrlRate,
+      signature: metadata.signature,
+      before: metadata.before,
+      after: metadata.after,
+    });
+  }
+
+  private decodeSolanaMetadata(value?: string | null): UsdcTransferMetadata {
+    if (!value) {
+      throw new BadRequestException('Payment is missing Solana metadata');
+    }
+
+    try {
+      const parsed = JSON.parse(value);
+      if (!parsed.mint || !parsed.fromTokenAccount || !parsed.toTokenAccount) {
+        throw new Error('Missing token metadata');
+      }
+      return parsed as UsdcTransferMetadata;
+    } catch {
+      throw new BadRequestException('Payment has invalid Solana metadata');
+    }
   }
 }

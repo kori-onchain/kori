@@ -30,6 +30,16 @@ export const createSaleSchema = z.object({
   ).min(1),
 });
 
+export const createMockCardPaymentSchema = z.object({
+  amountCents: z.number().int().positive(),
+  installmentsCount: z.number().int().min(1).max(12).default(1),
+  cardType: z.literal('credit').default('credit'),
+  productId: z.string().optional(),
+  productName: z.string().min(1).optional(),
+  buyerName: z.string().min(2).optional(),
+});
+
 export class CreateProductDto extends createZodDto(productSchema) {}
 export class UpdateProductDto extends createZodDto(updateProductSchema) {}
 export class CreateSaleDto extends createZodDto(createSaleSchema) {}
+export class CreateMockCardPaymentDto extends createZodDto(createMockCardPaymentSchema) {}

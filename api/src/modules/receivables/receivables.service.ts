@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma/prisma.service';
+import { InvestmentsService } from '../investments/investments.service';
 import { LedgerService } from '../ledger/ledger.service';
 
 @Injectable()
@@ -7,6 +8,7 @@ export class ReceivablesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly ledger: LedgerService,
+    private readonly investments: InvestmentsService,
   ) {}
 
   async list(user: any) {
@@ -18,7 +20,7 @@ export class ReceivablesService {
     });
   }
 
-  async advance(user: any, id: string) {
+  async advance(user: any, id: string, provider: 'KORI' | 'POOL' | 'P2P' = 'POOL') {
     const store = await this.getStore(user);
     const receivable = await (this.prisma as any).receivable.findFirst({
       where: { id, storeId: store.id },
@@ -28,26 +30,39 @@ export class ReceivablesService {
       throw new BadRequestException('Receivable cannot be advanced');
     }
 
+    const selectedProvider = ['KORI', 'POOL', 'P2P'].includes(provider)
+      ? provider
+      : 'POOL';
+    const terms = this.providerTerms(selectedProvider as 'KORI' | 'POOL' | 'P2P');
     const protocol = this.protocol();
     const advance = await (this.prisma as any).$transaction(async (tx: any) => {
-      await tx.receivable.update({
-        where: { id: receivable.id },
-        data: { status: 'ANTICIPATED' },
-      });
+      if (terms.completed) {
+        await tx.receivable.update({
+          where: { id: receivable.id },
+          data: { status: 'ANTICIPATED' },
+        });
+      }
+      const netCents = terms.netCents(
+        receivable.grossAmountCents,
+        receivable.netAmountCents,
+      );
       return tx.receivableAdvance.create({
         data: {
           storeId: store.id,
           receivableId: receivable.id,
           grossCents: receivable.grossAmountCents,
-          netCents: receivable.netAmountCents,
-          feeCents: receivable.grossAmountCents - receivable.netAmountCents,
+          netCents,
+          feeCents: receivable.grossAmountCents - netCents,
           protocol,
+          provider: selectedProvider,
+          status: terms.status,
           programStatus: receivable.programStatus,
         },
       });
     });
 
-    await this.ledger.postEntry({
+    if (terms.completed) {
+      await this.ledger.postEntry({
       userId: user.id,
       accountType: 'MERCHANT_BALANCE',
       direction: 'CREDIT',
@@ -56,6 +71,14 @@ export class ReceivablesService {
       referenceId: advance.id,
       description: `Antecipação ${protocol}`,
     });
+      if (selectedProvider === 'POOL') {
+        await this.investments.recordReceivableAdvance({
+      advanceId: advance.id,
+      amountCents: advance.netCents,
+      protocol,
+        });
+      }
+    }
 
     return advance;
   }
@@ -85,5 +108,27 @@ export class ReceivablesService {
   private protocol() {
     const date = new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14);
     return `ANT-${date}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+  }
+
+  private providerTerms(provider: 'KORI' | 'POOL' | 'P2P') {
+    if (provider === 'KORI') {
+      return {
+        completed: true,
+        status: 'COMPLETED',
+        netCents: (grossCents: number) => Math.floor(grossCents * 0.955),
+      };
+    }
+    if (provider === 'P2P') {
+      return {
+        completed: false,
+        status: 'PENDING_AUCTION',
+        netCents: (_grossCents: number, currentNetCents: number) => currentNetCents,
+      };
+    }
+    return {
+      completed: true,
+      status: 'COMPLETED',
+      netCents: (_grossCents: number, currentNetCents: number) => currentNetCents,
+    };
   }
 }

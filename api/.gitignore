@@ -6,3 +6,4 @@ wallet.json
 id.json
 
 /generated/prisma
+/prisma/migrations

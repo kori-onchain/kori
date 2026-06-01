@@ -16,8 +16,11 @@ export class CreateSolanaTransferIntentDto extends createZodDto(
   z.object({
     recipientType: z.enum(['username', 'wallet']),
     recipient: z.string().min(2),
-    lamports: z.number().int().positive(),
+    amountCents: z.number().int().positive().optional(),
+    lamports: z.number().int().positive().optional(),
     anonymous: z.boolean().default(false),
+  }).refine((data) => data.amountCents || data.lamports, {
+    message: 'amountCents or lamports is required',
   }),
 ) {}
 

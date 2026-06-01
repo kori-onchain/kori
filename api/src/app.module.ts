@@ -12,6 +12,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { MerchantModule } from './modules/merchant/merchant.module';
 import { ReceivablesModule } from './modules/receivables/receivables.module';
+import { InvestmentsModule } from './modules/investments/investments.module';
 import { OnchainModule } from './modules/onchain/onchain.module';
 
 @Module({
@@ -33,6 +34,7 @@ import { OnchainModule } from './modules/onchain/onchain.module';
     PaymentsModule,
     MerchantModule,
     ReceivablesModule,
+    InvestmentsModule,
     OnchainModule,
   ],
   controllers: [],
