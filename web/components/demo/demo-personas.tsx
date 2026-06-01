@@ -119,7 +119,7 @@ export const PERSONAS: Persona[] = [
     id: "pessoa",
     label: "Pessoa",
     caption: "Cara de app comum, Web3 invisível",
-    accent: "var(--sol)",
+    accent: "var(--orange)",
     Icon: User,
     defaultTab: "home",
     nav: [
@@ -161,7 +161,7 @@ export const PERSONAS: Persona[] = [
     id: "loja",
     label: "Loja",
     caption: "Recebíveis viram caixa na hora",
-    accent: "var(--green)",
+    accent: "var(--orange)",
     Icon: Store,
     defaultTab: "home",
     nav: [
