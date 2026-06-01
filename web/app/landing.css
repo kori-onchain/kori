@@ -3587,3 +3587,123 @@
     flex-shrink: 0;
   }
 }
+
+/* =========================================
+   DEMO — section imersiva da landing → /demo
+   ========================================= */
+.demo-cta {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(72px, 9vw, 130px);
+}
+.demo-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(760px 520px at 50% 128%, var(--orange-soft), transparent 60%),
+    radial-gradient(620px 420px at 50% -20%, var(--sol-soft), transparent 62%);
+}
+.demo-cta-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.demo-cta-inner .eyebrow {
+  margin-bottom: 20px;
+}
+.demo-cta h2 {
+  font-size: clamp(34px, 5.4vw, 68px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: 0 0 20px;
+}
+.demo-cta h2 .dim {
+  display: block;
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+.demo-cta-inner > p {
+  color: var(--ink-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.demo-cta-stats {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(22px, 4vw, 56px);
+  margin-top: 36px;
+}
+.demo-cta-stats .dcs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.demo-cta-stats .dcs .n {
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.demo-cta-stats .dcs .l {
+  font-family: var(--kori-mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.05em;
+}
+.demo-cta-stats .dcs-sep {
+  width: 1px;
+  align-self: center;
+  height: 34px;
+  background: var(--line-2);
+}
+
+.demo-cta-actions {
+  margin-top: 38px;
+}
+
+.demo-cta-phones {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-top: clamp(48px, 6vw, 84px);
+}
+.demo-cta-phones .dcp {
+  flex: none;
+  transform-origin: bottom center;
+}
+.demo-cta-phones .dcp-1 {
+  transform: scale(0.66) rotate(-9deg);
+  margin-right: -92px;
+  opacity: 0.85;
+  z-index: 1;
+}
+.demo-cta-phones .dcp-2 {
+  transform: scale(0.82);
+  z-index: 3;
+}
+.demo-cta-phones .dcp-3 {
+  transform: scale(0.66) rotate(9deg);
+  margin-left: -92px;
+  opacity: 0.85;
+  z-index: 1;
+}
+
+@media (max-width: 560px) {
+  .demo-cta-stats {
+    gap: 18px;
+  }
+  .demo-cta-phones {
+    transform: scale(0.82);
+    margin-top: 32px;
+  }
+}

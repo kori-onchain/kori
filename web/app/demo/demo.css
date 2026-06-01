@@ -1,0 +1,340 @@
+/* =========================================
+   DEMO — ambiente de demonstração imersivo
+   Reusa tokens/classes de landing.css (escopo .landing).
+   Sem copy de marketing: o palco é o produto.
+   ========================================= */
+
+.landing .demo-stage-page {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(72px, 10vh, 120px) 16px clamp(48px, 8vh, 96px);
+}
+
+/* fundo: glow ambiente + grid de pontos + vignette */
+.demo-ambient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(820px 560px at 50% 0%, rgba(255, 107, 61, 0.06), transparent 60%),
+    radial-gradient(circle, var(--line) 1px, transparent 1.4px);
+  background-size:
+    auto,
+    34px 34px;
+}
+.demo-ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 84% 74% at 50% 44%, transparent 46%, var(--frame) 100%);
+}
+
+/* chrome mínimo (não é slide) */
+/* botão voltar = Button DS (ghost) — aqui só posicionamento */
+.demo-back {
+  position: absolute;
+  top: clamp(18px, 3vh, 30px);
+  left: clamp(18px, 3vw, 36px);
+  z-index: 3;
+}
+
+.demo-corner-tag {
+  position: absolute;
+  top: clamp(18px, 3vh, 30px);
+  right: clamp(18px, 3vw, 36px);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--kori-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-mute);
+}
+.demo-corner-tag .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+/* ----- palco com 3 telefones ----- */
+.demo-grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(28px, 5vw, 80px);
+}
+
+.demo-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.8s var(--ease),
+    transform 0.8s var(--ease);
+}
+.demo-reveal.in {
+  opacity: 1;
+  transform: none;
+}
+.demo-reveal.d2 {
+  transition-delay: 0.12s;
+}
+.demo-reveal.d3 {
+  transition-delay: 0.24s;
+}
+/* hierarquia: a do meio sobe um pouco */
+.demo-reveal.d2 .demo-unit {
+  transform: translateY(-22px);
+}
+
+.demo-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+}
+
+/* device parado + maior + leve glow de chão (cor da persona) */
+.demo-device {
+  position: relative;
+  transform: scale(1.2);
+  transform-origin: top center;
+  margin: 0 30px 122px;
+}
+.demo-device::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -28px;
+  width: 70%;
+  height: 38px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, var(--accent), transparent 70%);
+  opacity: 0.12;
+  filter: blur(22px);
+  z-index: -1;
+}
+
+/* capa "começar experiência" — overlay + painel soft-card (DS) */
+.demo-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(8, 8, 10, 0.55);
+  backdrop-filter: blur(8px);
+}
+.demo-cover-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  width: 100%;
+  padding: 24px 18px;
+  border-radius: 20px;
+}
+.demo-cover-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  margin-bottom: 4px;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-2);
+  box-shadow:
+    0 0 26px -8px var(--accent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.demo-cover-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.demo-cover-kicker {
+  margin-top: 12px;
+  font-family: var(--kori-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.demo-cover-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.demo-cover-desc {
+  font-family: var(--kori-mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 82%;
+}
+.demo-cover-btn {
+  margin-top: 16px;
+}
+
+/* chip de identidade (UI) — superfície vem do soft-card-sm (DS) */
+.demo-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.demo-id-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--accent);
+}
+.demo-id-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+.demo-id-sep {
+  color: var(--ink-faint);
+}
+.demo-id-screen {
+  font-family: var(--kori-mono);
+  font-size: 11px;
+  color: var(--ink-dim);
+  text-transform: lowercase;
+}
+.demo-id-caption {
+  font-family: var(--kori-mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.02em;
+}
+
+/* nav clicável: o .nav vira <button>, reset do estilo padrão */
+.landing .demo-unit .bnav button.nav {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  appearance: none;
+  transition: color 0.2s var(--ease);
+}
+/* respiro p/ a nav não cobrir conteúdo das telas */
+.landing .demo-unit .phone-screen .screen,
+.landing .demo-unit .phone-screen .scr-cardview {
+  padding-bottom: 56px;
+}
+
+/* ----- notificações dentro do celular ----- */
+.toast-layer {
+  position: absolute;
+  top: 42px;
+  left: 10px;
+  right: 10px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  background: rgba(22, 22, 26, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.7);
+  animation: toastIn 0.45s var(--ease);
+}
+.toast-ic {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elev);
+  color: var(--ink);
+}
+.toast-ic.in {
+  background: var(--green-soft);
+  color: var(--green);
+}
+.toast-ic.warn {
+  background: var(--orange-soft);
+  color: var(--orange);
+}
+.toast-ic svg {
+  width: 11px;
+  height: 11px;
+}
+.toast-txt .t {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.toast-txt .b {
+  font-size: 9px;
+  color: var(--ink-dim);
+  font-family: var(--kori-mono);
+  margin-top: 1px;
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ----- responsivo ----- */
+@media (max-width: 1180px) {
+  .demo-device {
+    transform: scale(1.08);
+    margin: 0 16px 78px;
+  }
+}
+@media (max-width: 1040px) {
+  .demo-reveal.d2 .demo-unit {
+    transform: none;
+  }
+}
+@media (max-width: 760px) {
+  .demo-device {
+    transform: none;
+    margin: 0;
+  }
+}
+@media (max-width: 620px) {
+  .landing .demo-stage-page {
+    justify-content: flex-start;
+  }
+  .demo-grid {
+    flex-direction: column;
+  }
+}
