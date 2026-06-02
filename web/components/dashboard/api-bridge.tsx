@@ -32,9 +32,11 @@ export function ApiBridge({ accountType }: { accountType: "PF" | "PJ" }) {
     setActiveAccountContext(accountType)
   }, [accountType])
 
-  // Sessão Supabase pro fallback (anônima se ainda não houver sessão).
+  // Sessão Supabase pro fallback — só DEPOIS de logar no Privy (senão usuário
+  // não autenticado ganharia sessão e o guard nunca redirecionaria). Cria uma
+  // sessão anônima quando ainda não existir nenhuma.
   useEffect(() => {
-    if (!ready) return
+    if (!ready || !authenticated) return
     let active = true
     ;(async () => {
       try {

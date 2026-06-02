@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { usePrivy } from "@privy-io/react-auth"
 import {
   Bell,
   CreditCard,
@@ -77,7 +78,43 @@ export function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const { ready, authenticated } = usePrivy()
   const [localAccountType, setLocalAccountType] = useState<AccountType>(accountType)
+  // null = checando; true = liberado; false = redirecionando p/ /login
+  const [authorized, setAuthorized] = useState<boolean | null>(null)
+
+  // Guard client-side: autenticado = Privy logado OU sessão Supabase real
+  // (e-mail/senha; sessões anônimas não contam). Senão, manda pro /login.
+  useEffect(() => {
+    if (!ready) return
+    let active = true
+    ;(async () => {
+      let ok = authenticated
+      if (!ok) {
+        try {
+          const {
+            data: { session },
+          } = await createClient().auth.getSession()
+          ok = !!(session && !session.user.is_anonymous)
+        } catch {
+          ok = false
+        }
+      } else {
+        // garante que o setState não roda de forma síncrona no effect
+        await Promise.resolve()
+      }
+      if (!active) return
+      if (ok) {
+        setAuthorized(true)
+      } else {
+        setAuthorized(false)
+        router.replace("/login")
+      }
+    })()
+    return () => {
+      active = false
+    }
+  }, [ready, authenticated, router])
 
   const handleSwitchAccountType = async (next: AccountType) => {
     if (next === localAccountType) return
@@ -94,6 +131,15 @@ export function DashboardLayout({
 
   const isPJ = localAccountType === "PJ"
   const displayName = isPJ ? businessName || userName : userName
+
+  // Enquanto verifica a sessão (ou redireciona p/ login), não pisca o dashboard.
+  if (authorized !== true) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-ds-bg text-ds-mute">
+        <span className="font-mono text-[11px] uppercase tracking-[0.2em]">Carregando…</span>
+      </div>
+    )
+  }
 
   return (
     <main className="grid min-h-svh grid-cols-[224px_1fr] bg-ds-bg text-ds-ink">

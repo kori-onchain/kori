@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/kori-onchain/kori">
-    <img src="https://kori.kc1t.com/icon.svg" alt="Kori" width="96" height="96" />
+    <img src="https://kori.kc1t.com/logo.svg" alt="Kori" width="96" height="96" />
   </a>
 
   <br />
