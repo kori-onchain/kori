@@ -53,16 +53,23 @@ const MD_COMPONENTS: Components = {
 export function MessageBubble({
   role,
   content,
-}: Pick<Message, "role" | "content">) {
+  streaming,
+}: Pick<Message, "role" | "content"> & { streaming?: boolean }) {
   const isUser = role === "user"
   return (
-    <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
+    <div
+      className={cn(
+        "kori-ai-msg-in flex",
+        isUser ? "justify-end" : "justify-start",
+      )}
+    >
       <div
         className={cn(
           "max-w-[85%] px-3.5 py-2.5 text-[13px] leading-relaxed",
           isUser
             ? "rounded-2xl rounded-br-md bg-gradient-to-b from-[#ff7a4d] to-[#e85620] font-medium whitespace-pre-wrap text-[#1c0f07]"
             : "rounded-2xl rounded-bl-md border border-ds-line bg-ds-bg-2 text-ds-ink",
+          !isUser && streaming && "kori-ai-streaming",
         )}
       >
         {isUser ? (

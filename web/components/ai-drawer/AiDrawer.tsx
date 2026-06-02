@@ -51,6 +51,8 @@ type State = {
   view: View
   messages: Message[]
   typing: boolean
+  /** id da mensagem do bot sendo revelada (typewriter) — null quando ocioso. */
+  streamingId: string | null
 }
 
 type Action =
@@ -60,12 +62,14 @@ type Action =
   | { type: "ADD"; message: Message }
   | { type: "PATCH"; id: string; content: string }
   | { type: "TYPING"; value: boolean }
+  | { type: "STREAM"; id: string | null }
 
 const initialState: State = {
   open: false,
   view: "topics",
   messages: [],
   typing: false,
+  streamingId: null,
 }
 
 function reducer(state: State, action: Action): State {
@@ -87,6 +91,8 @@ function reducer(state: State, action: Action): State {
       }
     case "TYPING":
       return { ...state, typing: action.value }
+    case "STREAM":
+      return { ...state, streamingId: action.id }
     default:
       return state
   }
@@ -135,7 +141,7 @@ export function AiDrawer({
   triggerLabel = "Falar com a IA",
 }: AiDrawerProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
-  const { open, view, messages, typing } = state
+  const { open, view, messages, typing, streamingId } = state
 
   const inputRef = useRef<HTMLInputElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
@@ -166,34 +172,67 @@ export function AiDrawer({
       dispatch({ type: "TYPING", value: true })
 
       const botId = nextId("assistant")
+      let added = false
       try {
         const result: SendResult = await sender.current(text, history)
         dispatch({ type: "TYPING", value: false })
         dispatch({ type: "ADD", message: { id: botId, role: "assistant", content: "" } })
+        added = true
+        dispatch({ type: "STREAM", id: botId })
 
-        if (typeof result === "string") {
-          dispatch({ type: "PATCH", id: botId, content: result })
-          return
-        }
-        // Streaming: vai preenchendo a bolha conforme chega o texto.
-        const reader = result.getReader()
-        let acc = ""
-        for (;;) {
-          const { value, done } = await reader.read()
-          if (done) break
-          acc += value
-          dispatch({ type: "PATCH", id: botId, content: acc })
-        }
+        // Buffer alvo: recebe o texto (string de uma vez ou stream em pedaços).
+        let target = ""
+        let finished = false
+        const pump = (async () => {
+          try {
+            if (typeof result === "string") {
+              target = result
+              return
+            }
+            const reader = result.getReader()
+            for (;;) {
+              const { value, done } = await reader.read()
+              if (done) break
+              target += value
+            }
+          } finally {
+            finished = true
+          }
+        })()
+
+        // Revelação "typewriter": cadência constante, independente das rajadas
+        // da rede. Acelera quando está muito atrás pra não acumular atraso.
+        let shown = 0
+        await new Promise<void>((resolve) => {
+          const tick = () => {
+            if (shown < target.length) {
+              const remaining = target.length - shown
+              const step = Math.max(1, Math.round(remaining / 9))
+              shown = Math.min(target.length, shown + step)
+              dispatch({ type: "PATCH", id: botId, content: target.slice(0, shown) })
+            }
+            if (finished && shown >= target.length) {
+              resolve()
+              return
+            }
+            window.setTimeout(tick, 16)
+          }
+          tick()
+        })
+        await pump
       } catch {
         dispatch({ type: "TYPING", value: false })
-        dispatch({
-          type: "ADD",
-          message: {
-            id: botId,
-            role: "assistant",
-            content: "Não consegui responder agora. Tente de novo em instantes.",
-          },
-        })
+        const msg = "Não consegui responder agora. Tente de novo em instantes."
+        if (added) {
+          dispatch({ type: "PATCH", id: botId, content: msg })
+        } else {
+          dispatch({
+            type: "ADD",
+            message: { id: botId, role: "assistant", content: msg },
+          })
+        }
+      } finally {
+        dispatch({ type: "STREAM", id: null })
       }
     },
     [],
@@ -221,11 +260,17 @@ export function AiDrawer({
       if (e.key === "Escape") close()
     }
     document.addEventListener("keydown", onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    // Trava o scroll do fundo no html E no body (o scroller varia por browser).
+    const html = document.documentElement
+    const body = document.body
+    const prevHtml = html.style.overflow
+    const prevBody = body.style.overflow
+    html.style.overflow = "hidden"
+    body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = prev
+      html.style.overflow = prevHtml
+      body.style.overflow = prevBody
     }
   }, [open, close])
 
@@ -330,7 +375,10 @@ export function AiDrawer({
         </header>
 
         {/* Corpo */}
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto p-4">
+        <div
+          ref={scrollRef}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
+        >
           {view === "topics" ? (
             <div className="flex flex-col gap-2">
               {TOPICS.map((t) => (
@@ -340,7 +388,12 @@ export function AiDrawer({
           ) : (
             <div className="flex flex-col gap-2.5">
               {messages.map((m) => (
-                <MessageBubble key={m.id} role={m.role} content={m.content} />
+                <MessageBubble
+                  key={m.id}
+                  role={m.role}
+                  content={m.content}
+                  streaming={m.id === streamingId}
+                />
               ))}
               {typing && (
                 <div className="flex justify-start">

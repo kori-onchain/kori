@@ -5,6 +5,11 @@ const BASE_URL = (
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333"
 ).replace(/\/+$/, "")
 
+// MVP sem backend: com NEXT_PUBLIC_USE_API !== "true", o apiClient nem tenta a
+// rede — cada chamada falha na hora e a camada de dados cai no Supabase (rápido,
+// sem requests a localhost:3333). Ligue (="true") quando a API NestJS estiver no ar.
+const API_ENABLED = process.env.NEXT_PUBLIC_USE_API === "true"
+
 let _getToken: (() => Promise<string | null>) | null = null
 let _getWalletIndex: (() => number) | null = null
 let _getAccountType: (() => "PF" | "PJ") | null = null
@@ -38,6 +43,11 @@ export class ApiError extends Error {
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  // MVP sem API: cai direto no fallback Supabase da camada de dados.
+  if (!API_ENABLED) {
+    throw new ApiError({ method, path, message: "API desabilitada (MVP sem API)" })
+  }
+
   const token = _getToken ? await _getToken() : null
   const walletIndex = _getWalletIndex ? _getWalletIndex() : 0
   const accountType = _getAccountType

@@ -14,7 +14,11 @@ import {
  * aqui. O servidor adiciona IP + geolocalização e dispara o webhook.
  *
  * A URL do webhook (DISCORD_WEBHOOK_URL) é segredo de servidor: NUNCA use
- * prefixo NEXT_PUBLIC_, senão vaza pro bundle do front. Sem a env, vira no-op.
+ * prefixo NEXT_PUBLIC_, senão vaza pro bundle do front.
+ *
+ * A env é o liga/desliga: com ela presente, dispara; sem ela, é no-op.
+ * Então deixe DISCORD_WEBHOOK_URL só no .env.local pra ver localmente, e
+ * NÃO configure em produção — assim em prod ele simplesmente não roda.
  */
 export const runtime = "nodejs"
 

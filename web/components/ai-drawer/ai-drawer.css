@@ -39,3 +39,52 @@
     animation: none;
   }
 }
+
+/* Entrada das bolhas (fade + leve subida) */
+.kori-ai-msg-in {
+  animation: kori-ai-msg-in 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes kori-ai-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Cursor de digitação: inline, no fim do último bloco da resposta.
+   react-markdown injeta os blocos direto na bolha, então :last-child é o
+   último parágrafo/lista sendo escrito. */
+.kori-ai-streaming > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: #ff6b3d;
+  border-radius: 1px;
+  animation: kori-ai-blink 1s steps(2, start) infinite;
+}
+@keyframes kori-ai-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kori-ai-msg-in {
+    animation: none;
+  }
+  .kori-ai-streaming > :last-child::after {
+    animation: none;
+  }
+}
