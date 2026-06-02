@@ -1,6 +1,7 @@
 import { apiClient, brlToCents } from "@/lib/api/client"
 import { getAccount, adjustBalance } from "./accounts"
 import { addTransaction, listTransactions } from "./transactions"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Transaction } from "./types"
 
 /**
@@ -14,6 +15,7 @@ export async function transfer(input: {
   recipientWallet: string
   initials?: string | null
 }): Promise<{ balance: number; transaction: Transaction }> {
+  if (MOCK_ENABLED) return mock.transfer(input)
   if (input.amountBrl <= 0) throw new Error("Informe um valor maior que zero.")
 
   async function fallback(): Promise<{ balance: number; transaction: Transaction }> {

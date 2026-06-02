@@ -1,5 +1,6 @@
 import { db, requireUserId } from "./client"
 import { apiClient, centsToBrl } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Account, AccountType } from "./types"
 
 const DEFAULTS: Record<AccountType, Account> = {
@@ -23,6 +24,7 @@ type KoraLedgerAccount = {
 }
 
 export async function getAccount(accountType: AccountType): Promise<Account> {
+  if (MOCK_ENABLED) return mock.getAccount(accountType)
   async function fallback(): Promise<Account> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -54,6 +56,7 @@ export async function adjustBalance(
   accountType: AccountType,
   deltaBrl: number,
 ): Promise<number> {
+  if (MOCK_ENABLED) return mock.adjustBalance(accountType, deltaBrl)
   const { data, error } = await db().rpc("adjust_balance", {
     p_account_type: accountType,
     p_delta: deltaBrl,
@@ -64,6 +67,7 @@ export async function adjustBalance(
 
 /** Move BRL do disponível para o fundo (depósito) ou o contrário (resgate). */
 export async function setFund(accountType: AccountType, fundBrl: number): Promise<void> {
+  if (MOCK_ENABLED) return mock.setFund(accountType, fundBrl)
   const userId = await requireUserId()
   const { error } = await db()
     .from("accounts")

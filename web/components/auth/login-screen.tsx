@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ensureAccountProfile } from "@/lib/account"
 import { createClient } from "@/lib/supabase/client"
+import { MOCK_ENABLED, setMockSession } from "@/lib/mock/store"
 
 import {
   AuthBackground,
@@ -34,8 +35,19 @@ export function LoginScreen() {
     }
   }, [ready, authenticated, router])
 
+  // Modo mock: entra com sessão local, sem bater em Supabase/Privy.
+  const enterMock = () => {
+    setMockSession({ email: email.trim().toLowerCase() })
+    router.push("/dashboard")
+    router.refresh()
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (MOCK_ENABLED) {
+      enterMock()
+      return
+    }
     if (!email || !password) {
       setError("Preencha e-mail e senha.")
       return
@@ -86,8 +98,8 @@ export function LoginScreen() {
 
         <button
           type="button"
-          onClick={() => login()}
-          disabled={!ready}
+          onClick={() => (MOCK_ENABLED ? enterMock() : login())}
+          disabled={!MOCK_ENABLED && !ready}
           className="glossy-orange-btn glossy-orange-btn--full mb-4 py-[14px] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="glossy-orange-btn__icon" aria-hidden="true">

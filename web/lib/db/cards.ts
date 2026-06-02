@@ -1,5 +1,6 @@
 import { db, requireUserId } from "./client"
 import { apiClient, centsToBrl } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Card } from "./types"
 
 type KoraCard = {
@@ -20,6 +21,7 @@ type KoraCard = {
 }
 
 export async function getCard(): Promise<Card | null> {
+  if (MOCK_ENABLED) return mock.getCard()
   async function fallback(): Promise<Card | null> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -57,6 +59,7 @@ export async function getCard(): Promise<Card | null> {
 export async function updateCardFlags(
   flags: Partial<Pick<Card, "is_frozen" | "online_enabled" | "international_enabled">>,
 ): Promise<void> {
+  if (MOCK_ENABLED) return mock.updateCardFlags(flags)
   async function fallback(): Promise<void> {
     const userId = await requireUserId()
     const { error } = await db().from("cards").update(flags).eq("user_id", userId)
@@ -83,6 +86,7 @@ export async function updateCardFlags(
 export async function updateCard(
   patch: Partial<Pick<Card, "number" | "expiry" | "cvv" | "is_frozen" | "online_enabled" | "international_enabled">>,
 ): Promise<void> {
+  if (MOCK_ENABLED) return mock.updateCard(patch)
   async function fallback(): Promise<void> {
     const userId = await requireUserId()
     const { error } = await db().from("cards").update(patch).eq("user_id", userId)

@@ -1,5 +1,6 @@
 import { db, requireUserId } from "./client"
 import { apiClient, centsToBrl } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { AccountType, Transaction, TxKind } from "./types"
 
 type KoraLedgerAccount = {
@@ -21,6 +22,7 @@ export async function listTransactions(
   accountType: AccountType,
   limit = 50,
 ): Promise<Transaction[]> {
+  if (MOCK_ENABLED) return mock.listTransactions(accountType, limit)
   async function fallback(): Promise<Transaction[]> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -69,6 +71,7 @@ export async function addTransaction(input: {
   is_anonymous?: boolean
   kind?: TxKind
 }): Promise<Transaction> {
+  if (MOCK_ENABLED) return mock.addTransaction(input)
   const userId = await requireUserId()
   const { data, error } = await db()
     .from("transactions")

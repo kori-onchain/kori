@@ -1,7 +1,9 @@
 import { db } from "./client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Opportunity } from "./types"
 
 export async function listOpportunities(): Promise<Opportunity[]> {
+  if (MOCK_ENABLED) return mock.listOpportunities()
   const { data } = await db()
     .from("opportunities")
     .select("id, merchant_name, hash, receivable_brl, apr, risk, fill_pct")

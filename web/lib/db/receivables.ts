@@ -2,6 +2,7 @@ import { db, requireUserId } from "./client"
 import { adjustBalance } from "./accounts"
 import { addTransaction } from "./transactions"
 import { apiClient, centsToBrl } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Receivable } from "./types"
 
 type KoraReceivable = {
@@ -16,6 +17,7 @@ type KoraReceivable = {
 }
 
 export async function listReceivables(): Promise<Receivable[]> {
+  if (MOCK_ENABLED) return mock.listReceivables()
   async function fallback(): Promise<Receivable[]> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -53,6 +55,7 @@ export async function listReceivables(): Promise<Receivable[]> {
  * valor líquido no saldo PJ e registra a transação. Retorna o total creditado.
  */
 export async function advanceReceivables(ids: string[]): Promise<{ net: number; balance: number }> {
+  if (MOCK_ENABLED) return mock.advanceReceivables(ids)
   if (ids.length === 0) throw new Error("Selecione ao menos um recebível.")
   const userId = await requireUserId()
 

@@ -1,9 +1,11 @@
 import { db, requireUserId } from "./client"
 import { adjustBalance } from "./accounts"
 import { addTransaction } from "./transactions"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Opportunity, Position } from "./types"
 
 export async function listPositions(): Promise<Position[]> {
+  if (MOCK_ENABLED) return mock.listPositions()
   const userId = await requireUserId()
   const { data } = await db()
     .from("positions")
@@ -26,6 +28,7 @@ export async function financeOpportunity(
   op: Opportunity,
   amountBrl: number,
 ): Promise<{ balance: number }> {
+  if (MOCK_ENABLED) return mock.financeOpportunity(op, amountBrl)
   if (amountBrl <= 0) throw new Error("Informe um valor maior que zero.")
   const userId = await requireUserId()
 

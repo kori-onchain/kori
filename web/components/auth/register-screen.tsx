@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ensureAccountProfile, usernameFromEmail } from "@/lib/account"
 import { createClient } from "@/lib/supabase/client"
+import { MOCK_ENABLED, setMockSession } from "@/lib/mock/store"
 
 import {
   AuthBackground,
@@ -34,8 +35,18 @@ export function RegisterScreen() {
     }
   }, [ready, authenticated, router])
 
+  const enterMock = () => {
+    setMockSession({ name: name.trim(), email: email.trim().toLowerCase() })
+    router.push("/dashboard")
+    router.refresh()
+  }
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (MOCK_ENABLED) {
+      enterMock()
+      return
+    }
     if (!name.trim()) {
       setError("Nome é obrigatório.")
       return
@@ -107,8 +118,8 @@ export function RegisterScreen() {
 
         <button
           type="button"
-          onClick={() => login()}
-          disabled={!ready}
+          onClick={() => (MOCK_ENABLED ? enterMock() : login())}
+          disabled={!MOCK_ENABLED && !ready}
           className="glossy-orange-btn glossy-orange-btn--full mb-4 py-[14px] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <span className="glossy-orange-btn__icon" aria-hidden="true">

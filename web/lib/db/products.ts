@@ -1,5 +1,6 @@
 import { db, requireUserId } from "./client"
 import { apiClient, centsToBrl, brlToCents } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Product } from "./types"
 
 type KoraProduct = {
@@ -26,6 +27,7 @@ function mapKoraProduct(p: KoraProduct): Product {
 }
 
 export async function listProducts(): Promise<Product[]> {
+  if (MOCK_ENABLED) return mock.listProducts()
   async function fallback(): Promise<Product[]> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -57,6 +59,7 @@ export async function addProduct(input: {
   discount?: string | null
   category?: string
 }): Promise<Product> {
+  if (MOCK_ENABLED) return mock.addProduct(input)
   async function fallback(): Promise<Product> {
     const userId = await requireUserId()
     const { data, error } = await db()

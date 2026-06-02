@@ -1,7 +1,9 @@
 import { db, requireUserId } from "./client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Contact } from "./types"
 
 export async function listContacts(): Promise<Contact[]> {
+  if (MOCK_ENABLED) return mock.listContacts()
   const userId = await requireUserId()
   const { data } = await db()
     .from("contacts")
@@ -23,6 +25,7 @@ export async function addContact(input: {
   wallet_id: string
   is_favorite?: boolean
 }): Promise<Contact> {
+  if (MOCK_ENABLED) return mock.addContact(input)
   const userId = await requireUserId()
   const { data, error } = await db()
     .from("contacts")
@@ -40,6 +43,7 @@ export async function addContact(input: {
 }
 
 export async function toggleFavorite(id: string, value: boolean): Promise<void> {
+  if (MOCK_ENABLED) return mock.toggleFavorite(id, value)
   const userId = await requireUserId()
   await db().from("contacts").update({ is_favorite: value }).eq("id", id).eq("user_id", userId)
 }

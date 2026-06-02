@@ -23,6 +23,7 @@ import { shortWallet } from "@/lib/wallet"
 import { SolanaLogo } from "./shared"
 import { ApiBridge } from "./api-bridge"
 import { PreviewModal } from "./preview-modal"
+import { MOCK_ENABLED, getMockSession, clearMockSession } from "@/lib/mock/store"
 
 type AccountType = "PF" | "PJ"
 
@@ -90,6 +91,7 @@ export function DashboardLayout({
     let active = true
     ;(async () => {
       let ok = authenticated
+      if (!ok && MOCK_ENABLED) ok = !!getMockSession()
       if (!ok) {
         try {
           const {
@@ -216,8 +218,12 @@ export function DashboardLayout({
             <button
               aria-label="Sair"
               onClick={async () => {
-                const supabase = createClient()
-                await supabase.auth.signOut()
+                clearMockSession()
+                try {
+                  await createClient().auth.signOut()
+                } catch {
+                  /* ignore */
+                }
                 router.push("/login")
                 router.refresh()
               }}

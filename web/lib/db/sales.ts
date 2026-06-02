@@ -2,6 +2,7 @@ import { db, requireUserId } from "./client"
 import { adjustBalance } from "./accounts"
 import { addTransaction } from "./transactions"
 import { apiClient, centsToBrl, brlToCents } from "@/lib/api/client"
+import { MOCK_ENABLED, mock } from "@/lib/mock/store"
 import type { Sale } from "./types"
 
 type KoraSale = {
@@ -32,6 +33,7 @@ function mapKoraSale(s: KoraSale): Sale {
 }
 
 export async function listSales(limit = 50): Promise<Sale[]> {
+  if (MOCK_ENABLED) return mock.listSales(limit)
   async function fallback(): Promise<Sale[]> {
     const userId = await requireUserId()
     const { data } = await db()
@@ -62,6 +64,7 @@ export async function addSale(input: {
   amount_brl: number
   method?: string
 }): Promise<Sale> {
+  if (MOCK_ENABLED) return mock.addSale(input)
   async function fallback(): Promise<Sale> {
     const userId = await requireUserId()
     const { data, error } = await db()
