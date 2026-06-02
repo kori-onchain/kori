@@ -17,14 +17,19 @@ type ProviderConfig = {
   baseURL: string
   apiKey: string | undefined
   model: string
+  /** Params extras específicos do provider (merge no create). */
+  extra?: Record<string, unknown>
 }
 
-const PROVIDERS: ProviderConfig[] = [
+const CANDIDATES: ProviderConfig[] = [
   {
     name: "gemini",
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
     apiKey: process.env.GEMINI_API_KEY,
     model: "gemini-2.5-flash",
+    // 2.5 Flash é "thinking" por padrão e o raciocínio consome o max_tokens,
+    // truncando a resposta visível. "none" desliga o thinking.
+    extra: { reasoning_effort: "none" },
   },
   {
     name: "groq",
@@ -32,7 +37,11 @@ const PROVIDERS: ProviderConfig[] = [
     apiKey: process.env.GROQ_API_KEY,
     model: "llama-3.3-70b-versatile",
   },
-].filter((p): p is ProviderConfig & { apiKey: string } => Boolean(p.apiKey))
+]
+
+const PROVIDERS = CANDIDATES.filter(
+  (p): p is ProviderConfig & { apiKey: string } => Boolean(p.apiKey),
+)
 
 /** Há pelo menos um provider configurado? */
 export function hasProvider(): boolean {
@@ -73,8 +82,9 @@ export async function* streamReply(
         model: provider.model,
         messages,
         stream: true,
-        max_tokens: 700,
+        max_tokens: 1500,
         temperature: 0.3,
+        ...provider.extra,
       })
 
       let emitted = false

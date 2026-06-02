@@ -19,6 +19,16 @@
     |
     <a href="https://github.com/kori-onchain/kori/issues" target="_blank">Solicitar Features</a>
   </p>
+
+  <p align="center">
+    <a href="https://kori.kc1t.com" target="_blank"><strong>🌐 Acesse o site em kori.kc1t.com »</strong></a>
+  </p>
+
+  <br />
+
+  <a href="https://kori.kc1t.com">
+    <img src="web/public/image.png" alt="Kori" width="100%" />
+  </a>
 </div>
 
 <!-- TABLE OF CONTENTS -->
