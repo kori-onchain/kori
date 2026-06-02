@@ -23,12 +23,6 @@
   <p align="center">
     <a href="https://kori.kc1t.com" target="_blank"><strong>🌐 Acesse o site em kori.kc1t.com »</strong></a>
   </p>
-
-  <br />
-
-  <a href="https://kori.kc1t.com">
-    <img src="web/public/image.png" alt="Kori" width="100%" />
-  </a>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -72,6 +66,12 @@ Kori é um ecossistema financeiro on-chain feito para o usuário brasileiro: a e
 A Kori não se posiciona como banco. Ela combina conta, identidade, pagamentos, cartão, crédito, antecipação de recebíveis, yield local, ativos tokenizados e benefícios em uma única camada financeira verificável, com UX familiar e sem expor complexidade cripto para quem não quer lidar com wallet, seed phrase ou endereço.
 
 O projeto nasceu para o Hackanation 2026 com uma tese simples: cripto não precisa aparecer como complexidade para o usuário final. A Kori abstrai carteira, seed phrase, endereço e transação através de **carteiras embutidas (embedded wallets) da Privy**, enquanto usa Solana para liquidação rápida, baixo custo, rastreabilidade e composabilidade financeira.
+
+<div align="center">
+  <a href="https://kori.kc1t.com">
+    <img src="web/public/image.png" alt="Kori" width="100%" />
+  </a>
+</div>
 
 ### Problema
 
