@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 import "./landing.css"
+import "@/components/ai-drawer/ai-drawer.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { PrivyAuthProvider } from "@/components/privy-provider"
 import { KoriSymbols } from "@/components/landing/kori-symbols"
 import { cn } from "@/lib/utils"
 
@@ -107,8 +109,10 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <KoriSymbols />
-          {children}
+          <PrivyAuthProvider>
+            <KoriSymbols />
+            {children}
+          </PrivyAuthProvider>
         </ThemeProvider>
       </body>
     </html>

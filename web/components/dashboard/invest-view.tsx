@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ArrowRight,
   Award,
@@ -25,7 +25,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { SoftCard } from "./shared"
+import { SoftCard, BizCell } from "./shared"
+import { formatBRL } from "@/lib/db/client"
+import { getAccount } from "@/lib/db/accounts"
+import { listPositions } from "@/lib/db/positions"
+import type { Account, Position } from "@/lib/db/types"
+
+const fmtApr = (n: number) => `${n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
 
 /* ─── TYPES ─── */
 
@@ -39,13 +45,7 @@ const tabs: { id: TabId; label: string }[] = [
   { id: "experiencias", label: "Experiências" },
 ]
 
-const cryptoAssets = [
-  { name: "Solana", ticker: "SOL", value: "R$ 8.240,00", change: "+12,4%", up: true, color: "#9945ff", allocation: "57,2%" },
-  { name: "Bitcoin", ticker: "BTC", value: "R$ 3.200,00", change: "+8,1%", up: true, color: "#F7931A", allocation: "22,2%" },
-  { name: "Ethereum", ticker: "ETH", value: "R$ 1.800,00", change: "-2,3%", up: false, color: "#627EEA", allocation: "12,5%" },
-  { name: "USDC", ticker: "USDC", value: "R$ 1.000,00", change: "+0,1%", up: true, color: "#2775CA", allocation: "6,9%" },
-  { name: "Raydium", ticker: "RAY", value: "R$ 200,50", change: "+24,6%", up: true, color: "#6C5CE7", allocation: "1,4%" },
-]
+const POS_COLORS = ["#9945ff", "#F7931A", "#627EEA", "#2775CA", "#6C5CE7", "#10b981"]
 
 const categoryPills: { id: Category; label: string }[] = [
   { id: "tudo", label: "Tudo" },
@@ -73,6 +73,30 @@ const iconMap = {
 /* ─── INVESTMENTS PANEL ─── */
 
 function InvestmentsPanel() {
+  const [account, setAccount] = useState<Account>({ balance_brl: 0, fund_brl: 0 })
+  const [positions, setPositions] = useState<Position[]>([])
+
+  useEffect(() => {
+    let active = true
+    Promise.all([getAccount("PF"), listPositions()])
+      .then(([acc, pos]) => {
+        if (!active) return
+        setAccount(acc)
+        setPositions(pos)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const investedTotal = positions.reduce((s, p) => s + p.invested_brl, 0)
+  const earnedTotal = positions.reduce((s, p) => s + p.earned_brl, 0)
+  const patrimonio = account.fund_brl + account.balance_brl
+  const activeCount = positions.filter((p) => p.status === "active").length
+  const avgApr = positions.length ? positions.reduce((s, p) => s + p.apr, 0) / positions.length : 0
+  const best = positions.reduce<Position | null>((b, p) => (!b || p.apr > b.apr ? p : b), null)
+
   return (
     <div className="grid grid-cols-[1fr_318px] gap-[18px] p-5 px-6">
       {/* COL PRINCIPAL */}
@@ -84,17 +108,17 @@ function InvestmentsPanel() {
               Patrimônio total
             </span>
             <div className="mt-2 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
-              R$ 42.980<span className="text-2xl text-ds-mute">,50</span>
+              {formatBRL(patrimonio)}
             </div>
             <span className="mt-2.5 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
               <TrendingUp className="size-3" />
-              +14,8% no mês
+              +{formatBRL(earnedTotal)} rendimento
             </span>
 
             <div className="mt-[18px] flex">
               {[
-                { label: "Renda variável", value: "R$ 28.540,00" },
-                { label: "Crypto assets", value: "R$ 14.440,50" },
+                { label: "No fundo", value: formatBRL(account.fund_brl) },
+                { label: "Disponível", value: formatBRL(account.balance_brl) },
               ].map((b, i, arr) => (
                 <div
                   key={b.label}
@@ -182,10 +206,10 @@ function InvestmentsPanel() {
         {/* KPIs */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: "Rendimento mensal", value: "+R$ 1.840", detail: "↑ +4,5%", valueColor: "text-ds-green", detailColor: "text-ds-green" },
-            { label: "Melhor ativo", value: "RAY", detail: "+24,6%", detailColor: "text-ds-green" },
-            { label: "Ativos na carteira", value: "5", detail: "diversificados" },
-            { label: "Risco da carteira", value: "Moderado", detail: "score 62/100", detailColor: "text-ds-orange" },
+            { label: "Rendimento total", value: `+${formatBRL(earnedTotal)}`, detail: "acumulado", valueColor: "text-ds-green", detailColor: "text-ds-green" },
+            { label: "Melhor posição", value: best?.merchant_name?.split(" ")[0] ?? "—", detail: best ? fmtApr(best.apr) : "", detailColor: "text-ds-green" },
+            { label: "Posições ativas", value: String(activeCount), detail: "comércios" },
+            { label: "APR média", value: fmtApr(avgApr), detail: "da carteira", detailColor: "text-ds-orange" },
           ].map((k) => (
             <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
@@ -211,7 +235,7 @@ function InvestmentsPanel() {
           <Table>
             <TableHeader>
               <TableRow className="border-ds-line hover:bg-transparent">
-                {["Ativo", "Ticker", "Valor", "Variação", "Alocação"].map(
+                {["Comércio", "Meu aporte", "Já rendeu", "APR", "Liquida em"].map(
                   (h) => (
                     <TableHead
                       key={h}
@@ -221,53 +245,36 @@ function InvestmentsPanel() {
                     </TableHead>
                   )
                 )}
+                <TableHead className="h-auto px-0 pb-3 text-right font-mono text-[9px] font-normal uppercase tracking-[0.08em] text-ds-mute">
+                  Status
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cryptoAssets.map((asset) => (
+              {positions.map((p) => (
                 <TableRow
-                  key={asset.ticker}
+                  key={p.id}
                   className="border-ds-line hover:bg-ds-ink/[0.03]"
                 >
                   <TableCell className="px-0 py-[11px]">
-                    <div className="flex items-center gap-[11px]">
-                      <div
-                        className="flex size-[30px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                        style={{ backgroundColor: asset.color }}
-                      >
-                        {asset.name.charAt(0)}
-                      </div>
-                      <div className="text-[13px] font-semibold">
-                        {asset.name}
-                      </div>
-                    </div>
+                    <BizCell name={p.merchant_name} hash={p.hash ?? ""} />
                   </TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs text-ds-mute">
-                    {asset.ticker}
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">
+                    {formatBRL(p.invested_brl)}
                   </TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold">
-                    {asset.value}
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">
+                    +{formatBRL(p.earned_brl)}
                   </TableCell>
-                  <TableCell
-                    className={cn(
-                      "px-0 py-[11px] font-mono text-xs font-semibold",
-                      asset.up ? "text-ds-green" : "text-ds-red"
-                    )}
-                  >
-                    {asset.change}
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">
+                    {fmtApr(p.apr)}
                   </TableCell>
-                  <TableCell className="px-0 py-[11px]">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1 min-w-[44px] flex-1 overflow-hidden rounded-sm bg-ds-bg-2">
-                        <div
-                          className="h-full rounded-sm bg-ds-orange"
-                          style={{ width: asset.allocation }}
-                        />
-                      </div>
-                      <span className="font-mono text-[9px] text-ds-dim">
-                        {asset.allocation}
-                      </span>
-                    </div>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">
+                    {p.liquidates_in_days}d
+                  </TableCell>
+                  <TableCell className="px-0 py-[11px] text-right">
+                    <Badge variant="secondary" className={cn("h-auto border-0 font-mono text-[8px] uppercase", p.status === "active" ? "bg-ds-green/10 text-ds-green" : "bg-ds-bg-2 text-ds-dim")}>
+                      {p.status === "active" ? "ativo" : "liquidando"}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))}
@@ -287,39 +294,33 @@ function InvestmentsPanel() {
             </span>
           </div>
 
-          {cryptoAssets.map((asset, i) => (
-            <div
-              key={asset.ticker}
-              className={cn(
-                "flex items-center gap-[11px] py-3",
-                i > 0 && "border-t border-ds-line"
-              )}
-            >
+          {positions.map((p, i) => {
+            const pct = investedTotal ? Math.round((p.invested_brl / investedTotal) * 100) : 0
+            return (
               <div
-                className="flex size-[34px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                style={{ backgroundColor: asset.color }}
+                key={p.id}
+                className={cn(
+                  "flex items-center gap-[11px] py-3",
+                  i > 0 && "border-t border-ds-line"
+                )}
               >
-                {asset.name.charAt(0)}
-              </div>
-              <div className="flex-1">
-                <div className="text-[13px] font-semibold">{asset.name}</div>
-                <div className="mt-px font-mono text-[8px] text-ds-mute">
-                  {asset.ticker}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-[13px] font-semibold">{asset.value}</div>
                 <div
-                  className={cn(
-                    "mt-px font-mono text-[8px]",
-                    asset.up ? "text-ds-green" : "text-ds-red"
-                  )}
+                  className="flex size-[34px] shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                  style={{ backgroundColor: POS_COLORS[i % POS_COLORS.length] }}
                 >
-                  {asset.change}
+                  {p.merchant_name.charAt(0)}
+                </div>
+                <div className="flex-1">
+                  <div className="text-[13px] font-semibold">{p.merchant_name}</div>
+                  <div className="mt-px font-mono text-[8px] text-ds-mute">{pct}% da carteira</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[13px] font-semibold">{formatBRL(p.invested_brl)}</div>
+                  <div className="mt-px font-mono text-[8px] text-ds-green">+{formatBRL(p.earned_brl)}</div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </SoftCard>
 
         {/* RESUMO RÁPIDO */}
@@ -330,11 +331,11 @@ function InvestmentsPanel() {
           </div>
 
           {[
-            { label: "Investido total", value: "R$ 37.420,00" },
-            { label: "Lucro realizado", value: "+R$ 3.280,50", green: true },
-            { label: "Lucro não realizado", value: "+R$ 2.280,00", green: true },
-            { label: "Maior ganho", value: "RAY +24,6%" },
-            { label: "Maior perda", value: "ETH -2,3%", red: true },
+            { label: "Investido total", value: formatBRL(investedTotal), green: false },
+            { label: "Rendimento acumulado", value: `+${formatBRL(earnedTotal)}`, green: true },
+            { label: "No fundo", value: formatBRL(account.fund_brl), green: true },
+            { label: "Disponível", value: formatBRL(account.balance_brl), green: false },
+            { label: "Melhor APR", value: best ? `${best.merchant_name.split(" ")[0]} ${fmtApr(best.apr)}` : "—", green: false },
           ].map((item, i) => (
             <div
               key={item.label}
@@ -349,8 +350,7 @@ function InvestmentsPanel() {
               <span
                 className={cn(
                   "font-mono text-[11px] font-semibold",
-                  item.green && "text-ds-green",
-                  item.red && "text-ds-red"
+                  item.green ? "text-ds-green" : "text-ds-dim"
                 )}
               >
                 {item.value}

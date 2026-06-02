@@ -36,7 +36,7 @@ export function Calculator() {
   const consumidorSavings = bankJuros - koriJuros
 
   return (
-    <section className="section">
+    <section id="calculadora" className="section" style={{ scrollMarginTop: 88 }}>
       <span className="sec-label">S:03 / CALCULADORA</span>
       <span className="corner bl" />
       <span className="corner br" />

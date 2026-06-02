@@ -33,7 +33,7 @@ const STEPS = [
 
 export function Architecture() {
   return (
-    <section className="section">
+    <section id="arquitetura" className="section" style={{ scrollMarginTop: 88 }}>
       <span className="sec-label">S:08 / ARQUITETURA</span>
       <span className="corner bl" />
       <span className="corner br" />

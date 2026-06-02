@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   Activity,
   ArrowUpDown,
@@ -34,22 +35,15 @@ import {
   SoftCard,
   BizCell,
 } from "./shared"
+import { getAccount, setFund } from "@/lib/db/accounts"
+import { addTransaction } from "@/lib/db/transactions"
+import { listPositions, financeOpportunity } from "@/lib/db/positions"
+import { listOpportunities } from "@/lib/db/opportunities"
+import type { Account, Opportunity, Position } from "@/lib/db/types"
 
-/* ─── DATA ─── */
+/* ─── HELPERS ─── */
 
-const positions = [
-  { name: "Mercado São Jorge", hash: "9Hpb...2nQa", invested: "R$ 2.000", earned: "+R$ 18,40", apr: "14,2%", days: "12d", status: "active" as const },
-  { name: "Ótica Visão", hash: "3Fmq...8tLp", invested: "R$ 1.500", earned: "+R$ 22,60", apr: "16,5%", days: "28d", status: "active" as const },
-  { name: "Café Central", hash: "5KJp...3wWf", invested: "R$ 1.500", earned: "+R$ 14,10", apr: "13,8%", days: "3d", status: "pending" as const },
-  { name: "Studio Bem-Estar", hash: "2Wny...6kRm", invested: "R$ 980", earned: "+R$ 9,80", apr: "18,1%", days: "45d", status: "active" as const },
-  { name: "Padaria Aurora", hash: "8Wnz...1kPm", invested: "R$ 2.440", earned: "+R$ 31,20", apr: "15,0%", days: "19d", status: "active" as const },
-]
-
-const marketplaceItems = [
-  { idx: 1, name: "Padaria Aurora", hash: "8Wnz...1kPm", receivable: "R$ 3.100", apr: "15,0%", risk: "low" as const, fill: 28 },
-  { idx: 2, name: "Floricultura Bela", hash: "6Tyu...9pLk", receivable: "R$ 1.800", apr: "14,5%", risk: "low" as const, fill: 52 },
-  { idx: 3, name: "Pet Shop Amigo", hash: "4Rew...2mNb", receivable: "R$ 2.300", apr: "13,9%", risk: "low" as const, fill: 71 },
-]
+const fmtApr = (n: number) => `${n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`
 
 /* ─── TICKER ─── */
 
@@ -101,6 +95,79 @@ export function DashboardHome() {
   const depositBrl = 500
   const usdcOut = depositBrl / prices.usdcBrl
 
+  const [account, setAccount] = useState<Account>({ balance_brl: 0, fund_brl: 0 })
+  const [positions, setPositions] = useState<Position[]>([])
+  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [depositing, setDepositing] = useState(false)
+
+  async function reload() {
+    const [acc, pos, ops] = await Promise.all([
+      getAccount("PF"),
+      listPositions(),
+      listOpportunities(),
+    ])
+    setAccount(acc)
+    setPositions(pos)
+    setOpportunities(ops)
+  }
+
+  useEffect(() => {
+    let active = true
+    Promise.all([getAccount("PF"), listPositions(), listOpportunities()])
+      .then(([acc, pos, ops]) => {
+        if (!active) return
+        setAccount(acc)
+        setPositions(pos)
+        setOpportunities(ops)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const totalEarned = positions.reduce((s, p) => s + p.earned_brl, 0)
+  const patrimonio = account.fund_brl + account.balance_brl
+  const activeCount = positions.filter((p) => p.status === "active").length
+
+  const handleFinance = async (op: Opportunity) => {
+    setError(null)
+    setBusyId(op.id)
+    try {
+      const amount = Math.min(100, account.balance_brl)
+      if (amount <= 0) throw new Error("Saldo disponível insuficiente para financiar.")
+      await financeOpportunity(op, amount)
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível financiar.")
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const handleDeposit = async () => {
+    setError(null)
+    setDepositing(true)
+    try {
+      await setFund("PF", account.fund_brl + depositBrl)
+      await addTransaction({
+        accountType: "PF",
+        title: "Depósito no fundo",
+        subtitle: "Entrada via Pix",
+        amount_brl: depositBrl,
+        is_credit: true,
+        kind: "deposit",
+      })
+      await reload()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível depositar.")
+    } finally {
+      setDepositing(false)
+    }
+  }
+
   return (
     <>
       <Ticker prices={prices} />
@@ -112,16 +179,16 @@ export function DashboardHome() {
           <div className="flex flex-col">
             <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-ds-mute">Patrimônio total</span>
             <div className="mt-2 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
-              R$ 8.832<span className="text-2xl text-ds-mute">,98</span>
+              {fmtBrl(patrimonio)}
             </div>
             <span className="mt-2.5 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
-              ↑ +R$ 412,80 · +4,9%
+              ↑ +{fmtBrl(totalEarned)} · rendimento
             </span>
             <div className="mt-[18px] flex">
               {[
-                { label: "No fundo", value: "R$ 8.420,18" },
-                { label: "Disponível", value: "R$ 412,80" },
-                { label: "Rendimento total", value: "+R$ 412,80", green: true },
+                { label: "No fundo", value: fmtBrl(account.fund_brl) },
+                { label: "Disponível", value: fmtBrl(account.balance_brl) },
+                { label: "Rendimento total", value: `+${fmtBrl(totalEarned)}`, green: true },
               ].map((b, i, arr) => (
                 <div key={b.label} className={cn("pr-5 mr-5", i < arr.length - 1 && "border-r border-ds-line")}>
                   <div className="font-mono text-[8px] uppercase tracking-[0.05em] text-ds-mute">{b.label}</div>
@@ -130,14 +197,23 @@ export function DashboardHome() {
               ))}
             </div>
             <div className="mt-auto flex gap-[9px] pt-5">
-              <Button className="h-auto gap-[7px] rounded-[11px] border-0 bg-ds-ink px-5 py-[11px] text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+              <Button
+                onClick={handleDeposit}
+                disabled={depositing}
+                className="h-auto gap-[7px] rounded-[11px] border-0 bg-ds-ink px-5 py-[11px] text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)] disabled:opacity-60"
+              >
                 <Plus className="size-3.5" />
-                Depositar
+                {depositing ? "Depositando..." : "Depositar"}
               </Button>
               <Button variant="ghost" className="h-auto rounded-[11px] border border-ds-line bg-ds-bg-1 px-5 py-[11px] text-[13px] font-semibold text-ds-ink">
                 Resgatar
               </Button>
             </div>
+            {error && (
+              <div className="mt-3 rounded-xl border border-ds-red/20 bg-ds-red/5 px-3 py-2 text-[11px] font-medium text-ds-red">
+                {error}
+              </div>
+            )}
           </div>
           <div className="flex flex-col">
             <div className="mb-2 flex items-center justify-between">
@@ -171,10 +247,10 @@ export function DashboardHome() {
         {/* KPIs */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: "Rendimento no mês", value: "+R$ 138,40", detail: "↑ +1,6%", valueColor: "text-ds-green", detailColor: "text-ds-green" },
+            { label: "Rendimento total", value: `+${fmtBrl(totalEarned)}`, detail: "acumulado", valueColor: "text-ds-green", detailColor: "text-ds-green" },
             { label: "APR da carteira", value: "15,1%", detail: "acima da média", detailColor: "text-ds-orange" },
-            { label: "Posições ativas", value: "12", detail: "comércios" },
-            { label: "Próx. liquidação", value: "3 dias", detail: "Café Central" },
+            { label: "Posições ativas", value: String(activeCount), detail: "comércios" },
+            { label: "Disponível", value: fmtBrl(account.balance_brl), detail: "para investir" },
           ].map((k) => (
             <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
@@ -204,12 +280,12 @@ export function DashboardHome() {
             </TableHeader>
             <TableBody>
               {positions.map((p) => (
-                <TableRow key={p.hash} className="border-ds-line hover:bg-ds-ink/[0.03]">
-                  <TableCell className="px-0 py-[11px]"><BizCell name={p.name} hash={p.hash} /></TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs">{p.invested}</TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">{p.earned}</TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">{p.apr}</TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs">{p.days}</TableCell>
+                <TableRow key={p.id} className="border-ds-line hover:bg-ds-ink/[0.03]">
+                  <TableCell className="px-0 py-[11px]"><BizCell name={p.merchant_name} hash={p.hash ?? ""} /></TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">{fmtBrl(p.invested_brl)}</TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">+{fmtBrl(p.earned_brl)}</TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">{fmtApr(p.apr)}</TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">{p.liquidates_in_days}d</TableCell>
                   <TableCell className="px-0 py-[11px] text-right">
                     <Badge variant="secondary" className={cn("h-auto border-0 font-mono text-[8px] uppercase", p.status === "active" ? "bg-ds-green/10 text-ds-green" : "bg-ds-bg-2 text-ds-dim")}>
                       {p.status === "active" ? "ativo" : "liquidando"}
@@ -243,25 +319,33 @@ export function DashboardHome() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {marketplaceItems.map((m) => (
-                <TableRow key={m.hash} className="border-ds-line hover:bg-ds-ink/[0.03]">
-                  <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">{m.idx}</TableCell>
-                  <TableCell className="px-0 py-[11px]"><BizCell name={m.name} hash={m.hash} /></TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs">{m.receivable}</TableCell>
-                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">{m.apr}</TableCell>
+              {opportunities.map((m, i) => (
+                <TableRow key={m.id} className="border-ds-line hover:bg-ds-ink/[0.03]">
+                  <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">{i + 1}</TableCell>
+                  <TableCell className="px-0 py-[11px]"><BizCell name={m.merchant_name} hash={m.hash ?? ""} /></TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs">{fmtBrl(m.receivable_brl)}</TableCell>
+                  <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold text-ds-green">{fmtApr(m.apr)}</TableCell>
                   <TableCell className="px-0 py-[11px]">
                     <Badge variant="secondary" className="h-auto border-0 bg-ds-green/10 font-mono text-[8px] uppercase text-ds-green">baixo</Badge>
                   </TableCell>
                   <TableCell className="px-0 py-[11px]">
                     <div className="flex items-center gap-2">
                       <div className="h-1 min-w-[44px] flex-1 overflow-hidden rounded-sm bg-ds-bg-2">
-                        <div className="h-full rounded-sm bg-ds-orange" style={{ width: `${m.fill}%` }} />
+                        <div className="h-full rounded-sm bg-ds-orange" style={{ width: `${m.fill_pct}%` }} />
                       </div>
-                      <span className="font-mono text-[9px] text-ds-dim">{m.fill}%</span>
+                      <span className="font-mono text-[9px] text-ds-dim">{m.fill_pct}%</span>
                     </div>
                   </TableCell>
                   <TableCell className="px-0 py-[11px] text-right">
-                    <Button variant="ghost" size="sm" className="h-auto rounded-[11px] border border-ds-line bg-ds-bg-1 px-3.5 py-1.5 text-[11px] font-semibold text-ds-ink">Financiar</Button>
+                    <Button
+                      onClick={() => handleFinance(m)}
+                      disabled={busyId === m.id}
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto rounded-[11px] border border-ds-line bg-ds-bg-1 px-3.5 py-1.5 text-[11px] font-semibold text-ds-ink disabled:opacity-60"
+                    >
+                      {busyId === m.id ? "..." : "Financiar"}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -279,9 +363,9 @@ export function DashboardHome() {
             <span className="font-mono text-[9px] text-ds-mute">tudo <span className="text-ds-orange">→</span></span>
           </div>
           {[
-            { logo: <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-ds-orange/10 text-ds-orange"><CircleDollarSign className="size-[17px]" /></div>, name: "Cota do fundo", detail: "498,2 KFND", value: "R$ 8.420,18", pct: "95,3%" },
-            { logo: <UsdcLogo size={34} />, name: "USDC", detail: "disponível", value: "R$ 412,80", pct: "4,4%" },
-            { logo: <SolanaLogo size={34} />, name: "SOL", detail: "pra taxa de rede", value: "R$ 24,00", pct: "0,3%" },
+            { logo: <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] bg-ds-orange/10 text-ds-orange"><CircleDollarSign className="size-[17px]" /></div>, name: "Cota do fundo", detail: "aplicado", value: fmtBrl(account.fund_brl) },
+            { logo: <UsdcLogo size={34} />, name: "USDC", detail: "disponível", value: fmtBrl(account.balance_brl) },
+            { logo: <SolanaLogo size={34} />, name: "SOL", detail: "pra taxa de rede", value: "R$ 24,00" },
           ].map((a, i) => (
             <div key={a.name} className={cn("flex items-center gap-[11px] py-3", i > 0 && "border-t border-ds-line")}>
               {a.logo}
@@ -291,7 +375,6 @@ export function DashboardHome() {
               </div>
               <div className="text-right">
                 <div className="text-[13px] font-semibold">{a.value}</div>
-                <div className="mt-px font-mono text-[8px] text-ds-mute">{a.pct}</div>
               </div>
             </div>
           ))}
@@ -351,9 +434,13 @@ export function DashboardHome() {
             <span className="font-mono text-[11px] font-semibold text-ds-green">$0.0001</span>
           </div>
 
-          <Button className="h-auto w-full gap-2 rounded-xl border-0 bg-ds-ink py-3 text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+          <Button
+            onClick={handleDeposit}
+            disabled={depositing}
+            className="h-auto w-full gap-2 rounded-xl border-0 bg-ds-ink py-3 text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)] disabled:opacity-60"
+          >
             <Plus className="size-3.5" />
-            Confirmar depósito
+            {depositing ? "Processando..." : "Confirmar depósito"}
           </Button>
         </SoftCard>
       </div>

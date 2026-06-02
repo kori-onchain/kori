@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Package,
   Search,
@@ -20,6 +20,11 @@ import {
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { SoftCard } from "./shared"
+import { formatBRL } from "@/lib/db/client"
+import { listSales, addSale } from "@/lib/db/sales"
+import { listProducts, addProduct } from "@/lib/db/products"
+import { listReceivables } from "@/lib/db/receivables"
+import type { Product, Sale } from "@/lib/db/types"
 
 /* ─── TYPES ─── */
 
@@ -27,32 +32,7 @@ type TabView = "dashboard" | "vitrine"
 type Period = "hoje" | "7d" | "30d"
 type Category = "tudo" | "smartphones" | "kitchen" | "consoles"
 
-/* ─── MOCK DATA ─── */
-
-const mockProducts = [
-  { id: "1", brand: "APPLE", name: "iPhone 15 Pro", price: 6999, oldPrice: 7999, discount: "-12%", category: "smartphones" as const },
-  { id: "2", brand: "MONDIAL", name: "AirFryer Turbo 5L", price: 349, oldPrice: 499, discount: "-30%", category: "kitchen" as const },
-  { id: "3", brand: "SONY", name: "PlayStation 5 Slim", price: 3499, oldPrice: null, discount: null, category: "consoles" as const },
-  { id: "4", brand: "SAMSUNG", name: "Galaxy S24 Ultra", price: 5999, oldPrice: 7499, discount: "-20%", category: "smartphones" as const },
-  { id: "5", brand: "TRAMONTINA", name: "Conjunto Panelas Inox", price: 289, oldPrice: 389, discount: "-25%", category: "kitchen" as const },
-  { id: "6", brand: "NINTENDO", name: "Switch OLED", price: 2199, oldPrice: 2499, discount: "-12%", category: "consoles" as const },
-]
-
-const topSelling = [
-  { rank: 1, name: "iPhone 15 Pro", sales: 32, revenue: "R$ 223.968", color: "#3b82f6" },
-  { rank: 2, name: "PlayStation 5 Slim", sales: 18, revenue: "R$ 62.982", color: "#8b5cf6" },
-  { rank: 3, name: "Galaxy S24 Ultra", sales: 14, revenue: "R$ 83.986", color: "#f59e0b" },
-  { rank: 4, name: "AirFryer Turbo 5L", sales: 12, revenue: "R$ 4.188", color: "#ef4444" },
-  { rank: 5, name: "Switch OLED", sales: 8, revenue: "R$ 17.592", color: "#10b981" },
-]
-
-const recentSales = [
-  { initials: "MC", name: "Maria Costa", items: 2, amount: "R$ 7.348,00", method: "Pix" },
-  { initials: "JS", name: "João Silva", items: 1, amount: "R$ 3.499,00", method: "Pix" },
-  { initials: "AL", name: "Ana Lima", items: 3, amount: "R$ 1.137,00", method: "Pix" },
-  { initials: "PR", name: "Pedro Rocha", items: 1, amount: "R$ 5.999,00", method: "Pix" },
-  { initials: "CF", name: "Carla Ferreira", items: 2, amount: "R$ 2.548,00", method: "Pix" },
-]
+const TOP_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#ef4444", "#10b981"]
 
 /* ─── HELPERS ─── */
 
@@ -84,6 +64,61 @@ const categories: { id: Category; label: string }[] = [
 
 function SalesDashboard() {
   const [period, setPeriod] = useState<Period>("7d")
+  const [sales, setSales] = useState<Sale[]>([])
+  const [productCount, setProductCount] = useState(0)
+  const [toReceive, setToReceive] = useState(0)
+  const [registering, setRegistering] = useState(false)
+
+  async function reload() {
+    const [sa, prods, recs] = await Promise.all([
+      listSales(),
+      listProducts(),
+      listReceivables(),
+    ])
+    setSales(sa)
+    setProductCount(prods.length)
+    setToReceive(
+      recs.filter((r) => r.status === "pendente").reduce((s, r) => s + r.net_value, 0),
+    )
+  }
+
+  useEffect(() => {
+    let active = true
+    Promise.all([listSales(), listProducts(), listReceivables()])
+      .then(([sa, prods, recs]) => {
+        if (!active) return
+        setSales(sa)
+        setProductCount(prods.length)
+        setToReceive(
+          recs.filter((r) => r.status === "pendente").reduce((s, r) => s + r.net_value, 0),
+        )
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const revenue = sales.reduce((s, v) => s + v.amount_brl, 0)
+  const ticket = sales.length ? revenue / sales.length : 0
+  const topSales = [...sales].sort((a, b) => b.amount_brl - a.amount_brl).slice(0, 5)
+
+  const handleNewSale = async () => {
+    const name = window.prompt("Nome do cliente:")?.trim()
+    if (!name) return
+    const raw = window.prompt("Valor da venda (R$):")?.replace(",", ".")
+    const amount = Number(raw)
+    if (!Number.isFinite(amount) || amount <= 0) return
+    setRegistering(true)
+    try {
+      await addSale({ customer_name: name, amount_brl: amount })
+      await reload()
+    } catch {
+      // silencioso
+    } finally {
+      setRegistering(false)
+    }
+  }
 
   return (
     <div className="grid grid-cols-[1fr_318px] gap-[18px] p-5 px-6">
@@ -114,17 +149,17 @@ function SalesDashboard() {
               </div>
             </div>
             <div className="mt-3 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
-              R$ 12.840<span className="text-2xl text-ds-mute">,00</span>
+              {formatBRL(revenue)}
             </div>
             <span className="mt-2.5 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
-              ↑ +18,2% vs período anterior
+              {sales.length} {sales.length === 1 ? "venda registrada" : "vendas registradas"}
             </span>
 
             <div className="mt-[18px] flex">
               {[
-                { label: "Vendas", value: "84", detail: "+12" },
-                { label: "Ticket médio", value: "R$ 152,86" },
-                { label: "Conversão", value: "3,8%", detail: "↑ 0,4%" },
+                { label: "Vendas", value: String(sales.length), detail: undefined as string | undefined },
+                { label: "Ticket médio", value: formatBRL(ticket), detail: undefined as string | undefined },
+                { label: "A receber", value: formatBRL(toReceive), detail: undefined as string | undefined },
               ].map((b, i, arr) => (
                 <div
                   key={b.label}
@@ -188,10 +223,10 @@ function SalesDashboard() {
         {/* KPIs */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: "Vendas no período", value: "84", detail: "↑ +12 vs anterior", valueColor: "text-ds-green", detailColor: "text-ds-green" },
-            { label: "Ticket médio", value: "R$ 152", detail: "por compra" },
-            { label: "Taxa de conversão", value: "3,8%", detail: "↑ +0,4%", detailColor: "text-ds-green" },
-            { label: "Produtos ativos", value: "6", detail: "na vitrine" },
+            { label: "Vendas registradas", value: String(sales.length), detail: "no total", valueColor: "text-ds-green", detailColor: "text-ds-green" },
+            { label: "Ticket médio", value: formatBRL(ticket), detail: "por compra" },
+            { label: "A receber", value: formatBRL(toReceive), detail: "recebíveis pendentes", detailColor: "text-ds-orange" },
+            { label: "Produtos ativos", value: String(productCount), detail: "na vitrine" },
           ].map((k) => (
             <div key={k.label} className="rounded-[14px] border border-ds-line bg-ds-bg-1 p-[15px]">
               <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">{k.label}</div>
@@ -205,9 +240,9 @@ function SalesDashboard() {
         <div className="rounded-2xl border border-ds-line bg-ds-bg-1 p-[18px]">
           <div className="mb-3.5 flex items-center justify-between">
             <div>
-              <div className="text-base font-bold tracking-tight">Mais vendidos</div>
+              <div className="text-base font-bold tracking-tight">Maiores vendas</div>
               <div className="mt-0.5 font-mono text-[9px] text-ds-mute">
-                ranking de produtos no período
+                suas vendas de maior valor
               </div>
             </div>
             <span className="font-mono text-[9px] text-ds-mute">
@@ -217,7 +252,7 @@ function SalesDashboard() {
           <Table>
             <TableHeader>
               <TableRow className="border-ds-line hover:bg-transparent">
-                {["#", "Produto", "Vendas", "Receita"].map((h) => (
+                {["#", "Cliente", "Itens", "Valor"].map((h) => (
                   <TableHead
                     key={h}
                     className="h-auto px-0 pb-3 font-mono text-[9px] font-normal uppercase tracking-[0.08em] text-ds-mute"
@@ -228,30 +263,33 @@ function SalesDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {topSelling.map((p) => (
-                <TableRow key={p.rank} className="border-ds-line hover:bg-ds-ink/[0.03]">
+              {topSales.map((s, i) => (
+                <TableRow key={s.id} className="border-ds-line hover:bg-ds-ink/[0.03]">
                   <TableCell className="w-[26px] px-0 py-[11px] font-mono text-[11px] text-ds-mute">
-                    {p.rank}
+                    {i + 1}
                   </TableCell>
                   <TableCell className="px-0 py-[11px]">
                     <div className="flex items-center gap-2.5">
                       <div
                         className="size-[18px] shrink-0 rounded"
-                        style={{ backgroundColor: p.color }}
+                        style={{ backgroundColor: TOP_COLORS[i % TOP_COLORS.length] }}
                       />
-                      <span className="text-[13px] font-semibold">{p.name}</span>
+                      <span className="text-[13px] font-semibold">{s.customer_name}</span>
                     </div>
                   </TableCell>
                   <TableCell className="px-0 py-[11px] font-mono text-xs">
-                    {p.sales}
+                    {s.items}
                   </TableCell>
                   <TableCell className="px-0 py-[11px] font-mono text-xs font-semibold">
-                    {p.revenue}
+                    {formatBRL(s.amount_brl)}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          {topSales.length === 0 && (
+            <p className="pt-2 text-xs text-ds-dim">Nenhuma venda ainda.</p>
+          )}
         </div>
       </div>
 
@@ -262,9 +300,9 @@ function SalesDashboard() {
           <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-ds-mute">
             A receber
           </span>
-          <div className="mt-2 text-[21px] font-bold">R$ 8.420,00</div>
+          <div className="mt-2 text-[21px] font-bold">{formatBRL(toReceive)}</div>
           <div className="mt-1 font-mono text-[9px] text-ds-mute">
-            próxima entrada: 28 mai
+            recebíveis pendentes
           </div>
           <Button
             variant="ghost"
@@ -333,14 +371,22 @@ function SalesDashboard() {
             <div className="text-base font-bold tracking-tight">
               Vendas recentes
             </div>
-            <span className="font-mono text-[9px] text-ds-mute">
-              ver tudo <span className="text-ds-orange">&rarr;</span>
-            </span>
+            <button
+              onClick={handleNewSale}
+              disabled={registering}
+              className="font-mono text-[9px] font-semibold text-ds-orange transition-opacity hover:opacity-80 disabled:opacity-50"
+            >
+              {registering ? "..." : "+ nova venda"}
+            </button>
           </div>
 
-          {recentSales.map((s, i) => (
+          {sales.length === 0 && (
+            <p className="py-3 text-xs text-ds-dim">Nenhuma venda ainda.</p>
+          )}
+
+          {sales.slice(0, 6).map((s, i) => (
             <div
-              key={s.name}
+              key={s.id}
               className={cn(
                 "flex items-center gap-[11px] py-3",
                 i > 0 && "border-t border-ds-line"
@@ -350,13 +396,13 @@ function SalesDashboard() {
                 {s.initials}
               </div>
               <div className="flex-1">
-                <div className="text-[13px] font-semibold">{s.name}</div>
+                <div className="text-[13px] font-semibold">{s.customer_name}</div>
                 <div className="mt-px font-mono text-[8px] text-ds-mute">
-                  {s.items} {s.items === 1 ? "item" : "itens"}
+                  {s.items} {s.items === 1 ? "item" : "itens"} · {s.method}
                 </div>
               </div>
               <div className="text-[13px] font-semibold text-ds-green">
-                {s.amount}
+                {formatBRL(s.amount_brl)}
               </div>
             </div>
           ))}
@@ -371,13 +417,46 @@ function SalesDashboard() {
 function VitrinePanel() {
   const [category, setCategory] = useState<Category>("tudo")
   const [search, setSearch] = useState("")
+  const [products, setProducts] = useState<Product[]>([])
 
-  const filtered = mockProducts.filter((p) => {
+  async function reload() {
+    setProducts(await listProducts())
+  }
+
+  useEffect(() => {
+    let active = true
+    listProducts()
+      .then((p) => {
+        if (active) setProducts(p)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handleNewProduct = async () => {
+    const name = window.prompt("Nome do produto:")?.trim()
+    if (!name) return
+    const raw = window.prompt("Preço (R$):")?.replace(",", ".")
+    const price = Number(raw)
+    if (!Number.isFinite(price) || price <= 0) return
+    const brand = window.prompt("Marca (opcional):")?.trim() || null
+    try {
+      await addProduct({ name, price, brand, category: "tudo" })
+      await reload()
+    } catch {
+      // silencioso
+    }
+  }
+
+  const filtered = products.filter((p) => {
     const matchCategory = category === "tudo" || p.category === category
+    const q = search.toLowerCase()
     const matchSearch =
       search === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase())
+      p.name.toLowerCase().includes(q) ||
+      (p.brand ?? "").toLowerCase().includes(q)
     return matchCategory && matchSearch
   })
 
@@ -451,9 +530,9 @@ function VitrinePanel() {
                     <span className="text-[21px] font-bold">
                       {fmtBrl(filtered[0].price)}
                     </span>
-                    {filtered[0].oldPrice && (
+                    {filtered[0].old_price && (
                       <span className="font-mono text-[11px] text-ds-mute line-through">
-                        {fmtBrl(filtered[0].oldPrice)}
+                        {fmtBrl(filtered[0].old_price)}
                       </span>
                     )}
                   </div>
@@ -482,9 +561,9 @@ function VitrinePanel() {
                 </div>
                 <div className="mt-1 flex items-baseline gap-1.5">
                   <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
-                  {p.oldPrice && (
+                  {p.old_price && (
                     <span className="font-mono text-[10px] text-ds-mute line-through">
-                      {fmtBrl(p.oldPrice)}
+                      {fmtBrl(p.old_price)}
                     </span>
                   )}
                 </div>
@@ -512,9 +591,9 @@ function VitrinePanel() {
                     <span className="text-base font-bold">
                       {fmtBrl(filtered[3].price)}
                     </span>
-                    {filtered[3].oldPrice && (
+                    {filtered[3].old_price && (
                       <span className="font-mono text-[11px] text-ds-mute line-through">
-                        {fmtBrl(filtered[3].oldPrice)}
+                        {fmtBrl(filtered[3].old_price)}
                       </span>
                     )}
                   </div>
@@ -543,9 +622,9 @@ function VitrinePanel() {
                 </div>
                 <div className="mt-1 flex items-baseline gap-1.5">
                   <span className="text-sm font-bold">{fmtBrl(p.price)}</span>
-                  {p.oldPrice && (
+                  {p.old_price && (
                     <span className="font-mono text-[10px] text-ds-mute line-through">
-                      {fmtBrl(p.oldPrice)}
+                      {fmtBrl(p.old_price)}
                     </span>
                   )}
                 </div>
@@ -564,10 +643,10 @@ function VitrinePanel() {
           </div>
 
           {[
-            { label: "Total de produtos", value: `${mockProducts.length}` },
-            { label: "Com desconto", value: `${mockProducts.filter((p) => p.discount).length}` },
-            { label: "Preço médio", value: `R$ ${Math.round(mockProducts.reduce((a, p) => a + p.price, 0) / mockProducts.length).toLocaleString("pt-BR")}` },
-            { label: "Maior desconto", value: "-30%" },
+            { label: "Total de produtos", value: `${products.length}` },
+            { label: "Com desconto", value: `${products.filter((p) => p.discount).length}` },
+            { label: "Preço médio", value: products.length ? `R$ ${Math.round(products.reduce((a, p) => a + p.price, 0) / products.length).toLocaleString("pt-BR")}` : "R$ 0" },
+            { label: "Categorias", value: `${new Set(products.map((p) => p.category)).size}` },
           ].map((item, i) => (
             <div
               key={item.label}
@@ -592,13 +671,14 @@ function VitrinePanel() {
             Por categoria
           </div>
 
-          {[
-            { name: "Smartphones", count: 2, color: "#3b82f6" },
-            { name: "Kitchen", count: 2, color: "#f59e0b" },
-            { name: "Game Consoles", count: 2, color: "#8b5cf6" },
-          ].map((cat, i) => (
+          {Array.from(
+            products.reduce((map, p) => {
+              map.set(p.category, (map.get(p.category) ?? 0) + 1)
+              return map
+            }, new Map<string, number>()),
+          ).map(([name, count], i) => (
             <div
-              key={cat.name}
+              key={name}
               className={cn(
                 "flex items-center gap-[11px] py-3",
                 i > 0 && "border-t border-ds-line"
@@ -606,16 +686,19 @@ function VitrinePanel() {
             >
               <div
                 className="size-[10px] shrink-0 rounded-[3px]"
-                style={{ backgroundColor: cat.color }}
+                style={{ backgroundColor: TOP_COLORS[i % TOP_COLORS.length] }}
               />
-              <div className="flex-1 text-[13px] font-semibold">
-                {cat.name}
+              <div className="flex-1 text-[13px] font-semibold capitalize">
+                {name}
               </div>
               <span className="font-mono text-[11px] text-ds-mute">
-                {cat.count} produtos
+                {count} produtos
               </span>
             </div>
           ))}
+          {products.length === 0 && (
+            <p className="py-2 text-xs text-ds-dim">Sem produtos.</p>
+          )}
         </SoftCard>
 
         {/* AÇÃO RÁPIDA */}
@@ -624,7 +707,10 @@ function VitrinePanel() {
           <div className="mt-[3px] mb-3.5 font-mono text-[9px] text-ds-mute">
             cadastre novos itens na vitrine
           </div>
-          <Button className="h-auto w-full gap-2 rounded-xl border-0 bg-ds-ink py-3 text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]">
+          <Button
+            onClick={handleNewProduct}
+            className="h-auto w-full gap-2 rounded-xl border-0 bg-ds-ink py-3 text-[13px] font-semibold text-ds-bg shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_4px_12px_-6px_rgba(0,0,0,0.4)]"
+          >
             <Package className="size-3.5" />
             Novo produto
           </Button>

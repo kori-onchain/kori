@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowRight, Lock, Mail, User } from "lucide-react"
+import { ArrowRight, Lock, Mail, User, Wallet } from "lucide-react"
+import { usePrivy } from "@privy-io/react-auth"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,19 +14,25 @@ import {
   AuthBackground,
   AuthBrand,
   AuthCard,
-  AuthDivider,
   AuthFooter,
-  AuthProviders,
   FieldLabel,
 } from "./auth-shared"
 
 export function RegisterScreen() {
   const router = useRouter()
+  const { login, authenticated, ready } = usePrivy()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (ready && authenticated) {
+      router.push("/dashboard")
+      router.refresh()
+    }
+  }, [ready, authenticated, router])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,6 +103,24 @@ export function RegisterScreen() {
         <div className="mb-7 text-center">
           <h1 className="mb-2 text-[27px] font-bold tracking-tight">Criar conta</h1>
           <p className="text-[13px] leading-relaxed text-ds-dim">Comece a investir no fundo on-chain</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => login()}
+          disabled={!ready}
+          className="glossy-orange-btn glossy-orange-btn--full mb-4 py-[14px] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <span className="glossy-orange-btn__icon" aria-hidden="true">
+            <Wallet />
+          </span>
+          <span>Criar conta com carteira Kori</span>
+        </button>
+
+        <div className="my-2 flex items-center gap-3.5">
+          <span className="h-px flex-1 bg-ds-line" />
+          <span className="font-mono text-[10px] tracking-[0.1em] text-ds-mute">OU E-MAIL (PREVIEW)</span>
+          <span className="h-px flex-1 bg-ds-line" />
         </div>
 
         <form onSubmit={handleRegister}>
@@ -171,8 +196,6 @@ export function RegisterScreen() {
           <a href="/login" className="font-semibold text-ds-orange no-underline">Entrar</a>
         </p>
 
-        <AuthDivider />
-        <AuthProviders />
         <AuthFooter />
       </AuthCard>
     </div>

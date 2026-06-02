@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import {
   Eye,
   EyeOff,
@@ -11,15 +11,24 @@ import {
   Navigation,
   Sliders,
   ChevronRight,
-  Utensils,
-  Music,
-  ShoppingBag,
-  Truck,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { SoftCard } from "./shared"
+import { formatBRL } from "@/lib/db/client"
+import { getCard, updateCard, updateCardFlags } from "@/lib/db/cards"
+import { listTransactions } from "@/lib/db/transactions"
+import type { Transaction } from "@/lib/db/types"
+
+function fmtTxDate(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
 
 /* ─── DIAMOND TEXTURE ─── */
 
@@ -216,27 +225,46 @@ function Toggle({
   )
 }
 
-/* ─── DATA ─── */
-
-const recentTransactions = [
-  { icon: Utensils, name: "iFood", date: "hoje, 14:32", amount: "-R$ 67,50" },
-  { icon: Music, name: "Spotify", date: "ontem", amount: "-R$ 21,90" },
-  { icon: ShoppingBag, name: "Amazon", date: "24 mai", amount: "-R$ 349,00" },
-  { icon: Truck, name: "Mercado Livre", date: "22 mai", amount: "-R$ 189,90" },
-]
-
 /* ─── CARD VIEW ─── */
 
 export function CardView() {
   const [cardNumber, setCardNumber] = useState("5421 9843 7261 8294")
-  const [expiry] = useState("08/29")
-  const [cvv] = useState("842")
+  const [expiry, setExpiry] = useState("08/29")
+  const [cvv, setCvv] = useState("842")
   const [isRevealed, setIsRevealed] = useState(false)
   const [isFrozen, setIsFrozen] = useState(false)
   const [isOnlineActive, setIsOnlineActive] = useState(true)
   const [isInternationalActive, setIsInternationalActive] = useState(true)
+  const [limitBrl, setLimitBrl] = useState(6000)
+  const [invoiceBrl, setInvoiceBrl] = useState(1720)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+
+  useEffect(() => {
+    let active = true
+    Promise.all([getCard(), listTransactions("PF")])
+      .then(([card, txs]) => {
+        if (!active) return
+        if (card) {
+          setCardNumber(card.number)
+          setExpiry(card.expiry)
+          setCvv(card.cvv)
+          setIsFrozen(card.is_frozen)
+          setIsOnlineActive(card.online_enabled)
+          setIsInternationalActive(card.international_enabled)
+          setLimitBrl(card.limit_brl)
+          setInvoiceBrl(card.invoice_brl)
+        }
+        setTransactions(txs)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   const last4 = cardNumber.replace(/\s/g, "").slice(-4)
+  const availableBrl = Math.max(0, limitBrl - invoiceBrl)
+  const usedPct = limitBrl > 0 ? Math.round((invoiceBrl / limitBrl) * 100) : 0
 
   const handleCopy = useCallback(() => {
     const text = `Numero: ${cardNumber}\nValidade: ${expiry}\nCVV: ${cvv}`
@@ -244,10 +272,26 @@ export function CardView() {
   }, [cardNumber, expiry, cvv])
 
   const handleNewVirtual = useCallback(() => {
-    const rand = () =>
-      Math.floor(1000 + Math.random() * 9000).toString()
-    setCardNumber(`5421 ${rand()} ${rand()} ${last4}`)
+    const rand = () => Math.floor(1000 + Math.random() * 9000).toString()
+    const next = `5421 ${rand()} ${rand()} ${last4}`
+    setCardNumber(next)
+    updateCard({ number: next }).catch(() => {})
   }, [last4])
+
+  const setFrozen = useCallback((v: boolean) => {
+    setIsFrozen(v)
+    updateCardFlags({ is_frozen: v }).catch(() => {})
+  }, [])
+
+  const setOnline = useCallback((v: boolean) => {
+    setIsOnlineActive(v)
+    updateCardFlags({ online_enabled: v }).catch(() => {})
+  }, [])
+
+  const setInternational = useCallback((v: boolean) => {
+    setIsInternationalActive(v)
+    updateCardFlags({ international_enabled: v }).catch(() => {})
+  }, [])
 
   return (
     <div className="grid grid-cols-[1fr_318px] gap-[18px] p-5 px-6">
@@ -271,7 +315,7 @@ export function CardView() {
               Virtual · Mastercard
             </span>
             <div className="mt-2 text-[40px] leading-none font-extrabold tracking-[-0.04em]">
-              R$ 4.280<span className="text-2xl text-ds-mute">,00</span>
+              {formatBRL(availableBrl)}
             </div>
             <span className="mt-2.5 inline-flex w-fit items-center gap-[5px] rounded-[7px] bg-ds-green/10 px-[9px] py-1 font-mono text-[11px] font-semibold text-ds-green">
               disponível para uso
@@ -279,8 +323,8 @@ export function CardView() {
 
             <div className="mt-[18px] flex">
               {[
-                { label: "Gasto no mês", value: "R$ 1.720,00" },
-                { label: "Limite total", value: "R$ 6.000,00" },
+                { label: "Gasto no mês", value: formatBRL(invoiceBrl) },
+                { label: "Limite total", value: formatBRL(limitBrl) },
               ].map((b, i, arr) => (
                 <div
                   key={b.label}
@@ -320,8 +364,8 @@ export function CardView() {
         {/* KPIs */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: "Disponível", value: "R$ 4.280", detail: "71,3% do limite", valueColor: "text-ds-green" },
-            { label: "Gasto no mês", value: "R$ 1.720", detail: "28,7% utilizado" },
+            { label: "Disponível", value: formatBRL(availableBrl), detail: `${100 - usedPct}% do limite`, valueColor: "text-ds-green" },
+            { label: "Gasto no mês", value: formatBRL(invoiceBrl), detail: `${usedPct}% utilizado` },
             { label: "Status", value: isFrozen ? "Congelado" : "Ativo", detail: isFrozen ? "bloqueado" : "operando normalmente", valueColor: isFrozen ? "text-ds-red" : "text-ds-green" },
             { label: "Fecha fatura", value: "15 dias", detail: "venc. 10 jul" },
           ].map((k) => (
@@ -350,21 +394,21 @@ export function CardView() {
               title: "Compras online",
               subtitle: isOnlineActive ? "ativo" : "inativo",
               subtitleColor: isOnlineActive ? "text-ds-green" : undefined,
-              trailing: <Toggle checked={isOnlineActive} onChange={setIsOnlineActive} />,
+              trailing: <Toggle checked={isOnlineActive} onChange={setOnline} />,
             },
             {
               icon: <Pause className="size-[14px]" />,
               title: "Bloqueio temporário",
               subtitle: isFrozen ? "congelado" : "cartão ativo",
               subtitleColor: isFrozen ? "text-ds-red" : "text-ds-green",
-              trailing: <Toggle checked={isFrozen} onChange={setIsFrozen} />,
+              trailing: <Toggle checked={isFrozen} onChange={setFrozen} />,
             },
             {
               icon: <Navigation className="size-[14px]" />,
               title: "Compras internacionais",
               subtitle: isInternationalActive ? "ativo" : "inativo",
               subtitleColor: isInternationalActive ? "text-ds-green" : undefined,
-              trailing: <Toggle checked={isInternationalActive} onChange={setIsInternationalActive} />,
+              trailing: <Toggle checked={isInternationalActive} onChange={setInternational} />,
             },
             {
               icon: <Sliders className="size-[14px]" />,
@@ -449,29 +493,32 @@ export function CardView() {
             </span>
           </div>
 
-          {recentTransactions.map((tx, i) => {
-            const Icon = tx.icon
-            return (
-              <div
-                key={tx.name}
-                className={cn(
-                  "flex items-center gap-[11px] py-3",
-                  i > 0 && "border-t border-ds-line"
-                )}
-              >
-                <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] border border-ds-line bg-ds-bg-2 text-ds-dim">
-                  <Icon className="size-[15px]" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-[13px] font-semibold">{tx.name}</div>
-                  <div className="mt-px font-mono text-[8px] text-ds-mute">
-                    {tx.date}
-                  </div>
-                </div>
-                <div className="text-[13px] font-semibold">{tx.amount}</div>
+          {transactions.length === 0 && (
+            <p className="py-3 text-xs text-ds-dim">Nenhuma transação ainda.</p>
+          )}
+
+          {transactions.slice(0, 5).map((tx, i) => (
+            <div
+              key={tx.id}
+              className={cn(
+                "flex items-center gap-[11px] py-3",
+                i > 0 && "border-t border-ds-line"
+              )}
+            >
+              <div className="flex size-[34px] shrink-0 items-center justify-center rounded-[10px] border border-ds-line bg-ds-bg-2 font-mono text-[11px] font-semibold text-ds-dim">
+                {tx.initials || tx.title.slice(0, 2).toUpperCase()}
               </div>
-            )
-          })}
+              <div className="flex-1">
+                <div className="text-[13px] font-semibold">{tx.title}</div>
+                <div className="mt-px font-mono text-[8px] text-ds-mute">
+                  {fmtTxDate(tx.created_at)}
+                </div>
+              </div>
+              <div className={cn("text-[13px] font-semibold", tx.is_credit ? "text-ds-green" : "text-ds-ink")}>
+                {tx.is_credit ? "+" : "-"} {formatBRL(tx.amount_brl)}
+              </div>
+            </div>
+          ))}
         </SoftCard>
       </div>
     </div>

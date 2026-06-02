@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { shortWallet } from "@/lib/wallet"
 import { SolanaLogo } from "./shared"
+import { ApiBridge } from "./api-bridge"
+import { PreviewModal } from "./preview-modal"
 
 type AccountType = "PF" | "PJ"
 
@@ -95,6 +97,8 @@ export function DashboardLayout({
 
   return (
     <main className="grid min-h-svh grid-cols-[224px_1fr] bg-ds-bg text-ds-ink">
+      <ApiBridge accountType={localAccountType} />
+      <PreviewModal />
       {/* ─── SIDEBAR ─── */}
       <aside className="sticky top-0 flex h-svh flex-col overflow-y-auto border-r border-ds-line p-5 px-3.5">
         <div className="mb-2 flex items-center gap-2.5 px-2">

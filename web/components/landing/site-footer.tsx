@@ -1,20 +1,25 @@
+const REPO_URL = "https://github.com/kori-onchain/kori"
+
 const COLS: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "Produto",
     links: [
-      { label: "App", href: "#" },
-      { label: "Yield", href: "#" },
-      { label: "Score", href: "#" },
-      { label: "Cartão (roadmap)", href: "#" },
+      { label: "App", href: "/blog/o-app-da-kori" },
+      { label: "Yield", href: "/blog/investidor-yield-onchain" },
+      { label: "Score", href: "/blog/score-on-chain" },
+      { label: "Cartão (roadmap)", href: "/blog/cartao-kori" },
     ],
   },
   {
     title: "Recursos",
-    links: [{ label: "Documentação", href: "#" }],
+    links: [
+      { label: "Blog", href: "/blog" },
+      { label: "Documentação", href: `${REPO_URL}#readme` },
+    ],
   },
   {
     title: "Hackanation",
-    links: [{ label: "GitHub", href: "#" }],
+    links: [{ label: "GitHub", href: REPO_URL }],
   },
 ]
 
@@ -42,11 +47,20 @@ export function SiteFooter() {
         {COLS.map((col) => (
           <div key={col.title} className="footer-col">
             <h4>{col.title}</h4>
-            {col.links.map((l) => (
-              <a key={l.label} href={l.href}>
-                {l.label}
-              </a>
-            ))}
+            {col.links.map((l) => {
+              const external = l.href.startsWith("http")
+              return (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  {...(external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                >
+                  {l.label}
+                </a>
+              )
+            })}
           </div>
         ))}
       </div>

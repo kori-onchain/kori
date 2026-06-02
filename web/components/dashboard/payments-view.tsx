@@ -8,13 +8,26 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
-import { MOCK_CONTACTS, MOCK_TRANSACTIONS, type Contact, formatBRL } from "@/lib/mock-data"
-import { getBalance, getTransactions, transferToRecipient } from "@/lib/transfer-ledger"
 import { getOrCreateWallet, shortWallet } from "@/lib/wallet"
+import { formatBRL } from "@/lib/db/client"
+import { getAccount } from "@/lib/db/accounts"
+import { listTransactions } from "@/lib/db/transactions"
+import { listContacts } from "@/lib/db/contacts"
+import { transfer } from "@/lib/db/payments"
+import type { Contact, Transaction } from "@/lib/db/types"
 
 type Step = "recipient" | "amount" | "review" | "receipt"
 
 const PRESETS = [25, 50, 100, 1000]
+
+function fmtDate(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
 
 export function PaymentsView() {
   const [step, setStep] = useState<Step>("recipient")
@@ -24,9 +37,9 @@ export function PaymentsView() {
   const [protocol] = useState(() => `KORI-${Math.random().toString(36).substring(2, 10).toUpperCase()}`)
   const [copied, setCopied] = useState(false)
   const [wallet, setWallet] = useState("")
-  const [accountId, setAccountId] = useState("")
   const [balance, setBalance] = useState(0)
-  const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS)
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [transferError, setTransferError] = useState<string | null>(null)
   const receivePayload = `kori://pay?to=${encodeURIComponent(wallet)}`
 
@@ -42,11 +55,18 @@ export function PaymentsView() {
       if (!active || !user) return
 
       const pubkey = getOrCreateWallet(user.id)
-      setAccountId(user.id)
       setWallet(pubkey)
-      setBalance(getBalance(user.id))
-      setTransactions(getTransactions(user.id))
       await supabase.from("profiles").update({ wallet_pubkey: pubkey }).eq("id", user.id)
+
+      const [account, txs, cts] = await Promise.all([
+        getAccount("PF"),
+        listTransactions("PF"),
+        listContacts(),
+      ])
+      if (!active) return
+      setBalance(account.balance_brl)
+      setTransactions(txs)
+      setContacts(cts)
     }
 
     loadAccount()
@@ -57,12 +77,12 @@ export function PaymentsView() {
   }, [])
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return MOCK_CONTACTS
+    if (!search.trim()) return contacts
     const q = search.toLowerCase()
-    return MOCK_CONTACTS.filter(
-      (c) => c.name?.toLowerCase().includes(q) || c.walletId.toLowerCase().includes(q),
+    return contacts.filter(
+      (c) => c.name?.toLowerCase().includes(q) || c.wallet_id.toLowerCase().includes(q),
     )
-  }, [search])
+  }, [search, contacts])
 
   const amountValue = Number(amount.replace(/\D/g, "")) / 100
 
@@ -81,26 +101,25 @@ export function PaymentsView() {
       id: `manual-${value}`,
       name: null,
       initials: value.slice(0, 2).toUpperCase(),
-      walletId: value,
-      isFavorite: false,
+      wallet_id: value,
+      is_favorite: false,
     })
     setTransferError(null)
     setStep("amount")
   }
 
-  const confirmTransfer = () => {
+  const confirmTransfer = async () => {
     if (!recipient) return
 
     try {
-      const result = transferToRecipient({
-        amount: amountValue,
-        recipientName: recipient.name || recipient.walletId,
-        recipientWallet: recipient.walletId,
+      const { balance, transaction } = await transfer({
+        amountBrl: amountValue,
+        recipientName: recipient.name || recipient.wallet_id,
+        recipientWallet: recipient.wallet_id,
         initials: recipient.initials,
-        accountId,
       })
-      setBalance(result.balance)
-      setTransactions(result.transactions)
+      setBalance(balance)
+      setTransactions((prev) => [transaction, ...prev])
       setTransferError(null)
       setStep("receipt")
     } catch (err) {
@@ -197,9 +216,9 @@ export function PaymentsView() {
                       <div className="truncate text-sm font-semibold text-ds-ink">
                         {c.name || "Anônimo"}
                       </div>
-                      <div className="font-mono text-[10px] text-ds-mute">{c.walletId}</div>
+                      <div className="font-mono text-[10px] text-ds-mute">{c.wallet_id}</div>
                     </div>
-                    {c.isFavorite && <Star className="size-4 fill-ds-orange text-ds-orange" />}
+                    {c.is_favorite && <Star className="size-4 fill-ds-orange text-ds-orange" />}
                     <ArrowRight className="size-4 text-ds-mute" />
                   </button>
                 ))}
@@ -221,7 +240,7 @@ export function PaymentsView() {
               <h1 className="text-2xl font-bold tracking-tight">Qual valor?</h1>
               <p className="mt-1 text-sm text-ds-dim">
                 Enviando para{" "}
-                <span className="font-mono text-ds-ink">{recipient.walletId}</span>
+                <span className="font-mono text-ds-ink">{recipient.wallet_id}</span>
               </p>
             </div>
 
@@ -292,7 +311,7 @@ export function PaymentsView() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold">{recipient.name || "Anônimo"}</div>
-                  <div className="font-mono text-[10px] text-ds-mute">{recipient.walletId}</div>
+                  <div className="font-mono text-[10px] text-ds-mute">{recipient.wallet_id}</div>
                 </div>
               </div>
 
@@ -336,7 +355,7 @@ export function PaymentsView() {
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">Pagamento enviado</h1>
                 <p className="mt-1 text-sm text-ds-dim">
-                  {formatBRL(amountValue)} para {recipient.name || recipient.walletId}
+                  {formatBRL(amountValue)} para {recipient.name || recipient.wallet_id}
                 </p>
               </div>
             </div>
@@ -349,7 +368,7 @@ export function PaymentsView() {
                 </div>
                 <div className="flex justify-between border-b border-ds-line pb-3">
                   <span className="text-sm text-ds-mute">Destinatário</span>
-                  <span className="font-mono text-sm text-ds-ink">{recipient.walletId}</span>
+                  <span className="font-mono text-sm text-ds-ink">{recipient.wallet_id}</span>
                 </div>
                 <div className="flex justify-between border-b border-ds-line pb-3">
                   <span className="text-sm text-ds-mute">Valor</span>
@@ -420,15 +439,15 @@ export function PaymentsView() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[11px] font-semibold">{tx.title}</div>
-                  <div className="font-mono text-[9px] text-ds-mute">{tx.date}</div>
+                  <div className="font-mono text-[9px] text-ds-mute">{fmtDate(tx.created_at)}</div>
                 </div>
                 <div
                   className={cn(
                     "font-mono text-[10px] font-semibold",
-                    tx.isCredit ? "text-ds-green" : "text-ds-ink",
+                    tx.is_credit ? "text-ds-green" : "text-ds-ink",
                   )}
                 >
-                  {tx.isCredit ? "+" : "-"} {tx.amount}
+                  {tx.is_credit ? "+" : "-"} {formatBRL(tx.amount_brl)}
                 </div>
               </div>
             ))}

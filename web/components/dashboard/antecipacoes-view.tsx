@@ -1,11 +1,14 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ArrowLeft, Calendar, Check, Loader2, Zap } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { MOCK_RECEIVABLES, formatBRL, type Receivable } from "@/lib/mock-data"
+import { formatBRL } from "@/lib/db/client"
+import { getAccount } from "@/lib/db/accounts"
+import { listReceivables, advanceReceivables } from "@/lib/db/receivables"
+import type { Receivable } from "@/lib/db/types"
 
 const ADVANCE_RATE = "3% a.m."
 
@@ -18,16 +21,40 @@ interface AdvanceReceipt {
   protocol: string
 }
 
+function fmtDate(iso: string | null): string {
+  if (!iso) return "—"
+  return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })
+}
+
 export function AntecipacoesView() {
-  const [receivables, setReceivables] = useState<Receivable[]>(MOCK_RECEIVABLES)
+  const [receivables, setReceivables] = useState<Receivable[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [confirming, setConfirming] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [receipt, setReceipt] = useState<AdvanceReceipt | null>(null)
-  const [availableBalance, setAvailableBalance] = useState(74352.93)
+  const [availableBalance, setAvailableBalance] = useState(0)
+  const [error, setError] = useState<string | null>(null)
   const [advanceTransactions, setAdvanceTransactions] = useState<
     { id: string; protocol: string; amount: number; date: string }[]
   >([])
+
+  useEffect(() => {
+    let active = true
+    Promise.all([listReceivables(), getAccount("PJ")])
+      .then(([recs, acc]) => {
+        if (!active) return
+        setReceivables(recs)
+        setAvailableBalance(acc.balance_brl)
+      })
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [])
 
   const pending = useMemo(
     () => receivables.filter((r) => r.status === "pendente"),
@@ -36,13 +63,13 @@ export function AntecipacoesView() {
 
   const summary = useMemo(() => {
     const items = pending.filter((r) => selected.has(r.id))
-    const gross = items.reduce((sum, r) => sum + r.grossValue, 0)
-    const net = items.reduce((sum, r) => sum + r.netValue, 0)
+    const gross = items.reduce((sum, r) => sum + r.gross_value, 0)
+    const net = items.reduce((sum, r) => sum + r.net_value, 0)
     return { count: items.length, gross, net }
   }, [pending, selected])
 
-  const totalGross = pending.reduce((sum, r) => sum + r.grossValue, 0)
-  const totalNet = pending.reduce((sum, r) => sum + r.netValue, 0)
+  const totalGross = pending.reduce((sum, r) => sum + r.gross_value, 0)
+  const totalNet = pending.reduce((sum, r) => sum + r.net_value, 0)
 
   const allSelected = selected.size === pending.length && pending.length > 0
 
@@ -60,13 +87,15 @@ export function AntecipacoesView() {
     else setSelected(new Set(pending.map((r) => r.id)))
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setProcessing(true)
-    const advancedIds = new Set(selected)
+    setError(null)
+    const advancedIds = Array.from(selected)
     const capturedSummary = { ...summary }
 
-    setTimeout(() => {
-      const protocol = `ANT-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
+    try {
+      const result = await advanceReceivables(advancedIds)
+      const protocol = `ANT-${result.net.toFixed(0)}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`
       const date = new Date().toLocaleString("pt-BR", {
         dateStyle: "short",
         timeStyle: "short",
@@ -74,33 +103,29 @@ export function AntecipacoesView() {
 
       setReceivables((prev) =>
         prev.map((r) =>
-          advancedIds.has(r.id) ? { ...r, status: "antecipado" as const } : r,
+          advancedIds.includes(r.id) ? { ...r, status: "antecipado" as const } : r,
         ),
       )
-      setAvailableBalance((prev) => prev + capturedSummary.net)
+      setAvailableBalance(result.balance)
       setAdvanceTransactions((prev) => [
-        {
-          id: protocol,
-          protocol,
-          amount: capturedSummary.net,
-          date,
-        },
+        { id: protocol, protocol, amount: result.net, date },
         ...prev,
       ])
-
       setReceipt({
         count: capturedSummary.count,
         gross: formatBRL(capturedSummary.gross),
-        net: formatBRL(capturedSummary.net),
+        net: formatBRL(result.net),
         rate: ADVANCE_RATE,
         date,
         protocol,
       })
-
       setSelected(new Set())
-      setProcessing(false)
       setConfirming(false)
-    }, 1200)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível antecipar.")
+    } finally {
+      setProcessing(false)
+    }
   }
 
   if (receipt) {
@@ -245,9 +270,9 @@ export function AntecipacoesView() {
                     {isSel && <Check className="size-3" />}
                   </div>
                   <div className="text-right">
-                    <div className="font-mono text-sm font-semibold">{item.grossAmount}</div>
+                    <div className="font-mono text-sm font-semibold">{formatBRL(item.gross_value)}</div>
                     <div className="font-mono text-[10px] text-ds-mute">
-                      liq. {item.netAmount}
+                      liq. {formatBRL(item.net_value)}
                     </div>
                   </div>
                 </div>
@@ -257,7 +282,7 @@ export function AntecipacoesView() {
                 </div>
                 <div className="flex items-center gap-1.5 border-t border-ds-line pt-2.5 font-mono text-[10px] text-ds-mute">
                   <Calendar className="size-3" />
-                  Vence em {item.dueDate}
+                  Vence em {fmtDate(item.due_date)}
                 </div>
               </button>
             )
@@ -318,6 +343,12 @@ export function AntecipacoesView() {
                 </span>
               </div>
             </div>
+
+            {error && (
+              <div className="mt-4 rounded-xl border border-ds-red/20 bg-ds-red/5 px-4 py-3 text-[12px] font-medium text-ds-red">
+                {error}
+              </div>
+            )}
 
             {processing ? (
               <div className="mt-5 flex flex-col items-center gap-2 py-3">

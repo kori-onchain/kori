@@ -40,7 +40,6 @@ import { useAccountSwitcher } from "./src/hooks/useAccountSwitcher";
 import * as LocalAuthentication from "expo-local-authentication";
 import { UnlockScreen } from "./src/screens/SecuritySetup/UnlockScreen";
 import { BusinessNameDrawer } from "./src/components/merchant/BusinessNameDrawer";
-import { updateProfile } from "./src/lib/authService";
 import { mockDemoLedger } from "./src/lib/mockDemoLedger";
 
 interface UserSession {
@@ -353,9 +352,6 @@ function AppContent() {
     !businessNameDismissed;
 
   const handleSaveBusinessName = async (businessName: string) => {
-    if (!MOCK_AUTH && session?.supabaseId) {
-      await updateProfile(session.supabaseId, { business_name: businessName });
-    }
     setSession((prev) => (prev ? { ...prev, businessName } : prev));
     setBusinessNameDismissed(false);
   };

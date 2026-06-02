@@ -16,7 +16,11 @@ async function bootstrap() {
   app.enableShutdownHooks();
   app.useGlobalPipes(new ZodValidationPipe());
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3004',
+      ...(process.env.WEB_ORIGIN ? [process.env.WEB_ORIGIN] : []),
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

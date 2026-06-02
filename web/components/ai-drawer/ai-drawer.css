@@ -1,0 +1,41 @@
+/* =========================================
+   KORI — AI Drawer
+   Só o que não dá pra expressar bem em utilitários Tailwind:
+   os 3 dots de "typing". Todo o resto usa o DS do app
+   (tokens ds-*, componentes shadcn Input/Button, ícones lucide).
+   ========================================= */
+.kori-ai-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.kori-ai-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ds-mute);
+  animation: kori-ai-bounce 1.3s infinite ease-in-out;
+}
+.kori-ai-typing span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.kori-ai-typing span:nth-child(3) {
+  animation-delay: 0.32s;
+}
+@keyframes kori-ai-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kori-ai-typing span {
+    animation: none;
+  }
+}

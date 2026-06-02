@@ -1,0 +1,18 @@
+# Dependencies & build output (EAS reinstala e regenera tudo isso)
+node_modules/
+.expo/
+android/
+ios/
+dist/
+dist-test/
+web-build/
+
+# Artefatos de build locais
+*.apk
+*.aab
+*.log
+*.tsbuildinfo
+
+# Segredos / config local (o app usa fallback do app.json em build)
+.env
+ignore/

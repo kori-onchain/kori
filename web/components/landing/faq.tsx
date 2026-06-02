@@ -23,7 +23,7 @@ const FAQS = [
 
 export function Faq() {
   return (
-    <section className="section faq-section">
+    <section id="faq" className="section faq-section" style={{ scrollMarginTop: 88 }}>
       <span className="sec-label">S:10 / FAQ</span>
       <span className="corner bl" />
       <span className="corner br" />
