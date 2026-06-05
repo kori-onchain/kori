@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next"
 
 import { getAllPosts } from "@/lib/blog-posts"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kori.app"
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kori.kc1t.com"
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date()

@@ -19,8 +19,8 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
-// Override em produção via NEXT_PUBLIC_SITE_URL (ex.: https://kori.app)
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kori.app"
+// Override em produção via NEXT_PUBLIC_SITE_URL (ex.: https://kori.kc1t.com)
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kori.kc1t.com"
 
 const title = "Kori — A ponte entre capital global e economia local"
 const description =
