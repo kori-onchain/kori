@@ -17,8 +17,8 @@ export function Hero() {
       </div>
 
       <h1 className="reveal d1">
-        Onde o dinheiro encontra
-        <span className="dim">quem precisa dele.</span>
+        Fim do pedágio
+        <span className="dim">financeiro.</span>
       </h1>
 
       <p className="hero-sub reveal d2">
